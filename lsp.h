@@ -1,3 +1,8 @@
+/**
+ * Header file for lsp protocol
+ *
+ */
+
 #ifndef LSP_H
 #define LSP_H
 
@@ -15,113 +20,22 @@ void lsp_set_drop_rate(double rate);
 
 class LSP
 {
-protected:
+private:
 	struct addrinfo*	addressInfoPtr; // Filled up by system call getaddrinfo
+
+protected:
+	struct addrinfo*	ai_node; // The node which is currently being used
 	int 				sockfd; // A nonnegative socket file descriptor indicates success
 
 public:
 	/**
 	 * Populate addressInfoPtr
 	 */
-	bool populateAddrInfo(char* const host, char* const portStr)
-	{
-		fprintf(stderr, "Populating Address Info.. ");
-
-		int status;
-		struct addrinfo hints;
-
-		memset(&hints, 0, sizeof hints); // make sure the struct is empty
-		hints.ai_family = AF_UNSPEC; // don't care IPv4 or IPv6
-
-		hints.ai_socktype = SOCK_DGRAM; // UDP datagrams
-		/*
-		 * By using the AI_PASSIVE flag, I'm telling the program to bind
-		 * to the IP of the host it's running on. If you want to bind to
-		 * a specific local IP address, drop the AI_PASSIVE and put an
-		 * IP address in for the first argument to getaddrinfo()
-		 * */
-		hints.ai_flags = AI_PASSIVE; // fill in my IP for me
-
-		if ((status = getaddrinfo(host, portStr, &hints, &addressInfoPtr)) != 0)
-		{
-			fprintf(stderr, "\npopulateAddrInfo() :: getaddrinfo error: %s\n", gai_strerror(status));
-			return false;
-		}
-		fprintf(stderr, "Done.\n");
-		return true;
-	}
-
-	bool createSocket(struct addrinfo* const addressInfoPtr)
-	{
-		fprintf(stderr, "Creating a socket.. ");
-		if ((sockfd = socket(addressInfoPtr->ai_family, addressInfoPtr->ai_socktype, addressInfoPtr->ai_protocol)) == -1)
-		{
-			printf("\n");
-			perror("Socket");
-			return false;
-		}
-		fprintf(stderr, "Done.\n");
-		return true;
-	}
-
-	bool bindToPort(struct addrinfo* const addressInfoPtr)
-	{
-		fprintf(stderr, "Binding to port.. ");
-		if (bind(sockfd, addressInfoPtr->ai_addr, addressInfoPtr->ai_addrlen) == -1)
-		{
-			perror("Bind");
-			return false;
-		}
-		fprintf(stderr, "Done.\n");
-		return true;
-	}
-
-	int setupListener(char* const portStr)
-	{
-		populateAddrInfo(LOCALHOST, portStr);
-
-		// loop through all the results and bind to the first we can
-		struct addrinfo* p;
-		for(p = addressInfoPtr; p != NULL; p = p->ai_next)
-		{
-			if (createSocket(p))
-				if(bindToPort(p))
-					break;
-				else
-				{
-					fprintf(stderr, "Closing socket: %d/n", sockfd);
-					close(sockfd);
-					sockfd = BAD_SOCKFD;
-				}
-		}
-
-		if (p == NULL)
-		{
-			fprintf(stderr, "listener: failed to bind socket\n");
-			return 2;
-		}
-		return 0;
-	}
-
-	int setupTalker(char* const host, char* const portStr)
-	{
-		populateAddrInfo(host, portStr);
-
-		// loop through all the results and bind to the first we can
-		struct addrinfo* p;
-		for(p = addressInfoPtr; p != NULL; p = p->ai_next)
-		{
-			if (createSocket(p))
-				break;
-		}
-
-		if (p == NULL)
-		{
-			fprintf(stderr, "listener: failed to bind socket\n");
-			return 2;
-		}
-		return 0;
-	}
+	bool populateAddrInfo(char* const host, char* const portStr);
+	bool createSocket(struct addrinfo* const addressInfoPtr);
+	bool bindToPort(struct addrinfo* const addressInfoPtr);
+	int setupListener(char* const portStr);
+	int setupTalker(char* const host, char* const portStr);
 
 	virtual ~LSP()
 	{
@@ -141,6 +55,46 @@ public:
 	bool write(uint8_t* pld, int lth);
 	bool close();
 
+	int connect()
+	{
+		return setupTalker(LOCALHOST, SERVER_PORT);
+	}
+
+	/**
+	 * Default send: send to server
+	 */
+	void send_message(char* const msg)
+	{
+		if (sendto(sockfd, msg, strlen(msg), 0,
+				ai_node->ai_addr, ai_node->ai_addrlen) == -1)
+		{
+			perror("talker: sendto");
+		}
+	}
+
+	/**
+	 * Explicitly mention the recipient hostname and recipient port.
+	 * Same socket can be used to send to different recipients.
+	 */
+	void send_message(char* const recvr_hostname, const int recvr_port, char* const msg)
+	{
+		struct sockaddr_in recvr_addr;
+		struct hostent *host;
+
+		host = (struct hostent *) gethostbyname((char *) recvr_hostname);
+
+		recvr_addr.sin_family = AF_INET;
+		recvr_addr.sin_port = htons(recvr_port);
+		recvr_addr.sin_addr = *((struct in_addr *) host->h_addr);
+		bzero(&(recvr_addr.sin_zero), 8);
+
+		if (sendto(sockfd, msg, strlen(msg), 0,
+				(struct sockaddr *)&recvr_addr, sizeof(struct sockaddr)) == -1)
+		{
+			perror("talker: sendto");
+		}
+	}
+
 	virtual ~LSP_Client()
 	{
 
@@ -155,6 +109,8 @@ class LSP_Worker : public LSP
 	int read(uint8_t* pld);
 	bool write(uint8_t* pld, int lth);
 	bool close();
+
+
 };
 
 class LSP_Server : public LSP
@@ -188,7 +144,7 @@ public:
 		while (1)
 		{
 			bytes_read = recvfrom(sockfd, recv_data, 1024, 0,
-					  (struct sockaddr *) &client_addr, &addr_len);
+					(struct sockaddr *) &client_addr, &addr_len);
 
 			recv_data[bytes_read] = '\0';
 

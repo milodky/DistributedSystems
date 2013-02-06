@@ -1,3 +1,8 @@
+/**
+ * Header file for lsp protocol
+ *
+ */
+
 #ifndef LSP_H
 #define LSP_H
 

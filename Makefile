@@ -1,10 +1,10 @@
 compile:
-	g++ -S *.cpp -lssl
+	g++ -S *.cpp
 
 build:
 
-	g++ -g -o server.o server.cpp
-	g++ -g -o client.o client.cpp
+	g++ -g -o server.o server.cpp lsp.cpp
+	g++ -g -o client.o client.cpp lsp.cpp
 	g++ -g -o worker.o worker.cpp -lssl
 
 clean:

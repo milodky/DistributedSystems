@@ -1,7 +1,11 @@
 #include <iostream>
 #include <string>
 #include <openssl/sha.h>
+
+#include "header.h"
+
 using namespace std;
+
 string numToString(int x,int length)
 {
 	string str = "";

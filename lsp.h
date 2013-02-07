@@ -22,12 +22,15 @@ void lsp_set_drop_rate(double rate);
 class LSP
 {
 private:
+	LSP(const LSP& that); // Disallow Copy Constructor
+	LSP& operator=(const LSP&); // Disallow assignment operator
 
 protected:
 	Talker talker;
 	Listener listener;
 
 public:
+	LSP() {}
 
 	virtual ~LSP()
 	{

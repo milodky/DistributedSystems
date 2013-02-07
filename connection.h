@@ -6,6 +6,8 @@
 class Connector
 {
 private:
+	//Connector(const Connector& that);  // Disallow Copy Constructor
+	//Connector& operator=(const Connector&); // Disallow assignment operator
 
 protected:
 	struct addrinfo*	addressInfoPtr; // Filled up by system call getaddrinfo
@@ -67,37 +69,13 @@ public:
 	/**
 	 * Default send: send to server
 	 */
-	void send_message(char* const msg)
-	{
-		if (sendto(sockfd, msg, strlen(msg), 0,
-				ai_node->ai_addr, ai_node->ai_addrlen) == -1)
-		{
-			perror("talker: sendto");
-		}
-	}
+	void send_message(char* const msg);
 
 	/**
 	 * Explicitly mention the recipient hostname and recipient port.
 	 * Same socket can be used to send to different recipients.
 	 */
-	void send_message(char* const recvr_hostname, const int recvr_port, char* const msg)
-	{
-		struct sockaddr_in recvr_addr;
-		struct hostent *host;
-
-		host = (struct hostent *) gethostbyname((char *) recvr_hostname);
-
-		recvr_addr.sin_family = AF_INET;
-		recvr_addr.sin_port = htons(recvr_port);
-		recvr_addr.sin_addr = *((struct in_addr *) host->h_addr);
-		bzero(&(recvr_addr.sin_zero), 8);
-
-		if (sendto(sockfd, msg, strlen(msg), 0,
-				(struct sockaddr *)&recvr_addr, sizeof(struct sockaddr)) == -1)
-		{
-			perror("talker: sendto");
-		}
-	}
+	void send_message(char* const recvr_hostname, const int recvr_port, char* const msg);
 
 	virtual ~Talker()
 	{

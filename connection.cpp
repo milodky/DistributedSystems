@@ -12,7 +12,7 @@ bool Connector::populateAddrInfo(char* const host, char* const portStr)
 	struct addrinfo hints;
 
 	memset(&hints, 0, sizeof hints); // make sure the struct is empty
-	hints.ai_family = AF_INET; // don't care IPv4 or IPv6
+	hints.ai_family = AF_INET; // Mention IP4 else data is not read properly!
 
 	hints.ai_socktype = SOCK_DGRAM; // UDP datagrams
 
@@ -58,23 +58,35 @@ bool Connector::bindToPort(struct addrinfo* const addressInfoPtr)
 	return true;
 }
 
-int Listener::setup(char* const portStr)
+int Connector::setup(char* const host, char* const portStr)
 {
-	populateAddrInfo(NULL, portStr);
+	populateAddrInfo(host, portStr);
 
 	// loop through all the results and bind to the first we can
 	struct addrinfo* p;
 	for(p = addressInfoPtr; p != NULL; p = p->ai_next)
 	{
 		if (createSocket(p))
-			if(bindToPort(p))
-				break;
+		{
+			if(isServer)
+			{
+				if(bindToPort(p))
+				{
+					break;
+				}
+				else
+				{
+					fprintf(stderr, "Closing socket: %d/n", sockfd);
+					close(sockfd);
+					sockfd = BAD_SOCKFD;
+				}
+			}
 			else
 			{
-				fprintf(stderr, "Closing socket: %d/n", sockfd);
-				close(sockfd);
-				sockfd = BAD_SOCKFD;
+				break;
 			}
+		}
+
 	}
 
 	if (p == NULL)
@@ -117,7 +129,7 @@ void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-int Listener::listen()
+int Connector::listen()
 {
 	if (sockfd == BAD_SOCKFD)
 	{
@@ -162,31 +174,10 @@ int Listener::listen()
 	return 0;
 }
 
-int Talker::setup(char* const host, char* const portStr)
-{
-	populateAddrInfo(host, portStr);
-
-	// loop through all the results and bind to the first we can
-	struct addrinfo* p;
-	for(p = addressInfoPtr; p != NULL; p = p->ai_next)
-	{
-		if (createSocket(p))
-			break;
-	}
-
-	if (p == NULL)
-	{
-		fprintf(stderr, "listener: failed to bind socket\n");
-		return 2;
-	}
-	ai_node = p;
-	return 0;
-}
-
 /**
  * Default send: send to server
  */
-void Talker::send_message(char* const msg)
+void Connector::send_message(char* const msg)
 {
 	if (sendto(sockfd, msg, strlen(msg), 0,
 			ai_node->ai_addr, ai_node->ai_addrlen) == -1)
@@ -199,7 +190,7 @@ void Talker::send_message(char* const msg)
  * Explicitly mention the recipient hostname and recipient port.
  * Same socket can be used to send to different recipients.
  */
-void Talker::send_message(char* const recvr_hostname, const int recvr_port, char* const msg)
+void Connector::send_message(char* const recvr_hostname, const int recvr_port, char* const msg)
 {
 	struct sockaddr_in recvr_addr;
 	struct hostent *host;

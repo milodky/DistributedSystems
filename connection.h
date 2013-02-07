@@ -6,6 +6,8 @@
 class Connector
 {
 private:
+	bool isServer;
+
 	Connector(const Connector& that);  // Disallow Copy Constructor
 	Connector& operator=(const Connector&); // Disallow assignment operator
 
@@ -18,7 +20,12 @@ public:
 	/**
 	 * Public Constructor
 	 */
-	Connector() {}
+	Connector(bool isServer) : isServer(isServer)
+	{
+		addressInfoPtr = NULL;
+		ai_node = NULL;
+		sockfd = BAD_SOCKFD;
+	}
 
 	/**
 	 * Populate addressInfoPtr
@@ -27,50 +34,15 @@ public:
 	bool createSocket(struct addrinfo* const addressInfoPtr);
 	bool bindToPort(struct addrinfo* const addressInfoPtr);
 
-	virtual ~Connector()
-	{
-		/* This data structure is no longer required */
-		if (addressInfoPtr) freeaddrinfo(addressInfoPtr);
-		if(sockfd != BAD_SOCKFD)
-			close(sockfd);
-	}
-};
-
-class Listener : public Connector
-{
-private:
-
-protected:
-
-public:
-	int connect()
-	{
-		return setup(SERVER_PORT);
-	}
-
-	int setup(char* const portStr);
-	int listen();
-
-	virtual ~Listener()
-	{
-
-	}
-};
-
-class Talker :public Connector
-{
-private:
-
-protected:
-
-public:
-	int connect()
-	{
-		return setup(LOCALHOST, SERVER_PORT);
-	}
-
+	/**
+	 * Initializes the sockets. Binds only if its a server.
+	 */
 	int setup(char* const host, char* const portStr);
 
+	/**
+	 * Runs infinitely. Waits and receives each incoming message.
+	 */
+	int listen();
 	/**
 	 * Default send: send to server
 	 */
@@ -82,9 +54,12 @@ public:
 	 */
 	void send_message(char* const recvr_hostname, const int recvr_port, char* const msg);
 
-	virtual ~Talker()
+	virtual ~Connector()
 	{
-
+		/* This data structure is no longer required */
+		if (addressInfoPtr) freeaddrinfo(addressInfoPtr);
+		if(sockfd != BAD_SOCKFD)
+			close(sockfd);
 	}
 };
 

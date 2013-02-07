@@ -26,20 +26,18 @@ private:
 	LSP& operator=(const LSP&); // Disallow assignment operator
 
 protected:
-	Talker talker;
-	Listener listener;
+	Connector connector;
 
 	/* This is the thread that will listen to all incoming activity. */
 	pthread_t listener_thread;
 
 public:
-	LSP() {}
+	LSP(bool isServer) : connector(true) {}
 
 	void init()
 	{
-		// talker.connect();
-		listener.connect();
-		listener.listen();
+		connector.setup(NULL, SERVER_PORT);
+		connector.listen();
 	}
 
 	virtual ~LSP()
@@ -53,6 +51,8 @@ class LSP_Server : public LSP
 private:
 
 public:
+	LSP_Server() : LSP(true) {}
+
 	void create(int port);
 	int  read(void* pld, uint32_t* conn_id);
 	bool write(void* pld, int lth, uint32_t conn_id);
@@ -68,6 +68,7 @@ public:
 class LSP_Client : public LSP
 {
 public:
+	LSP_Client() : LSP(true) {}
 	void create(const char* dest, int port);
 
 	int read(uint8_t* pld);

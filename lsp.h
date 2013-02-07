@@ -128,6 +128,7 @@ public:
 		return setupListener(SERVER_PORT);
 	}
 
+	/*
 	int recvtimeout(int s, int timeout)
 	{
 		fd_set fds;
@@ -146,6 +147,7 @@ public:
 		// data must be here, so do a normal recv()
 		return 0;
 	}
+	*/
 
 	int run()
 	{
@@ -162,12 +164,6 @@ public:
 
 		while (1)
 		{
-			if (recvtimeout(sockfd, 2) == -2)
-			{
-				printf("Timeout Occurred.\n");
-				continue;
-			}
-
 			bytes_read = recvfrom(sockfd, recv_data, 1024, 0,
 					(struct sockaddr *) &client_addr, &addr_len);
 

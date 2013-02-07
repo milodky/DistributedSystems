@@ -3,6 +3,7 @@
 
 void connect()
 {
+	/*
 	LSP_Client client;
 	client.connect();
 	char send_data[1024];
@@ -17,6 +18,7 @@ void connect()
 		else
 			client.send_message(LOCALHOST, 5000, send_data);
 	}
+	*/
 }
 
 int main ()

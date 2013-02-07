@@ -37,7 +37,8 @@ public:
 	void init()
 	{
 		connector.setup(NULL, SERVER_PORT);
-		connector.listen();
+		// connector.listen();
+		// connector.send_message("rtds9.cse.tamu.edu", 5000, "test");
 	}
 
 	virtual ~LSP()

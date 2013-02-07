@@ -179,6 +179,8 @@ int Connector::listen()
  */
 void Connector::send_message(char* const msg)
 {
+	assert (!isServer);
+
 	if (sendto(sockfd, msg, strlen(msg), 0,
 			ai_node->ai_addr, ai_node->ai_addrlen) == -1)
 	{
@@ -192,6 +194,8 @@ void Connector::send_message(char* const msg)
  */
 void Connector::send_message(char* const recvr_hostname, const int recvr_port, char* const msg)
 {
+	assert (isServer);
+
 	struct sockaddr_in recvr_addr;
 	struct hostent *host;
 

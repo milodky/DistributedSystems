@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <pthread.h>
+#include <assert.h>
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 

@@ -1,3 +1,6 @@
+
+# For compiling we do not need the -lssl option.
+# -l option is only used for linking. It is required while building
 compile:
 	g++ -S server.cpp lsp.cpp
 	g++ -S client.cpp lsp.cpp

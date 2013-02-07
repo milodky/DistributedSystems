@@ -6,8 +6,8 @@
 class Connector
 {
 private:
-	//Connector(const Connector& that);  // Disallow Copy Constructor
-	//Connector& operator=(const Connector&); // Disallow assignment operator
+	Connector(const Connector& that);  // Disallow Copy Constructor
+	Connector& operator=(const Connector&); // Disallow assignment operator
 
 protected:
 	struct addrinfo*	addressInfoPtr; // Filled up by system call getaddrinfo
@@ -15,6 +15,11 @@ protected:
 	int 				sockfd; // A nonnegative socket file descriptor indicates success
 
 public:
+	/**
+	 * Public Constructor
+	 */
+	Connector() {}
+
 	/**
 	 * Populate addressInfoPtr
 	 */

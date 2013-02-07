@@ -1,6 +1,5 @@
 #include "lsp.h"
 
-
 void connect()
 {
 	LSP_Server server;

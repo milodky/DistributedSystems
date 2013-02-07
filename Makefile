@@ -3,9 +3,9 @@ compile:
 
 build:
 
-	g++ -g -o server server.cpp
-	g++ -g -o client client.cpp
-	g++ -g -o worker worker.cpp -lssl
+	g++ -g -o server.o server.cpp
+	g++ -g -o client.o client.cpp
+	g++ -g -o worker.o worker.cpp -lssl
 
 clean:
 	rm -f *.o *.gch *.s server client worker

@@ -128,6 +128,25 @@ public:
 		return setupListener(SERVER_PORT);
 	}
 
+	int recvtimeout(int s, int timeout)
+	{
+		fd_set fds;
+		int n;
+		struct timeval tv;
+		// set up the file descriptor set
+		FD_ZERO(&fds);
+		FD_SET(s, &fds);
+		// set up the struct timeval for the timeout
+		tv.tv_sec = timeout;
+		tv.tv_usec = 0;
+		// wait until timeout or data received
+		n = select(s+1, &fds, NULL, NULL, &tv);
+		if (n == 0) return -2; // timeout!
+		if (n == -1) return -1; // error
+		// data must be here, so do a normal recv()
+		return 0;
+	}
+
 	int run()
 	{
 		unsigned int 		addr_len;
@@ -143,6 +162,12 @@ public:
 
 		while (1)
 		{
+			if (recvtimeout(sockfd, 2) == -2)
+			{
+				printf("Timeout Occurred.\n");
+				continue;
+			}
+
 			bytes_read = recvfrom(sockfd, recv_data, 1024, 0,
 					(struct sockaddr *) &client_addr, &addr_len);
 
@@ -151,7 +176,7 @@ public:
 			inet_ntop(AF_INET, &(client_addr.sin_addr), client_ipv4, INET_ADDRSTRLEN);
 
 			printf("\n(%s , %d) said : ", client_ipv4, ntohs(client_addr.sin_port));
-			printf("%s", recv_data);
+			printf("%s\n", recv_data);
 
 			fflush(stdout);
 

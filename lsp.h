@@ -29,8 +29,18 @@ protected:
 	Talker talker;
 	Listener listener;
 
+	/* This is the thread that will listen to all incoming activity. */
+	pthread_t listener_thread;
+
 public:
 	LSP() {}
+
+	void init()
+	{
+		// talker.connect();
+		listener.connect();
+		listener.listen();
+	}
 
 	virtual ~LSP()
 	{

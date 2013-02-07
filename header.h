@@ -16,6 +16,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <pthread.h>
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 
@@ -28,5 +29,8 @@
 #define SERVER_PORT "5000"
 
 const int BAD_SOCKFD = -1;
+
+#define SUCCESS 0
+#define FAILURE 1
 
 #endif

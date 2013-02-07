@@ -3,10 +3,7 @@
 void connect()
 {
 	LSP_Server server;
-	/*
-	server.connect();
-	server.run();
-	*/
+	server.init();
 
 }
 

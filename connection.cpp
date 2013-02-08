@@ -179,7 +179,7 @@ int Connector::listen()
  */
 void Connector::send_message(char* const msg)
 {
-	assert (!isServer);
+	// assert (!isServer);
 
 	if (sendto(sockfd, msg, strlen(msg), 0,
 			ai_node->ai_addr, ai_node->ai_addrlen) == -1)

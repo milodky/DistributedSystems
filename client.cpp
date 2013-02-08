@@ -3,6 +3,8 @@
 
 void connect()
 {
+	LSP_Client client;
+	client.init();
 	/*
 	LSP_Client client;
 	client.connect();

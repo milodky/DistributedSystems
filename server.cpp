@@ -4,7 +4,6 @@ void connect()
 {
 	LSP_Server server;
 	server.init();
-
 }
 
 int main ()

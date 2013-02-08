@@ -19,6 +19,13 @@ void lsp_set_epoch_lth(double lth);
 void lsp_set_epoch_cnt(int cnt);
 void lsp_set_drop_rate(double rate);
 
+void* listener_run(void*);
+
+struct ListenerData
+{
+	LSP* lsp_instance;
+};
+
 class LSP
 {
 private:
@@ -28,6 +35,7 @@ private:
 protected:
 	Connector connector;
 
+	pthread_attr_t attr;
 	/* This is the thread that will listen to all incoming activity. */
 	pthread_t listener_thread;
 
@@ -36,14 +44,32 @@ public:
 
 	void init()
 	{
+		if (pthread_attr_init(&attr))
+		{
+			perror("pthread_attr_init");
+			exit(FAILURE);
+		}
+	}
 
-		// connector.listen();
-		// connector.send_message("rtds9.cse.tamu.edu", 5000, "test");
+	void startListenerThread()
+	{
+		int e;
+		ListenerData listener_data = {this};
+		if (e = pthread_create(&listener_thread, &attr, listener_run,
+								(void *) &listener_data))
+			Error("pthread_create %d", e);
+	}
+
+	void runListener()
+	{
+		connector.listen();
 	}
 
 	virtual ~LSP()
 	{
-
+		if (pthread_join(listener_thread, NULL))
+			Error("pthread_join");
+		printf("Joined Listener Thread.\n");
 	}
 };
 
@@ -63,7 +89,9 @@ public:
 	{
 		LSP::init();
 		connector.setup(NULL, SERVER_PORT);
-		connector.listen();
+		startListenerThread();
+		sleep(2);
+		connector.send_message("test");
 	}
 
 	virtual ~LSP_Server()
@@ -89,6 +117,7 @@ public:
 		connector.setup(LOCALHOST, SERVER_PORT);
 		connector.send_message("test");
 	}
+
 	virtual ~LSP_Client()
 	{
 

@@ -18,20 +18,24 @@
 #include <netdb.h>
 #include <pthread.h>
 #include <assert.h>
+#include <stdarg.h>
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 
 #define LOCALHOST "localhost"
-#define DEFAULT_HOST LOCALHOST
-#define DEFAULT_PORT 5000
-#define DEFAULT_PORT_C_STR "5000"
 
 #define SERVER_ADDR LOCALHOST
-#define SERVER_PORT "5000"
+#define SERVER_PORT "5001"
 
 const int BAD_SOCKFD = -1;
 
 #define SUCCESS 0
 #define FAILURE 1
+
+/* Class Declarations */
+class LSP;
+
+/* Function Declarations */
+void Error(const char *str, ...);
 
 #endif

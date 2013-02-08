@@ -197,7 +197,7 @@ int Connector::listen()
  */
 void Connector::send_message(char* const message)
 {
-	assert (!isServer);
+	// assert (!isServer);
 
 	uint8_t* buf;
 	int len;

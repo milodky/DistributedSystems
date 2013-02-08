@@ -32,11 +32,11 @@ protected:
 	pthread_t listener_thread;
 
 public:
-	LSP(bool isServer) : connector(true) {}
+	LSP(bool isServer) : connector(isServer) {}
 
 	void init()
 	{
-		connector.setup(NULL, SERVER_PORT);
+
 		// connector.listen();
 		// connector.send_message("rtds9.cse.tamu.edu", 5000, "test");
 	}
@@ -59,6 +59,13 @@ public:
 	bool write(void* pld, int lth, uint32_t conn_id);
 	// bool close(uint32_t conn_id);
 
+	void init()
+	{
+		LSP::init();
+		connector.setup(NULL, SERVER_PORT);
+		connector.listen();
+	}
+
 	virtual ~LSP_Server()
 	{
 
@@ -69,13 +76,19 @@ public:
 class LSP_Client : public LSP
 {
 public:
-	LSP_Client() : LSP(true) {}
+	LSP_Client() : LSP(false) {}
 	void create(const char* dest, int port);
 
 	int read(uint8_t* pld);
 	bool write(uint8_t* pld, int lth);
 	bool close();
 
+	void init()
+	{
+		LSP::init();
+		connector.setup(LOCALHOST, SERVER_PORT);
+		connector.send_message("test");
+	}
 	virtual ~LSP_Client()
 	{
 

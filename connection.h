@@ -2,6 +2,9 @@
 #define CONNECTION_H
 
 #include "header.h"
+#include "lspmessage.pb-c.h"
+#include <iostream>
+using namespace std;
 
 class Connector
 {

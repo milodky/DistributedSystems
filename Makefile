@@ -8,8 +8,8 @@ compile:
 
 # -lpthread -> includes the pthread library for linking
 build:
-	g++ -g -o server.o server.cpp lsp.cpp connection.cpp -lpthread
-	g++ -g -o client.o client.cpp lsp.cpp connection.cpp -lpthread
+	g++ -g -o server.o server.cpp lsp.cpp connection.cpp lspmessage.pb-c.c -lprotobuf-c -lpthread 
+	g++ -g -o client.o client.cpp lsp.cpp connection.cpp lspmessage.pb-c.c -lprotobuf-c -lpthread 
 	g++ -g -o worker.o worker.cpp -lssl
 
 clean:

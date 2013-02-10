@@ -1,18 +1,20 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 #include "header.h"
 #include "lspmessage.pb-c.h"
 #include <iostream>
 using namespace std;
 
-class Connector
+class Connector : public Uncopyable
 {
 private:
 	bool isServer;
-
-	Connector(const Connector& that);  // Disallow Copy Constructor
-	Connector& operator=(const Connector&); // Disallow assignment operator
 
 protected:
 	struct addrinfo*	addressInfoPtr; // Filled up by system call getaddrinfo

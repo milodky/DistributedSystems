@@ -161,30 +161,12 @@ int Connector::listen()
 		}
 
 		recv_data[bytes_read] = '\0';
-		//Unmarshalling for now here. Should be moved to the API handler
-		LSPMessage *msg;
-		cout<<"Bytes read "<<bytes_read<<endl;
-		cout<<"Recv Data "<<recv_data<<endl;
-		msg = lspmessage__unpack(NULL,bytes_read,reinterpret_cast<uint8_t*>(recv_data));
-		if(msg==NULL)
-		{
-			cout<<"Error unpacking"<<endl;
-		}
-		else
-		{
-			inet_ntop(AF_INET,
-							get_in_addr((struct sockaddr *)&from_addr),
-							from_ipv4, sizeof from_ipv4);
+		inet_ntop(AF_INET,
+						get_in_addr((struct sockaddr *)&from_addr),
+						from_ipv4, sizeof from_ipv4);
 
-			printf("[%s : %d] said: ", from_ipv4,
-							ntohs(((struct sockaddr_in *) &from_addr)->sin_port));
-			cout<<msg->connid<<endl;
-			cout<<msg->seqnum<<endl;
-			cout<<msg->payload.data<<endl;
-			lspmessage__free_unpacked(msg,NULL);
-		}
-
-
+		printf("[%s : %d] said: ", from_ipv4,
+						ntohs(((struct sockaddr_in *) &from_addr)->sin_port));
 
 		//printf("%s\n", recv_data);
 
@@ -196,31 +178,15 @@ int Connector::listen()
 /**
  * Default send: send to server
  */
-void Connector::send_message(char* const message)
+void Connector::send_message(uint8_t* const buf, const int len)
 {
 	// assert (!isServer);
 
-	uint8_t* buf;
-	int len;
-	LSPMessage msg = LSPMESSAGE__INIT;
-	msg.connid = 45;
-	msg.seqnum = 93;
-	msg.payload.data = (uint8_t*) malloc(sizeof(uint8_t) * strlen(message));
-	msg.payload.len = strlen(message) ;
-	memcpy(msg.payload.data, message, strlen(message)*sizeof(uint8_t));
-	cout<<"data "<<msg.payload.data<<endl;
-	len = lspmessage__get_packed_size(&msg);
-	buf = (uint8_t*)malloc(len);
-	lspmessage__pack(&msg, buf);
-	cout<<buf<<endl;
 	if (sendto(sockfd, buf, len, 0,
 			ai_node->ai_addr, ai_node->ai_addrlen) == -1)
 	{
 		perror("talker: sendto");
 	}
-
-	free(buf);
-	free(msg.payload.data);
 }
 
 /**

@@ -7,6 +7,7 @@
 #define LSP_H
 
 #include "header.h"
+#include "MessageReceiver"
 #include "connection.h"
 
 // Global Parameters. For both server and clients.
@@ -35,6 +36,7 @@ private:
 
 protected:
 	Connector connector;
+	MessageReceiver msgReceiver;
 
 	pthread_attr_t attr;
 	/* This is the thread that will listen to all incoming activity. */

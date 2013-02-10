@@ -3,21 +3,21 @@
 
 #include "header.h"
 #include "serializer.h"
+#include "inbox.h"
 
 class MessageReceiver : public Uncopyable
 {
 private:
 	Serializer serializer;
-	queue<LSP_Packet*> inbox;
+	Inbox inbox;
 
 public:
 
-	void receiver_msg(char* ipv4, int port, uint8_t* msg, size_t msg_len)
+	void receive_msg(char* ipv4, int port, uint8_t* msg, size_t msg_len)
 	{
-		LSP_Packet packet = serializer.unmarshal()
+		LSP_Packet packet = serializer.unmarshal();
+		inbox.add_msg(packet);
 	}
-
-
 };
 
 #endif

@@ -12,9 +12,9 @@ compile:
 
 # -lpthread -> includes the pthread library for linking
 build:
-	g++ -g -o server.o server.cpp $(SRC) $(LIBS)
-	g++ -g -o client.o client.cpp $(SRC) $(LIBS)
-	g++ -g -o worker.o worker.cpp $(LIBS)
+	g++ -g -o server server.cpp $(SRC) $(LIBS)
+	g++ -g -o client client.cpp $(SRC) $(LIBS)
+	g++ -g -o worker worker.cpp $(LIBS)
 
 clean:
 	rm -f *.o *.gch *.s server client worker

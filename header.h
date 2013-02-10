@@ -54,20 +54,41 @@ private:
 	int conn_id;
 	int seq_no;
 
-	char* bytes;
-	int len;
+	size_t len;
+	uint8_t* bytes;
 
 public:
-	LSP_Packet(int conn_id, int seq_no, char* bytes, int len)
-		: conn_id(conn_id), seq_no(seq_no), len(len)
+	LSP_Packet(int conn_id, int seq_no, int len, uint8_t* bytes)
+		: conn_id(conn_id), seq_no(seq_no), len(len), bytes(new char[len])
 	{
-		this->bytes = new char[len];
 		memcpy(this->bytes, bytes, len);
+	}
+
+	void print()
+	{
+		printf("LSP_Packet{\n\tconn_id: %d, seq_no: %d, len: %u}\n",
+				conn_id, seq_no, len);
 	}
 
 	~LSP_Packet()
 	{
 		if (bytes) delete bytes;
+	}
+
+	uint8_t* getBytes() const {
+		return bytes;
+	}
+
+	int getConnId() const {
+		return conn_id;
+	}
+
+	size_t getLen() const {
+		return len;
+	}
+
+	int getSeqNo() const {
+		return seq_no;
 	}
 };
 

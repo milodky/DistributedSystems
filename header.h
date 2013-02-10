@@ -5,11 +5,6 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <stdbool.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <pthread.h>
 #include <errno.h>
 #include <strings.h>
 #include <errno.h>
@@ -19,6 +14,7 @@
 #include <pthread.h>
 #include <assert.h>
 #include <stdarg.h>
+#include <queue>
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 
@@ -48,7 +44,7 @@ public:
 	Uncopyable() {}
 };
 
-class LSP_Packet : public Uncopyable
+class LSP_Packet
 {
 private:
 	int conn_id;
@@ -57,16 +53,39 @@ private:
 	size_t len;
 	uint8_t* bytes;
 
+	LSP_Packet& operator = (const LSP_Packet& that);
+
 public:
-	LSP_Packet(int conn_id, int seq_no, int len, uint8_t* bytes)
-		: conn_id(conn_id), seq_no(seq_no), len(len), bytes(new char[len])
+//	LSP_Packet(): conn_id(-1), seq_no(-1)
+//	{
+//
+//	}
+
+	LSP_Packet(int conn_id, int seq_no, size_t len, uint8_t* bytes)
+		: conn_id(conn_id), seq_no(seq_no), len(len), bytes(new uint8_t[len])
 	{
 		memcpy(this->bytes, bytes, len);
 	}
 
+	LSP_Packet(const LSP_Packet& that)
+		: conn_id(that.conn_id), seq_no(that.seq_no), len(that.len), bytes(new uint8_t[len])
+	{
+		memcpy(this->bytes, that.bytes, len);
+	}
+
+	/* Please do not delete this code */
+//	LSP_Packet& operator = (const LSP_Packet& that)
+//	{
+//		conn_id = that.conn_id;
+//		seq_no = that.seq_no;
+//		len = that.len;
+//
+//		memcpy(this->bytes, that.bytes, len);
+//	}
+
 	void print()
 	{
-		printf("LSP_Packet{\n\tconn_id: %d, seq_no: %d, len: %u}\n",
+		printf("LSP_Packet{\n\tconn_id: %d, seq_no: %d, len: %u\n}\n",
 				conn_id, seq_no, len);
 	}
 
@@ -94,6 +113,6 @@ public:
 
 /* Function Declarations */
 void Error(const char *str, ...);
-void pprint(_LSPMessage* msg);
+void pprint(_LSPMessage& msg);
 
 #endif

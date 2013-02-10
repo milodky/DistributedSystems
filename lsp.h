@@ -19,6 +19,9 @@ void lsp_set_epoch_lth(double lth);
 void lsp_set_epoch_cnt(int cnt);
 void lsp_set_drop_rate(double rate);
 
+/* Inbox Thread */
+
+/* Outbox Thread */
 void* listener_run(void*);
 
 struct ListenerData

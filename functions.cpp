@@ -25,7 +25,8 @@ void Error(const char *str, ...)
 	exit(1);
 }
 
-void pprint(LSPMessage* msg)
+void pprint(LSPMessage& msg)
 {
-	printf("LSPMessage{connid: %d, seqnum: %d, payload.len: %u}\n", msg->connid, msg->seqnum, msg->payload.len);
+	printf("LSPMessage{connid: %d, seqnum: %d, payload.len: %u}\n",
+			msg.connid, msg.seqnum, msg.payload.len);
 }

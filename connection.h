@@ -1,6 +1,11 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 #include "header.h"
 
 class Connector : public Uncopyable

@@ -3,13 +3,10 @@
 
 #include "header.h"
 
-class Connector
+class Connector : public Uncopyable
 {
 private:
 	bool isServer;
-
-	Connector(const Connector& that);  // Disallow Copy Constructor
-	Connector& operator=(const Connector&); // Disallow assignment operator
 
 protected:
 	struct addrinfo*	addressInfoPtr; // Filled up by system call getaddrinfo

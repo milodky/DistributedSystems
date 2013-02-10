@@ -26,11 +26,9 @@ struct ListenerData
 	LSP* lsp_instance;
 };
 
-class LSP
+class LSP : public Uncopyable
 {
 private:
-	LSP(const LSP& that); // Disallow Copy Constructor
-	LSP& operator=(const LSP&); // Disallow assignment operator
 
 protected:
 	Connector connector;

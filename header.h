@@ -32,10 +32,47 @@ const int BAD_SOCKFD = -1;
 #define SUCCESS 0
 #define FAILURE 1
 
+#define MAX_MSG_SIZE 1024
+
 /* Class Declarations */
+struct _LSPMessage;
 class LSP;
+
+class Uncopyable
+{
+private:
+	Uncopyable(const Uncopyable& that); // Disallow Copy Constructor
+	Uncopyable& operator=(const Uncopyable&); // Disallow assignment operator
+
+public:
+	Uncopyable() {}
+};
+
+class LSP_Packet : public Uncopyable
+{
+private:
+	int conn_id;
+	int seq_no;
+
+	char* bytes;
+	int len;
+
+public:
+	LSP_Packet(int conn_id, int seq_no, char* bytes, int len)
+		: conn_id(conn_id), seq_no(seq_no), len(len)
+	{
+		this->bytes = new char[len];
+		memcpy(this->bytes, bytes, len);
+	}
+
+	~LSP_Packet()
+	{
+		if (bytes) delete bytes;
+	}
+};
 
 /* Function Declarations */
 void Error(const char *str, ...);
+void pprint(_LSPMessage* msg);
 
 #endif

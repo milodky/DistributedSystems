@@ -137,8 +137,8 @@ int Connector::listen()
 	}
 
 	int 				bytes_read;
-	char 				recv_data[1024];
-
+	char 				recv_data[MAX_MSG_SIZE];
+	const int FLAGS = 0;
 	struct sockaddr_storage from_addr;
 	socklen_t fromlen;
 
@@ -151,10 +151,11 @@ int Connector::listen()
 	{
 		fromlen = sizeof from_addr;
 		bytes_read = recvfrom(sockfd,
-				recv_data, 1024, 0,
+				recv_data, MAX_MSG_SIZE, FLAGS,
 				(struct sockaddr *) &from_addr, &fromlen);
 
-		if (bytes_read == -1) {
+		if (bytes_read == -1)
+		{
 			perror("recvfrom");
 			return FAILURE;
 		}

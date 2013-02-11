@@ -29,6 +29,7 @@ public:
 		ai_node = NULL;
 		sockfd = BAD_SOCKFD;
 	}
+	bool getIsServer(){return isServer;}
 
 	/**
 	 * Populate addressInfoPtr

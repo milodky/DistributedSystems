@@ -9,6 +9,7 @@
 #include "header.h"
 #include "MessageReceiver.h"
 #include "connection.h"
+#include "connectionInfo.h"
 
 // Global Parameters. For both server and clients.
 
@@ -37,6 +38,7 @@ private:
 protected:
 	Inbox inbox;
 	Connector connector;
+	vector<ConnInfo> connectionInfo;
 //	MessageReceiver msgReceiver;
 
 	pthread_attr_t attr;

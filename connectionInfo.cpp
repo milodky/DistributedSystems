@@ -8,12 +8,3 @@ void ConnInfo::addPacket(int seqNo, size_t len, uint8_t *bytes)
 		outMsgs.push(packet);
 	}
 
-void ConnInfo::SendMsg(Connector connector)
-	{
-		LSP_Packet packet = outMsgs.front();
-		Serializer s;
-		uint8_t *buf;
-		int len = s.marshal(packet,buf);
-		connector.send_message(buf,len);
-		free(buf);
-	}

@@ -1,6 +1,6 @@
 #ifndef CONNECTIONINFO_H
 #define CONNECTIONINFO_H
-#include "serializer.h"
+
 #include "lsp.h"
 #include "header.h"
 #include "connection.h"

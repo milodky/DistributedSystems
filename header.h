@@ -42,6 +42,7 @@ class LSP;
 class Inbox;
 class MessageReceiver;
 class Connector;
+class Serializer;
 
 class Uncopyable
 {

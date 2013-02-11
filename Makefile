@@ -1,7 +1,7 @@
 
 LIBS = -lprotobuf-c -lpthread -lssl
 
-SRC = lsp.cpp connection.cpp functions.cpp lspmessage.pb-c.c
+SRC = lsp.cpp connection.cpp functions.cpp lspmessage.pb-c.c connectionInfo.cpp 
 
 # For compiling we do not need the -lssl option.
 # -l option is only used for linking. It is required while building

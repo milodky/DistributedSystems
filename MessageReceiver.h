@@ -2,15 +2,15 @@
 #define MESSAGERECEIVER_H
 
 #include "header.h"
-#include "serializer.h"
 #include "connection.h"
 #include "inbox.h"
+#include "serializer.h"
 
 class MessageReceiver : public Uncopyable
 {
 private:
 	Connector connector;
-	Serializer serializer;
+	//Serializer serializer;
 	Inbox inbox;
 
 public:

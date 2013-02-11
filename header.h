@@ -18,6 +18,7 @@
 #include <queue>
 #include <vector>
 
+
 using namespace std;
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
@@ -38,6 +39,7 @@ const int BAD_SOCKFD = -1;
 struct _LSPMessage;
 class LSP;
 
+
 class Uncopyable
 {
 private:
@@ -47,6 +49,7 @@ private:
 public:
 	Uncopyable() {}
 };
+
 
 class LSP_Packet
 {

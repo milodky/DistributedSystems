@@ -2,6 +2,7 @@
 #define HEADER_H
 
 #include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
 #include <inttypes.h>
 #include <stdbool.h>

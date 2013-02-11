@@ -50,7 +50,7 @@ public:
 		return packet;
 	}
 
-	void marshal(LSP_Packet packet)
+	int marshal(LSP_Packet packet, uint8_t *buf)
 	{
 		LSPMessage msg = LSPMESSAGE__INIT;
 
@@ -61,8 +61,7 @@ public:
 	    msg.payload.data = new uint8_t[msg.payload.len];
 	    memcpy(msg.payload.data, packet.getBytes(), msg.payload.len);
 
-	    uint8_t* buf;
-	    unsigned len;
+	    unsigned len = -1;
 
 	    len = lspmessage__get_packed_size (&msg); // This is the calculated packing length
 	    buf = (uint8_t*) malloc(len);             // Allocate memory
@@ -79,7 +78,8 @@ public:
 //	    packet2.print();
 
 	    delete msg.payload.data;
-	    free(buf); // Free the allocated serialized buffer
+	    //free(buf); // Free the allocated serialized buffer
+	    return len;
 	}
 };
 

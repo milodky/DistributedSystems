@@ -7,11 +7,13 @@
 #include <arpa/inet.h>
 
 #include "header.h"
+#include "MessageReceiver.h"
 
 class Connector : public Uncopyable
 {
 private:
 	bool isServer;
+	MessageReceiver* 	msgReceiver;
 
 protected:
 	struct addrinfo*	addressInfoPtr; // Filled up by system call getaddrinfo
@@ -22,12 +24,13 @@ public:
 	/**
 	 * Public Constructor
 	 */
-	Connector(bool isServer)
-		: isServer(isServer)
+	Connector(bool isServer) : isServer(isServer)
 	{
 		addressInfoPtr = NULL;
 		ai_node = NULL;
 		sockfd = BAD_SOCKFD;
+
+		msgReceiver = NULL;
 	}
 
 	/**
@@ -56,6 +59,12 @@ public:
 	 * Same socket can be used to send to different recipients.
 	 */
 	void send_message(char* const recvr_hostname, const int recvr_port, uint8_t* const msg, const int len);
+
+	void setMsgReceiver(MessageReceiver& msgReceiver)
+	{
+		assert (this->msgReceiver == NULL);
+		this->msgReceiver = &msgReceiver;
+	}
 
 	virtual ~Connector()
 	{

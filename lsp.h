@@ -9,6 +9,7 @@
 #include "header.h"
 #include "MessageReceiver.h"
 #include "connection.h"
+#include "inbox.h"
 
 // Global Parameters. For both server and clients.
 
@@ -35,46 +36,24 @@ class LSP : public Uncopyable
 private:
 
 protected:
-	Inbox inbox;
-	Connector connector;
-//	MessageReceiver msgReceiver;
+	Inbox* inbox;
+	MessageReceiver* msgReceiver;
+	Connector* connector;
 
 	pthread_attr_t attr;
 	/* This is the thread that will listen to all incoming activity. */
 	pthread_t msg_recvr_thread;
 
 public:
-	LSP(bool isServer) : connector(isServer) {}
+	LSP(bool isServer);
 
-	void init()
-	{
-		if (pthread_attr_init(&attr))
-		{
-			perror("pthread_attr_init");
-			exit(FAILURE);
-		}
-	}
+	void init();
 
-	void start_msg_receiver_thread()
-	{
-		int e;
-		ListenerData listener_data = {this};
-		if (e = pthread_create(&msg_recvr_thread, &attr, listener_run,
-								(void *) &listener_data))
-			Error("pthread_create %d", e);
-	}
+	void start_msg_receiver_thread();
 
-	void runListener()
-	{
-		connector.listen();
-	}
+	void runListener();
 
-	virtual ~LSP()
-	{
-		if (pthread_join(msg_recvr_thread, NULL))
-			Error("pthread_join");
-		printf("Joined Listener Thread.\n");
-	}
+	virtual ~LSP();
 };
 
 class LSP_Server : public LSP
@@ -89,13 +68,7 @@ public:
 	bool write(void* pld, int lth, uint32_t conn_id);
 	// bool close(uint32_t conn_id);
 
-	void init()
-	{
-		LSP::init();
-		connector.setup(NULL, SERVER_PORT);
-		start_msg_receiver_thread();
-//		connector.send_message("test");
-	}
+	void init();
 
 	virtual ~LSP_Server()
 	{
@@ -114,12 +87,7 @@ public:
 	bool write(uint8_t* pld, int lth);
 	bool close();
 
-	void init()
-	{
-		LSP::init();
-		connector.setup(LOCALHOST, SERVER_PORT);
-//		connector.send_message("test");
-	}
+	void init();
 
 	virtual ~LSP_Client()
 	{

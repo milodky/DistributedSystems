@@ -29,6 +29,61 @@ void* listener_run(void* arg)
 	params->lsp_instance->runListener();
 }
 
+/* LSP CLASS METHODS */
+LSP::LSP(bool isServer)
+{
+	inbox = new Inbox();
+	connector = new Connector(isServer);
+	msgReceiver = new MessageReceiver(inbox);
+}
 
+void LSP::init()
+{
+	if (pthread_attr_init(&attr))
+	{
+		perror("pthread_attr_init");
+		exit(FAILURE);
+	}
+}
 
+void LSP::start_msg_receiver_thread()
+{
+	int e;
+	ListenerData listener_data = {this};
+	if (e = pthread_create(&msg_recvr_thread, &attr, listener_run,
+							(void *) &listener_data))
+		Error("pthread_create %d", e);
+}
 
+void LSP::runListener()
+{
+	connector->listen();
+}
+
+LSP::~LSP()
+{
+	if (pthread_join(msg_recvr_thread, NULL))
+		Error("pthread_join");
+	printf("Joined Listener Thread.\n");
+
+	if(connector) delete connector;
+	if(msgReceiver) delete msgReceiver;
+	if(inbox) delete inbox;
+}
+
+/** LSP_Server METHODS */
+void LSP_Server::init()
+{
+	LSP::init();
+	connector->setup(NULL, SERVER_PORT);
+	start_msg_receiver_thread();
+//		connector.send_message("test");
+}
+
+/** LSP_Client METHODS */
+void LSP_Client::init()
+{
+	LSP::init();
+	connector->setup(LOCALHOST, SERVER_PORT);
+//		connector.send_message("test");
+}

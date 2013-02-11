@@ -2,7 +2,6 @@
 #define HEADER_H
 
 #include <stdio.h>
-#include <iostream>
 #include <stdlib.h>
 #include <inttypes.h>
 #include <stdbool.h>
@@ -17,6 +16,7 @@
 #include <stdarg.h>
 #include <queue>
 #include <vector>
+#include <string>
 
 
 using namespace std;
@@ -37,8 +37,11 @@ const int BAD_SOCKFD = -1;
 
 /* Class Declarations */
 struct _LSPMessage;
-class LSP;
 
+class LSP;
+class Inbox;
+class MessageReceiver;
+class Connector;
 
 class Uncopyable
 {
@@ -49,7 +52,6 @@ private:
 public:
 	Uncopyable() {}
 };
-
 
 class LSP_Packet
 {

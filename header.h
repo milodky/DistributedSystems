@@ -15,6 +15,9 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <queue>
+#include <vector>
+
+using namespace std;
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 

@@ -13,14 +13,15 @@ public:
 
 	void add_msg(LSP_Packet packet)
 	{
-		assert (packet != NULL);
-		inbox.push(packet);
+//		assert (packet != NULL);
+//		inbox.push(packet);
 	}
 
 	LSP_Packet pop_msg()
 	{
-		LSP_Packet packet = inbox.front();
-		inbox.pop();
+//		LSP_Packet packet = inbox.front();
+//		inbox.pop();
+//		return packet;
 	}
 };
 

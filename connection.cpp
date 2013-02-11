@@ -178,11 +178,11 @@ int Connector::listen()
 /**
  * Default send: send to server
  */
-void Connector::send_message(uint8_t* const buf, const int len)
+void Connector::send_message(uint8_t* const msg, const int len)
 {
 	// assert (!isServer);
 
-	if (sendto(sockfd, buf, len, 0,
+	if (sendto(sockfd, msg, len, 0,
 			ai_node->ai_addr, ai_node->ai_addrlen) == -1)
 	{
 		perror("talker: sendto");
@@ -193,7 +193,7 @@ void Connector::send_message(uint8_t* const buf, const int len)
  * Explicitly mention the recipient hostname and recipient port.
  * Same socket can be used to send to different recipients.
  */
-void Connector::send_message(char* const recvr_hostname, const int recvr_port, char* const msg)
+void Connector::send_message(char* const recvr_hostname, const int recvr_port, uint8_t* const msg, const int len)
 {
 	assert (isServer);
 
@@ -207,7 +207,7 @@ void Connector::send_message(char* const recvr_hostname, const int recvr_port, c
 	recvr_addr.sin_addr = *((struct in_addr *) host->h_addr);
 	bzero(&(recvr_addr.sin_zero), 8);
 
-	if (sendto(sockfd, msg, strlen(msg), 0,
+	if (sendto(sockfd, msg, len, 0,
 			(struct sockaddr *)&recvr_addr, sizeof(struct sockaddr)) == -1)
 	{
 		perror("talker: sendto");

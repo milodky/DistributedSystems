@@ -7,9 +7,6 @@
 #include <arpa/inet.h>
 
 #include "header.h"
-#include "lspmessage.pb-c.h"
-#include <iostream>
-using namespace std;
 
 class Connector : public Uncopyable
 {
@@ -25,7 +22,8 @@ public:
 	/**
 	 * Public Constructor
 	 */
-	Connector(bool isServer) : isServer(isServer)
+	Connector(bool isServer)
+		: isServer(isServer)
 	{
 		addressInfoPtr = NULL;
 		ai_node = NULL;
@@ -51,13 +49,13 @@ public:
 	/**
 	 * Default send: send to server
 	 */
-	void send_message(char* const msg);
+	void send_message(uint8_t* const msg, const int len);
 
 	/**
 	 * Explicitly mention the recipient hostname and recipient port.
 	 * Same socket can be used to send to different recipients.
 	 */
-	void send_message(char* const recvr_hostname, const int recvr_port, char* const msg);
+	void send_message(char* const recvr_hostname, const int recvr_port, uint8_t* const msg, const int len);
 
 	virtual ~Connector()
 	{

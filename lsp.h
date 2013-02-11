@@ -7,7 +7,7 @@
 #define LSP_H
 
 #include "header.h"
-#include "MessageReceiver"
+#include "MessageReceiver.h"
 #include "connection.h"
 
 // Global Parameters. For both server and clients.
@@ -35,12 +35,13 @@ class LSP : public Uncopyable
 private:
 
 protected:
+	Inbox inbox;
 	Connector connector;
-	MessageReceiver msgReceiver;
+//	MessageReceiver msgReceiver;
 
 	pthread_attr_t attr;
 	/* This is the thread that will listen to all incoming activity. */
-	pthread_t listener_thread;
+	pthread_t msg_recvr_thread;
 
 public:
 	LSP(bool isServer) : connector(isServer) {}
@@ -54,11 +55,11 @@ public:
 		}
 	}
 
-	void startListenerThread()
+	void start_msg_receiver_thread()
 	{
 		int e;
 		ListenerData listener_data = {this};
-		if (e = pthread_create(&listener_thread, &attr, listener_run,
+		if (e = pthread_create(&msg_recvr_thread, &attr, listener_run,
 								(void *) &listener_data))
 			Error("pthread_create %d", e);
 	}
@@ -70,7 +71,7 @@ public:
 
 	virtual ~LSP()
 	{
-		if (pthread_join(listener_thread, NULL))
+		if (pthread_join(msg_recvr_thread, NULL))
 			Error("pthread_join");
 		printf("Joined Listener Thread.\n");
 	}
@@ -92,9 +93,8 @@ public:
 	{
 		LSP::init();
 		connector.setup(NULL, SERVER_PORT);
-		startListenerThread();
-		sleep(2);
-		connector.send_message("test");
+		start_msg_receiver_thread();
+//		connector.send_message("test");
 	}
 
 	virtual ~LSP_Server()
@@ -118,7 +118,7 @@ public:
 	{
 		LSP::init();
 		connector.setup(LOCALHOST, SERVER_PORT);
-		connector.send_message("test");
+//		connector.send_message("test");
 	}
 
 	virtual ~LSP_Client()

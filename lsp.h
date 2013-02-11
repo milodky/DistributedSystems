@@ -9,6 +9,7 @@
 #include "header.h"
 #include "MessageReceiver.h"
 #include "connection.h"
+#include "connectionInfo.h"
 #include "inbox.h"
 
 // Global Parameters. For both server and clients.
@@ -39,6 +40,7 @@ protected:
 	Inbox* inbox;
 	MessageReceiver* msgReceiver;
 	Connector* connector;
+
 
 	pthread_attr_t attr;
 	/* This is the thread that will listen to all incoming activity. */

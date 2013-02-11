@@ -32,6 +32,7 @@ public:
 
 		msgReceiver = NULL;
 	}
+	bool getIsServer(){return isServer;}
 
 	/**
 	 * Populate addressInfoPtr

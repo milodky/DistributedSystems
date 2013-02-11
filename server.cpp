@@ -8,8 +8,14 @@ void connect()
 	server.init();
 }
 
+void outboxPoller()
+{
+
+}
+
 void Sender()
 {
+
 	vector<ConnInfo*> clients;
 	ConnInfo o(0,12,(string)"Host 1");
 	clients.push_back(&o);
@@ -33,6 +39,7 @@ void Sender()
 
 int main ()
 {
+
 	Sender();
 	//connect();
 	return 0;

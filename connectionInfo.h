@@ -34,7 +34,6 @@ public:
 	}
 
 	void addPacket(int seqNo, size_t len, uint8_t *bytes);
-	void SendMsg(Connector connector);
 };
 
 #endif

@@ -11,9 +11,7 @@
 #include "connection.h"
 <<<<<<< HEAD:lsp.h
 #include "connectionInfo.h"
-=======
 #include "inbox.h"
->>>>>>> 3de959c7484f06b7644ed377b18b533708be105a:lsp.h
 
 // Global Parameters. For both server and clients.
 
@@ -40,16 +38,10 @@ class LSP : public Uncopyable
 private:
 
 protected:
-<<<<<<< HEAD:lsp.h
-	Inbox inbox;
-	Connector connector;
-	vector<ConnInfo> connectionInfo;
-//	MessageReceiver msgReceiver;
-=======
 	Inbox* inbox;
 	MessageReceiver* msgReceiver;
 	Connector* connector;
->>>>>>> 3de959c7484f06b7644ed377b18b533708be105a:lsp.h
+
 
 	pthread_attr_t attr;
 	/* This is the thread that will listen to all incoming activity. */

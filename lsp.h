@@ -9,7 +9,6 @@
 #include "header.h"
 #include "MessageReceiver.h"
 #include "connection.h"
-<<<<<<< HEAD:lsp.h
 #include "connectionInfo.h"
 #include "inbox.h"
 

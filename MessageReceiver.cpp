@@ -18,3 +18,14 @@ void MessageReceiver::receive_msg(
 		fprintf(stderr, "Packet Dropped from %s : %d\n", ipv4, port);
 	}
 }
+
+MessageReceiver::MessageReceiver(Inbox* in) : inbox(in)
+{
+	serializer = new Serializer();
+}
+
+MessageReceiver::~MessageReceiver()
+{
+	if(serializer) delete serializer;
+	if(inbox) delete inbox;
+}

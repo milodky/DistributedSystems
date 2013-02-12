@@ -3,6 +3,7 @@
 #define SERIALIZER_H
 
 #include "header.h"
+#include "lsppacket.h"
 #include "lspmessage.pb-c.h"
 
 /**

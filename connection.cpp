@@ -144,7 +144,7 @@ int Connector::listen()
 
 	char from_ipv4[INET_ADDRSTRLEN];
 
-	printf("\nUDP Server Waiting for client on port 5000\n");
+	printf("\nServer Waiting..\n");
 	fflush(stdout);
 
 	while (1)

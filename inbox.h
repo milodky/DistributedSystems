@@ -2,6 +2,7 @@
 #define INBOX_H
 
 #include "header.h"
+#include "lsppacket.h"
 #include "serializer.h"
 #include "connectionInfo.h"
 
@@ -11,20 +12,9 @@ private:
 	queue<LSP_Packet> inbox;
 
 public:
-
-	void add_msg(LSP_Packet packet)
-	{
-		printf("Adding packet to Inbox:\n");
-		packet.print();
-		inbox.push(packet);
-	}
-
-	LSP_Packet pop_msg()
-	{
-		LSP_Packet packet = inbox.front();
-		inbox.pop();
-		return packet;
-	}
+	bool isEmpty();
+	void add_msg(LSP_Packet packet);
+	LSP_Packet pop_msg();
 };
 
 #endif

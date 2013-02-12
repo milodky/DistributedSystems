@@ -2,6 +2,7 @@
 #define MESSAGESENDER_H
 
 #include "header.h"
+#include "lsppacket.h"
 #include "connection.h"
 #include "inbox.h"
 #include "serializer.h"

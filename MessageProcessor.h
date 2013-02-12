@@ -5,6 +5,7 @@
 #include "lsppacket.h"
 #include "inbox.h"
 
+
 class MessageProcessor : public Uncopyable
 {
 private:
@@ -22,11 +23,17 @@ public:
 	/* Figure out the packet type and stamp it on the packet object */
 	void stamp_msg_type(LSP_Packet& packet);
 
+	/* Figure out the data type and stamp it on the packet object */
+	void stamp_data_type(LSP_Packet& packet);
+
 	/* Process a connection request packet */
 	void process_conn_req(LSP_Packet& packet);
 
 	/* Process an acknowledgment packet */
 	void process_ack_packet(LSP_Packet& packet);
+
+	/* Process a data packet */
+	void process_data_packet(LSP_Packet& packet);
 
 	/* Create an ACK packet */
 	LSP_Packet create_ack_packet(LSP_Packet& packet) const;

@@ -72,6 +72,15 @@ void LSP_Packet::setType(MessageType type) {
 	this->type = type;
 }
 
+DataType LSP_Packet::getDataType() const {
+	return dataType;
+}
+
+void LSP_Packet::setDataType(DataType type) {
+	this->dataType = type;
+}
+
+
 const char* LSP_Packet::getHostname() const {
 	return hostname;
 }

@@ -4,6 +4,7 @@
 #include "header.h"
 
 enum MessageType { UNKNOWN, CONN_REQ, DATA, ACK };
+enum DataType { NOTKNOWN, JOINREQUEST, CRACKREQUEST, FOUND, NOTFOUND, ALIVE};
 
 class LSP_Packet
 {
@@ -15,6 +16,7 @@ private:
 	uint8_t* bytes;
 
 	MessageType type;
+	DataType dataType;
 
 	/* Required for each packet since when receiving
 	 * connection requests. we do not have a conn_id yet! */
@@ -43,6 +45,8 @@ public:
 	int getSeqNo() const;
 	MessageType getType() const;
 	void setType(MessageType type);
+	DataType getDataType() const;
+	void setDataType(DataType type);
 	const char* getHostname() const;
 	int getPort() const;
 };

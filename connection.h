@@ -14,6 +14,7 @@ class Connector : public Uncopyable
 private:
 	bool isServer;
 	MessageReceiver* 	msgReceiver;
+	//MessageSender* msgSender;
 
 protected:
 	struct addrinfo*	addressInfoPtr; // Filled up by system call getaddrinfo
@@ -31,6 +32,7 @@ public:
 		sockfd = BAD_SOCKFD;
 
 		msgReceiver = NULL;
+		//msgSender = NULL;
 	}
 
 	bool getIsServer(){return isServer;}
@@ -54,13 +56,13 @@ public:
 	/**
 	 * Default send: send to server
 	 */
-	void send_message(uint8_t* const msg, const int len);
+	int send_message(uint8_t* const msg, const int len);
 
 	/**
 	 * Explicitly mention the recipient hostname and recipient port.
 	 * Same socket can be used to send to different recipients.
 	 */
-	void send_message(char* const recvr_hostname, const int recvr_port, uint8_t* const msg, const int len);
+	int send_message(char* const recvr_hostname, const int recvr_port, uint8_t* const msg, const int len);
 
 	void setMsgReceiver(MessageReceiver* msgReceiver)
 	{
@@ -68,6 +70,11 @@ public:
 		this->msgReceiver = msgReceiver;
 	}
 
+//	void setMsgSender(MessageSender* msgSender)
+//	{
+//		assert (this->msgSender == NULL);
+//		this->msgSender = msgSender;
+//	}
 	virtual ~Connector()
 	{
 		/* This data structure is no longer required */

@@ -136,15 +136,15 @@ int Connector::listen()
 		return FAILURE;
 	}
 
-	size_t 				bytes_read;
-	uint8_t				recv_data[MAX_MSG_SIZE];
+	int 				bytes_read;
+	char 				recv_data[MAX_MSG_SIZE];
 	const int FLAGS = 0;
 	struct sockaddr_storage from_addr;
 	socklen_t fromlen;
 
 	char from_ipv4[INET_ADDRSTRLEN];
 
-	printf("\nServer Waiting...\n");
+	printf("\nUDP Server Waiting for client on port 5000\n");
 	fflush(stdout);
 
 	while (1)
@@ -154,26 +154,21 @@ int Connector::listen()
 				recv_data, MAX_MSG_SIZE, FLAGS,
 				(struct sockaddr *) &from_addr, &fromlen);
 
-
-
 		if (bytes_read == -1)
 		{
 			perror("recvfrom");
 			return FAILURE;
 		}
 
+		recv_data[bytes_read] = '\0';
 		inet_ntop(AF_INET,
-				get_in_addr((struct sockaddr *)&from_addr),
-				from_ipv4,
-				sizeof from_ipv4);
+						get_in_addr((struct sockaddr *)&from_addr),
+						from_ipv4, sizeof from_ipv4);
 
-		int port = ntohs(((struct sockaddr_in *) &from_addr)->sin_port);
+		printf("[%s : %d] said: ", from_ipv4,
+						ntohs(((struct sockaddr_in *) &from_addr)->sin_port));
 
-		printf("Received Message [%s : %d]:\n", from_ipv4, port);
-		printBytes(recv_data, bytes_read);
-
-		//printf("%s\n", recv_data);
-		msgReceiver->receive_msg(from_ipv4, port, recv_data, bytes_read);
+		printf("%s\n", recv_data);
 
 		fflush(stdout);
 	}
@@ -183,26 +178,33 @@ int Connector::listen()
 /**
  * Default send: send to server
  */
-void Connector::send_message(uint8_t* const msg, const int len)
+int Connector::send_message(uint8_t* const msg, const int len)
 {
+	if (sockfd == BAD_SOCKFD)
+	{
+		return FAILURE;
+	}
 	// assert (!isServer);
 
-	printf("Sending message:\n");
-	printBytes(msg, len);
 	if (sendto(sockfd, msg, len, 0,
 			ai_node->ai_addr, ai_node->ai_addrlen) == -1)
 	{
 		perror("talker: sendto");
 	}
+	return SUCCESS;
 }
 
 /**
  * Explicitly mention the recipient hostname and recipient port.
  * Same socket can be used to send to different recipients.
  */
-void Connector::send_message(char* const recvr_hostname, const int recvr_port, uint8_t* const msg, const int len)
+int Connector::send_message(char* const recvr_hostname, const int recvr_port, uint8_t* const msg, const int len)
 {
-	assert (isServer);
+	if (sockfd == BAD_SOCKFD)
+	{
+		return FAILURE;
+	}
+	//assert (isServer);
 
 	struct sockaddr_in recvr_addr;
 	struct hostent *host;
@@ -214,11 +216,10 @@ void Connector::send_message(char* const recvr_hostname, const int recvr_port, u
 	recvr_addr.sin_addr = *((struct in_addr *) host->h_addr);
 	bzero(&(recvr_addr.sin_zero), 8);
 
-	printf("Sending message:\n");
-	printBytes(msg, len);
 	if (sendto(sockfd, msg, len, 0,
 			(struct sockaddr *)&recvr_addr, sizeof(struct sockaddr)) == -1)
 	{
 		perror("talker: sendto");
 	}
+	return SUCCESS;
 }

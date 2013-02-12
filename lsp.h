@@ -8,6 +8,7 @@
 
 #include "header.h"
 #include "MessageReceiver.h"
+#include "MessageSender.h"
 #include "connection.h"
 #include "connectionInfo.h"
 #include "inbox.h"
@@ -32,6 +33,11 @@ struct ListenerData
 	LSP* lsp_instance;
 };
 
+struct TalkerData
+{
+	LSP* lsp_instance;
+};
+
 class LSP : public Uncopyable
 {
 private:
@@ -39,12 +45,17 @@ private:
 protected:
 	Inbox* inbox;
 	MessageReceiver* msgReceiver;
+	MessageSender* msgSender;
 	Connector* connector;
+	vector<ConnInfo*> *connectionInfo;
 
 
 	pthread_attr_t attr;
 	/* This is the thread that will listen to all incoming activity. */
 	pthread_t msg_recvr_thread;
+	/* This is the thread that will keep checking if any msg has to be sent
+	and send it*/
+	pthread_t msg_sender_thread;
 
 public:
 	LSP(bool isServer);
@@ -53,7 +64,11 @@ public:
 
 	void start_msg_receiver_thread();
 
+	void start_msg_sender_thread();
+
 	void runListener();
+
+	void runTalker();
 
 	virtual ~LSP();
 };

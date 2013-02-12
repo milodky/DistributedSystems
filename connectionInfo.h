@@ -8,8 +8,10 @@
 class ConnInfo : public Uncopyable
 {
 private:
+
+
 public:
-	string hostName;
+	char* hostName;
 	int port;
 	int connectionID;
 	//might have to be made volatile
@@ -20,8 +22,7 @@ public:
 	bool isAlive;
 	bool msgSent;
 	queue<LSP_Packet> outMsgs;
-
-	ConnInfo(int connId, int p, string host) : connectionID(connId), port(p), hostName(host)
+	ConnInfo(int connId, int p, char* host) : connectionID(connId), port(p), hostName(host)
 	{
 		//default values when constructed.
 		msgSent = false; //Only now connection request has come in. So msgSent will be false.
@@ -34,6 +35,18 @@ public:
 	}
 
 	void addPacket(int seqNo, size_t len, uint8_t *bytes);
+
+	bool isMsgToBeSent()
+	{
+		if(isAlive && !msgSent && outMsgs.size()!=0)
+			return true;
+		return false;
+	}
+
+	int getOutMsgsCount() const {
+		return outMsgs.size();
+	}
+
 };
 
 #endif

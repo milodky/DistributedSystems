@@ -26,7 +26,7 @@ using namespace std;
 #define LOCALHOST "localhost"
 
 #define SERVER_ADDR LOCALHOST
-#define SERVER_PORT "5001"
+#define SERVER_PORT "1040"
 
 const int BAD_SOCKFD = -1;
 
@@ -45,6 +45,8 @@ class Inbox;
 class MessageReceiver;
 class Connector;
 class Serializer;
+class ConnInfo;
+class MessageSender;
 
 class Uncopyable
 {

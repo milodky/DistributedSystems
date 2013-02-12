@@ -12,24 +12,15 @@ class MessageSender : public Uncopyable
 private:
 	Connector *connector;
 	Serializer serializer;
-	//vector<ConnInfo> connectionInfo;
+	vector<ConnInfo*> *connectionInfo;
 
 public:
 
-	void send_msg(ConnInfo cInfo)
-	{
-		//Marshals and sends the message.
-		LSP_Packet packet = cInfo.outMsgs.front();
-		Serializer s;
-		uint8_t *buf;
-		int len = s.marshal(packet,buf);
-		if(connector->isServer)
-			connector->send_message(cInfo.hostName,
-					cInfo.port, buf, len);
-		else
-			connector->send_message(buf,len);
-		free(buf);
-	}
+	MessageSender(vector<ConnInfo*> *info, Connector * conn) : connectionInfo(info),connector(conn)
+	{	}
+
+	void send_msg(ConnInfo &cInfo);
+	void pollToSend(vector<ConnInfo*>* connectionInfo);
 };
 
 #endif

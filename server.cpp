@@ -8,18 +8,13 @@ void connect()
 	server.init();
 }
 
-void outboxPoller()
-{
-
-}
-
 void Sender()
 {
 
 	vector<ConnInfo*> clients;
-	ConnInfo o(0,12,(string)"Host 1");
+	ConnInfo o(0,12,"Host 1");
 	clients.push_back(&o);
-	ConnInfo o1(1,1,(string)"Host2");
+	ConnInfo o1(1,1,"Host2");
 	clients.push_back(&o1);
 	for(int j=0;j<clients.size();++j)
 	{
@@ -30,17 +25,15 @@ void Sender()
 	}
 	for(int j=0;j<clients.size();++j)
 	{
-		if(clients[j]->msgSent==false && clients[j]->outMsgs.size()!=0)
+		if(clients[j]->msgSent==false && clients[j]->getOutMsgsCount()!=0)
 			break;
-			//clients[j]->outMsgs.front()<<endl;
 	}
 }
 
 
 int main ()
 {
-
-//	Sender();
+	//Sender();
 	connect();
 	return 0;
 }

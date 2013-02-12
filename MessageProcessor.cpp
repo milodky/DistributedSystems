@@ -26,8 +26,7 @@ void MessageProcessor::stamp_msg_type(LSP_Packet& packet)
 	{
 		packet.setType(CONN_REQ);
 	}
-	else if(packet.getConnId() != 0 && packet.getSeqNo() != 0 &&
-			packet.getLen() == 0)
+	else if(packet.getConnId() != 0 && packet.getLen() == 0)
 	{
 		packet.setType(ACK);
 	}

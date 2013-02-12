@@ -3,6 +3,8 @@
 
 #include "header.h"
 
+enum MessageType { UNKNOWN, CONN_REQ, DATA, ACK };
+
 class LSP_Packet
 {
 private:
@@ -11,6 +13,13 @@ private:
 
 	size_t len;
 	uint8_t* bytes;
+
+	MessageType type;
+
+	/* Required for each packet since when receiving
+	 * connection requests. we do not have a conn_id yet! */
+	char hostname[INET_ADDRSTRLEN];
+	int port;
 
 	LSP_Packet& operator = (const LSP_Packet& that);
 
@@ -23,6 +32,7 @@ public:
 	/* Please do not delete this code */
 //	LSP_Packet& operator = (const LSP_Packet& that);
 
+	void setHostNameAndPort(char* hostname, int port);
 	void print();
 
 	~LSP_Packet();
@@ -31,6 +41,10 @@ public:
 	int getConnId() const;
 	size_t getLen() const;
 	int getSeqNo() const;
+	MessageType getType() const;
+	void setType(MessageType type);
+	const char* getHostname() const;
+	int getPort() const;
 };
 
 #endif

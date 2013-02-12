@@ -6,13 +6,15 @@
 //	}
 
 LSP_Packet::LSP_Packet(int conn_id, int seq_no, size_t len, uint8_t* bytes)
-: conn_id(conn_id), seq_no(seq_no), len(len), bytes(new uint8_t[len])
-  {
+: conn_id(conn_id), seq_no(seq_no),
+  len(len), bytes(new uint8_t[len]), type(UNKNOWN)
+{
 	memcpy(this->bytes, bytes, len);
-  }
+}
 
 LSP_Packet::LSP_Packet(const LSP_Packet& that)
-: conn_id(that.conn_id), seq_no(that.seq_no), len(that.len), bytes(new uint8_t[len])
+: conn_id(that.conn_id), seq_no(that.seq_no),
+  len(that.len), bytes(new uint8_t[len]), type(that.type)
 {
 	memcpy(this->bytes, that.bytes, len);
 }
@@ -26,6 +28,12 @@ LSP_Packet::LSP_Packet(const LSP_Packet& that)
 //
 //		memcpy(this->bytes, that.bytes, len);
 //	}
+
+void LSP_Packet::setHostNameAndPort(char* const hostname, const int port)
+{
+	strcpy(this->hostname, hostname);
+	this->port = port;
+}
 
 void LSP_Packet::print()
 {
@@ -54,4 +62,20 @@ size_t LSP_Packet::getLen() const {
 
 int LSP_Packet::getSeqNo() const {
 	return seq_no;
+}
+
+MessageType LSP_Packet::getType() const {
+	return type;
+}
+
+void LSP_Packet::setType(MessageType type) {
+	this->type = type;
+}
+
+const char* LSP_Packet::getHostname() const {
+	return hostname;
+}
+
+int LSP_Packet::getPort() const {
+	return port;
 }

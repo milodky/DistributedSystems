@@ -1,11 +1,20 @@
 #include "MessageReceiver.h"
 
+MessageReceiver::MessageReceiver(Inbox* in) : inbox(in)
+{
+	serializer = new Serializer();
+}
+
 void MessageReceiver::receive_msg(
 		char* ipv4, int port, uint8_t* msg, size_t msg_len)
 {
 	try
 	{
 		LSP_Packet packet = serializer->unmarshal(msg, msg_len);
+
+		/* Required for conn request msgs where we dont yet have conn_id */
+		packet.setHostNameAndPort(ipv4, port);
+
 		inbox->add_msg(packet);
 	}
 	catch (const std::exception& ex)
@@ -19,13 +28,8 @@ void MessageReceiver::receive_msg(
 	}
 }
 
-MessageReceiver::MessageReceiver(Inbox* in) : inbox(in)
-{
-	serializer = new Serializer();
-}
 
 MessageReceiver::~MessageReceiver()
 {
 	if(serializer) delete serializer;
-	if(inbox) delete inbox;
 }

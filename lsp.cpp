@@ -41,8 +41,9 @@ void* talker_run(void* arg)
 
 
 /* LSP CLASS METHODS */
-LSP::LSP(bool isServer)
+LSP::LSP(bool isServer,char* port)
 {
+	serverPort = port;
 	inbox = new Inbox();
 	connectionInfo = new vector<ConnInfo*>();
 	connector = new Connector(isServer);
@@ -54,11 +55,11 @@ LSP::LSP(bool isServer)
 
 void LSP::init()
 {
-	//Test-sanu - remove later
-	ConnInfo *c = new ConnInfo(0,1,"C1");
-	LSP_Packet p(0,1,strlen("Hello"),(uint8_t*)"Hello");
-	c->outMsgs.push(p);
-	connectionInfo->push_back(c);
+//	//Test-sanu - remove later
+//	ConnInfo *c = new ConnInfo(0,1,"C1");
+//	LSP_Packet p(0,1,strlen("Hello"),(uint8_t*)"Hello");
+//	c->outMsgs.push(p);
+//	connectionInfo->push_back(c);
 
 
 	if (pthread_attr_init(&attr))

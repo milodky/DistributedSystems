@@ -48,6 +48,7 @@ protected:
 	MessageSender* msgSender;
 	Connector* connector;
 	vector<ConnInfo*> *connectionInfo;
+	char* serverPort;
 
 
 	pthread_attr_t attr;
@@ -58,7 +59,7 @@ protected:
 	pthread_t msg_sender_thread;
 
 public:
-	LSP(bool isServer);
+	LSP(bool isServer,char* port);
 
 	void init();
 
@@ -78,7 +79,7 @@ class LSP_Server : public LSP
 private:
 
 public:
-	LSP_Server() : LSP(true) {}
+	LSP_Server(char* port) : LSP(true,port) {}
 
 	void create(int port);
 	int  read(void* pld, uint32_t* conn_id);
@@ -96,8 +97,12 @@ public:
 
 class LSP_Client : public LSP
 {
+protected:
+	char* host;
+
 public:
-	LSP_Client() : LSP(false) {}
+	LSP_Client(char *h, char* port) : LSP(false,port),host(h){}
+
 	void create(const char* dest, int port);
 
 	int read(uint8_t* pld);
@@ -114,12 +119,19 @@ public:
 
 class LSP_Worker : public LSP_Client
 {
+public:
+	LSP_Worker(char *host, char* port) : LSP_Client(host,port) {}
 
 };
 
 class LSP_Requester : public LSP_Client
 {
-
+private:
+	char* hash;
+	unsigned length;
+public:
+	LSP_Requester(char* h, char* port, char* hashMsg, unsigned len):
+		LSP_Client(h,port),hash(hashMsg),length(len) {}
 };
 
 #endif

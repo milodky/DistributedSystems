@@ -1,10 +1,10 @@
 #include "lsp.h"
 
 
-void connect()
+void connect(char* host, char *port, char* hash, char* len)
 {
-	LSP_Client client;
-	client.init();
+	LSP_Requester request(host,port,hash,atoi(len));
+	request.init();
 	/*
 	LSP_Client client;
 	client.connect();
@@ -23,8 +23,21 @@ void connect()
 	*/
 }
 
-int main ()
+int main (int argc, char* const argv[])
 {
-	connect();
+	if(argc!=4)
+	{
+		printf("Incorrect usage. Please use format as below.\n");
+		printf("./request host:port hash len\n");
+		return 1;
+	}
+
+	char* temp = strtok(argv[1],":");
+	char* host = temp;
+	temp = strtok(NULL,":");
+	char* port = temp;
+	char* hash = argv[2];
+	char* len = argv[3];
+	connect(host,port,hash,len);
 	return 0;
 }

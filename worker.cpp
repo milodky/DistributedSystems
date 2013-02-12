@@ -1,8 +1,7 @@
 #include <iostream>
 #include <string>
-#include <openssl/sha.h>
 
-#include "header.h"
+#include "lsp.h"
 
 using namespace std;
 
@@ -33,13 +32,26 @@ void searchIn(string password, int start, int count, int length)
 	}
 }
 
-int main(int argn, char** argv)
+void connect(char* host, char *port)
 {
-	//int a = 2137;
-	//cout << numToString(a,5);
-	//searchIn("aadef",2000,2200,5);
-	//return 0;
+	LSP_Worker worker(host,port);
+	worker.init();
+}
 
+int main(int argc, char** argv)
+{
+	if(argc!=2)
+	{
+		printf("Incorrect usage. Please use format as below.\n");
+		printf("./worker host:port\n");
+		return 1;
+	}
+
+	char* t = strtok(argv[1],":");
+	char* host = t;
+	t = strtok(NULL,":");
+	char* port = t;
+	connect(host,port);
 	int i = 0;
 	unsigned char temp[SHA_DIGEST_LENGTH];
 	char buf[SHA_DIGEST_LENGTH*2];

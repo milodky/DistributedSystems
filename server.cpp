@@ -2,9 +2,9 @@
 #include "connectionInfo.h"
 
 using namespace std;
-void connect()
+void connect(char* port)
 {
-	LSP_Server server;
+	LSP_Server server(port);
 	server.init();
 }
 
@@ -31,10 +31,15 @@ void Sender()
 }
 
 
-int main ()
+int main (int argc, char* const argv[])
 {
-	//Sender();
-	connect();
+	if(argc!=2)
+	{
+		printf("Incorrect usage. Please use format as below.\n");
+		printf("./server port\n");
+		return 1;
+	}
+	connect(argv[1]);
 	return 0;
 }
 

@@ -144,7 +144,7 @@ int Connector::listen()
 
 	char from_ipv4[INET_ADDRSTRLEN];
 
-	printf("\nServer Waiting..\n");
+	printf("\nWaiting on port..\n");
 	fflush(stdout);
 
 	while (1)

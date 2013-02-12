@@ -11,16 +11,16 @@ SRC = lsp.cpp connection.cpp functions.cpp lspmessage.pb-c.c \
 compile:
 	g++ -S server.cpp $(SRC)
 	g++ -S client.cpp $(SRC)
-	g++ -S worker.cpp
+	g++ -S worker.cpp $(SRC)
 
 # -lpthread -> includes the pthread library for linking
 build:
 
 	g++ -g -o server server.cpp $(SRC) $(LIBS)
-	g++ -g -o client client.cpp $(SRC) $(LIBS)
-	g++ -g -o worker worker.cpp $(LIBS)
+	g++ -g -o request client.cpp $(SRC) $(LIBS)
+	g++ -g -o worker worker.cpp $(SRC) $(LIBS)
 
 clean:
-	rm -f *.o *.gch *.s server client worker
+	rm -f *.o *.gch *.s server request worker client
 	
 	

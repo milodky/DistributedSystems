@@ -24,10 +24,10 @@ using namespace std;
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 
-#define LOCALHOST "localhost"
+//#define LOCALHOST "localhost"
 
-#define SERVER_ADDR LOCALHOST
-#define SERVER_PORT "5000"
+//#define SERVER_ADDR LOCALHOST
+//#define SERVER_PORT "5000"
 
 const int BAD_SOCKFD = -1;
 

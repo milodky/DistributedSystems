@@ -123,7 +123,7 @@ LSP::~LSP()
 void LSP_Server::init()
 {
 	LSP::init();
-	connector->setup(NULL, SERVER_PORT);
+	connector->setup(NULL, serverPort);
 	start_msg_receiver_thread();
 	// connector->send_message((uint8_t*) "test", 6);
 	start_msg_sender_thread();
@@ -135,7 +135,7 @@ void LSP_Server::init()
 void LSP_Client::init()
 {
 	LSP::init();
-	connector->setup(LOCALHOST, SERVER_PORT);
+	connector->setup(host, serverPort);
 	start_msg_receiver_thread();
 	uint8_t *bytes;
 	uint8_t *text = (uint8_t*) "text!\0";

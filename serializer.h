@@ -22,7 +22,7 @@ public:
 
 	LSP_Packet convert_from(LSPMessage* msg);
 
-	int marshal(LSP_Packet packet, uint8_t* buf);
+	int marshal(LSP_Packet packet, uint8_t* &buf);
 };
 
 

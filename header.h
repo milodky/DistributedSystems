@@ -17,7 +17,7 @@
 #include <queue>
 #include <vector>
 #include <string>
-
+#include <exception>
 
 using namespace std;
 
@@ -34,6 +34,8 @@ const int BAD_SOCKFD = -1;
 #define FAILURE 1
 
 #define MAX_MSG_SIZE 1024
+
+void printBytes(uint8_t* data, size_t len);
 
 /* Class Declarations */
 struct _LSPMessage;
@@ -95,8 +97,10 @@ public:
 
 	void print()
 	{
-		printf("LSP_Packet{\n\tconn_id: %d, seq_no: %d, len: %u\n}\n",
+		printf("LSP_Packet{\nconn_id: %d, seq_no: %d, len: %u\n",
 				conn_id, seq_no, len);
+		printBytes(bytes, len);
+		printf("}\n");
 	}
 
 	~LSP_Packet()
@@ -124,5 +128,6 @@ public:
 /* Function Declarations */
 void Error(const char *str, ...);
 void pprint(_LSPMessage& msg);
+
 
 #endif

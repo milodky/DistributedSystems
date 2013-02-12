@@ -136,15 +136,15 @@ int Connector::listen()
 		return FAILURE;
 	}
 
-	int 				bytes_read;
-	char 				recv_data[MAX_MSG_SIZE];
+	size_t 				bytes_read;
+	uint8_t				recv_data[MAX_MSG_SIZE];
 	const int FLAGS = 0;
 	struct sockaddr_storage from_addr;
 	socklen_t fromlen;
 
 	char from_ipv4[INET_ADDRSTRLEN];
 
-	printf("\nUDP Server Waiting for client on port 5000\n");
+	printf("\nServer Waiting...\n");
 	fflush(stdout);
 
 	while (1)
@@ -154,21 +154,26 @@ int Connector::listen()
 				recv_data, MAX_MSG_SIZE, FLAGS,
 				(struct sockaddr *) &from_addr, &fromlen);
 
+
+
 		if (bytes_read == -1)
 		{
 			perror("recvfrom");
 			return FAILURE;
 		}
 
-		recv_data[bytes_read] = '\0';
 		inet_ntop(AF_INET,
-						get_in_addr((struct sockaddr *)&from_addr),
-						from_ipv4, sizeof from_ipv4);
+				get_in_addr((struct sockaddr *)&from_addr),
+				from_ipv4,
+				sizeof from_ipv4);
 
-		printf("[%s : %d] said: ", from_ipv4,
-						ntohs(((struct sockaddr_in *) &from_addr)->sin_port));
+		int port = ntohs(((struct sockaddr_in *) &from_addr)->sin_port);
+
+		printf("Received Message [%s : %d]:\n", from_ipv4, port);
+		printBytes(recv_data, bytes_read);
 
 		//printf("%s\n", recv_data);
+		msgReceiver->receive_msg(from_ipv4, port, recv_data, bytes_read);
 
 		fflush(stdout);
 	}
@@ -182,6 +187,8 @@ void Connector::send_message(uint8_t* const msg, const int len)
 {
 	// assert (!isServer);
 
+	printf("Sending message:\n");
+	printBytes(msg, len);
 	if (sendto(sockfd, msg, len, 0,
 			ai_node->ai_addr, ai_node->ai_addrlen) == -1)
 	{
@@ -207,6 +214,8 @@ void Connector::send_message(char* const recvr_hostname, const int recvr_port, u
 	recvr_addr.sin_addr = *((struct in_addr *) host->h_addr);
 	bzero(&(recvr_addr.sin_zero), 8);
 
+	printf("Sending message:\n");
+	printBytes(msg, len);
 	if (sendto(sockfd, msg, len, 0,
 			(struct sockaddr *)&recvr_addr, sizeof(struct sockaddr)) == -1)
 	{

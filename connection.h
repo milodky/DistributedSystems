@@ -32,6 +32,7 @@ public:
 
 		msgReceiver = NULL;
 	}
+
 	bool getIsServer(){return isServer;}
 
 	/**
@@ -61,10 +62,10 @@ public:
 	 */
 	void send_message(char* const recvr_hostname, const int recvr_port, uint8_t* const msg, const int len);
 
-	void setMsgReceiver(MessageReceiver& msgReceiver)
+	void setMsgReceiver(MessageReceiver* msgReceiver)
 	{
 		assert (this->msgReceiver == NULL);
-		this->msgReceiver = &msgReceiver;
+		this->msgReceiver = msgReceiver;
 	}
 
 	virtual ~Connector()

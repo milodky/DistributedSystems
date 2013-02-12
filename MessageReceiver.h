@@ -18,16 +18,12 @@ public:
 		serializer = new Serializer();
 	}
 
-	void receive_msg(char* ipv4, int port, uint8_t* msg, size_t msg_len)
-	{
-		// LSP_Packet packet = serializer.unmarshal();
-		// inbox.add_msg(packet);
-	}
+	void receive_msg(char* ipv4, int port, uint8_t* msg, size_t msg_len);
 
 	~MessageReceiver()
 	{
-		if(serializer)
-			delete serializer;
+		if(serializer) delete serializer;
+		if(inbox) delete inbox;
 	}
 };
 

@@ -1,0 +1,9 @@
+# Compiled source #
+###################
+
+*.o
+*.s
+client
+server
+worker
+

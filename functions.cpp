@@ -27,6 +27,16 @@ void Error(const char *str, ...)
 
 void pprint(LSPMessage& msg)
 {
-	printf("LSPMessage{connid: %d, seqnum: %d, payload.len: %u}\n",
+	printf("LSPMessage\n{connid: %d, seqnum: %d, payload.len: %u\n",
 			msg.connid, msg.seqnum, msg.payload.len);
+
+	printBytes(msg.payload.data, msg.payload.len);
+	printf("}\n");
+}
+
+void printBytes(uint8_t* data, size_t len)
+{
+	printf("Data [%u bytes]: ", len);
+	for(int i = 0; i < len; i++) printf("%2X ", data[i]);
+	printf("\n");
 }

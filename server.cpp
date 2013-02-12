@@ -40,8 +40,8 @@ void Sender()
 int main ()
 {
 
-	Sender();
-	//connect();
+//	Sender();
+	connect();
 	return 0;
 }
 

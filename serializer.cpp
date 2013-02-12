@@ -1,4 +1,4 @@
-#include"serializer.h"
+#include "serializer.h"
 
 LSP_Packet Serializer::unmarshal(uint8_t* bytes, int msg_len)
 {
@@ -9,7 +9,7 @@ LSP_Packet Serializer::unmarshal(uint8_t* bytes, int msg_len)
 	if (msg == NULL)
 	{
 		fprintf(stderr, "Error unpacking incoming message\n");
-		exit(1);
+		throw "Unmarshal Error!";
 	}
 
 	LSP_Packet packet = convert_from(msg);
@@ -31,7 +31,7 @@ LSP_Packet Serializer::convert_from(LSPMessage* msg)
 	return packet;
 }
 
-int Serializer::marshal(LSP_Packet packet, uint8_t* buf)
+int Serializer::marshal(LSP_Packet packet, uint8_t* &buf)
 {
 	LSPMessage msg = LSPMESSAGE__INIT;
 
@@ -49,14 +49,14 @@ int Serializer::marshal(LSP_Packet packet, uint8_t* buf)
 	lspmessage__pack (&msg, buf);             // Pack msg, including submessages
 
 	/* Debug Code! Do not remove! */
-	//		packet.print();
-	//	    pprint(msg);
-	//	    fprintf(stderr,"Writing %d serialized bytes\n", len); // See the length of message
-	//	    fwrite (buf, len, 1, stdout);           // Write to stdout to allow direct command line piping
-	//
-	//	    printf("\n");
-	//	    LSP_Packet packet2 = unmarshal(buf, len);
-	//	    packet2.print();
+//	packet.print();
+//	pprint(msg);
+//	fprintf(stderr,"Buffer [%d bytes]: ", len); // See the length of message
+//	fwrite (buf, len, 1, stdout);           // Write to stdout to allow direct command line piping
+//	printf("\n");
+//
+//	LSP_Packet packet2 = unmarshal(buf, len);
+//	packet2.print();
 
 	delete msg.payload.data;
 

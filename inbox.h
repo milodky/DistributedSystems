@@ -14,6 +14,8 @@ public:
 
 	void add_msg(LSP_Packet packet)
 	{
+		printf("Adding packet to Inbox:\n");
+		packet.print();
 		inbox.push(packet);
 	}
 

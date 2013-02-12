@@ -11,19 +11,10 @@ private:
 	Inbox* inbox;
 
 public:
-	MessageProcessor(Inbox* in) : inbox(in)
-	{
-
-	}
-
+	MessageProcessor(Inbox* in);
 	int poll_inbox();
-
 	void process_incoming_msg(LSP_Packet packet);
-
-	~MessageProcessor()
-	{
-		if(inbox) delete inbox;
-	}
+	~MessageProcessor();
 };
 
 #endif

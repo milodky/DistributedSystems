@@ -1,5 +1,9 @@
 #include "MessageProcessor.h"
 
+MessageProcessor::MessageProcessor(Inbox* in) : inbox(in)
+{
+
+}
 
 int MessageProcessor::poll_inbox()
 {
@@ -16,4 +20,9 @@ int MessageProcessor::poll_inbox()
 void MessageProcessor::process_incoming_msg(LSP_Packet packet)
 {
 
+}
+
+MessageProcessor::~MessageProcessor()
+{
+	if(inbox) delete inbox;
 }

@@ -25,7 +25,10 @@ public:
 	int seq_no;
 
 	bool isAlive;
+	bool isWorker;
+
 	bool msgSent;
+
 
 	queue<LSP_Packet> outMsgs;
 

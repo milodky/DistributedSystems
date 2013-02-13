@@ -8,7 +8,7 @@
 
 class MessageProcessor : public Uncopyable
 {
-private:
+protected:
 	Inbox* inbox;
 	vector<ConnInfo*> *connInfos;
 
@@ -18,7 +18,10 @@ public:
 	int poll_inbox();
 
 	/* Process incoming Packet */
-	void process_incoming_msg(LSP_Packet& packet);
+	virtual void process_incoming_msg(LSP_Packet& packet);
+
+	/* Process a data packet */
+	virtual void process_data_packet(LSP_Packet& packet) = 0;
 
 	/* Figure out the packet type and stamp it on the packet object */
 	void stamp_msg_type(LSP_Packet& packet);
@@ -26,22 +29,16 @@ public:
 	/* Figure out the data type and stamp it on the packet object */
 	void stamp_data_type(LSP_Packet& packet);
 
-	/* Process a connection request packet */
-	void process_conn_req(LSP_Packet& packet);
 
 	/* Process an acknowledgment packet */
 	void process_ack_packet(LSP_Packet& packet);
 
-	/* Process a data packet */
-	void process_data_packet(LSP_Packet& packet);
+
 
 	/* Create an ACK packet */
 	LSP_Packet create_ack_packet(LSP_Packet& packet) const;
 
-	/* Get the connection ID to be set for a new Connection Request */
-	unsigned get_next_conn_id() const;
-
-	~MessageProcessor();
+	virtual ~MessageProcessor();
 };
 
 #endif

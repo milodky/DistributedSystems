@@ -62,7 +62,7 @@ void MessageProcessor::stamp_data_type(LSP_Packet& packet)
 void MessageProcessor::process_incoming_msg(LSP_Packet& packet)
 {
 	stamp_msg_type(packet);
-	stamp_msg_type(packet);
+	stamp_data_type(packet);
 }
 
 

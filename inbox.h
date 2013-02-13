@@ -3,8 +3,6 @@
 
 #include "header.h"
 #include "lsppacket.h"
-#include "serializer.h"
-#include "connectionInfo.h"
 
 class Inbox : public Uncopyable
 {

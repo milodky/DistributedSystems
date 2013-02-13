@@ -1,5 +1,13 @@
 #include "connection.h"
 
+Connector::Connector(bool isServer) : isServer(isServer)
+{
+	addressInfoPtr = NULL;
+	ai_node = NULL;
+	sockfd = BAD_SOCKFD;
+
+	msgReceiver = NULL;
+}
 
 /**
  * Populate addressInfoPtr
@@ -162,11 +170,11 @@ int Connector::listen()
 
 		recv_data[bytes_read] = '\0';
 		inet_ntop(AF_INET,
-						get_in_addr((struct sockaddr *)&from_addr),
-						from_ipv4, sizeof from_ipv4);
+				get_in_addr((struct sockaddr *)&from_addr),
+				from_ipv4, sizeof from_ipv4);
 
 		printf("[%s : %d] said: ", from_ipv4,
-						ntohs(((struct sockaddr_in *) &from_addr)->sin_port));
+				ntohs(((struct sockaddr_in *) &from_addr)->sin_port));
 
 		printf("%s\n", recv_data);
 
@@ -222,4 +230,18 @@ int Connector::send_message(char* const recvr_hostname, const int recvr_port, ui
 		perror("talker: sendto");
 	}
 	return SUCCESS;
+}
+
+void Connector::setMsgReceiver(MessageReceiver* msgReceiver)
+{
+	assert (this->msgReceiver == NULL);
+	this->msgReceiver = msgReceiver;
+}
+
+Connector::~Connector()
+{
+	/* This data structure is no longer required */
+	if (addressInfoPtr) freeaddrinfo(addressInfoPtr);
+	if(sockfd != BAD_SOCKFD)
+		close(sockfd);
 }

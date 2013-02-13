@@ -4,7 +4,7 @@
 #include "header.h"
 #include "lsppacket.h"
 #include "inbox.h"
-
+#include "connectionInfo.h"
 
 class MessageProcessor : public Uncopyable
 {
@@ -29,11 +29,8 @@ public:
 	/* Figure out the data type and stamp it on the packet object */
 	void stamp_data_type(LSP_Packet& packet);
 
-
 	/* Process an acknowledgment packet */
 	void process_ack_packet(LSP_Packet& packet);
-
-
 
 	/* Create an ACK packet */
 	LSP_Packet create_ack_packet(LSP_Packet& packet) const;

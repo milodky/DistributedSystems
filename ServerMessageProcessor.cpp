@@ -1,7 +1,7 @@
 #include "ServerMessageProcessor.h"
 
 ServerMessageProcessor::ServerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos)
-	: MessageProcessor(in,infos)
+	: MessageProcessor(in, infos)
 {
 
 }
@@ -31,10 +31,8 @@ void ServerMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 	case ACK:
 		break;
 	case DATA:
-	{
 		process_data_packet(packet);
 		break;
-	}
 	default:
 		fprintf( stderr, "Unknown Packet Type!\n");
 		packet.print();

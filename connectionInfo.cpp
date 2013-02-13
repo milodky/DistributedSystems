@@ -1,4 +1,3 @@
-#include "serializer.h"
 #include "connectionInfo.h"
 
 ConnInfo::ConnInfo(int connId, int p, const char* const host) : connectionID(connId), port(p)

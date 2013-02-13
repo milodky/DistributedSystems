@@ -1,6 +1,5 @@
 #include "lsp.h"
 #include "serializer.h"
-// #include "lspmessage.pb-c.h"
 
 double epoch_lth = _EPOCH_LTH;
 int epoch_cnt = _EPOCH_CNT;
@@ -45,10 +44,10 @@ LSP::LSP(bool isServer,char* port)
 {
 	serverPort = port;
 	inbox = new Inbox();
-	connectionInfo = new vector<ConnInfo*>();
+	connInfos = new vector<ConnInfo*>();
 	connector = new Connector(isServer);
 	msgReceiver = new MessageReceiver(inbox);
-	msgSender = new MessageSender(connectionInfo,connector);
+	msgSender = new MessageSender(connInfos,connector);
 	/* Binding the socket connector and msg receiver class */
 	connector->setMsgReceiver(msgReceiver);
 }
@@ -59,7 +58,7 @@ void LSP::init()
 //	ConnInfo *c = new ConnInfo(0,1,"C1");
 //	LSP_Packet p(0,1,strlen("Hello"),(uint8_t*)"Hello");
 //	c->outMsgs.push(p);
-//	connectionInfo->push_back(c);
+//	connInfos->push_back(c);
 
 
 	if (pthread_attr_init(&attr))
@@ -99,7 +98,7 @@ void LSP::runListener()
 void LSP::runTalker()
 {
 	assert(msgSender != NULL);
-	msgSender->pollToSend(connectionInfo);
+	msgSender->pollToSend(connInfos);
 }
 
 LSP::~LSP()
@@ -115,11 +114,18 @@ LSP::~LSP()
 	if(msgReceiver) delete msgReceiver;
 	if(inbox) delete inbox;
 	if(msgSender) delete msgSender;
-	if(connectionInfo) delete connectionInfo;
+	if(connInfos) delete connInfos;
 
 }
 
+/* ---------------------------------------------------------------*/
 /** LSP_Server METHODS */
+/* ---------------------------------------------------------------*/
+LSP_Server::LSP_Server(char* port) : LSP(true,port)
+{
+	msg_proc = new ServerMessageProcessor(inbox, connInfos);
+}
+
 void LSP_Server::init()
 {
 	LSP::init();
@@ -131,23 +137,66 @@ void LSP_Server::init()
 //		connector.send_message("test");
 }
 
+LSP_Server::~LSP_Server()
+{
+	delete msg_proc;
+}
+/* ---------------------------------------------------------------*/
 /** LSP_Client METHODS */
+/* ---------------------------------------------------------------*/
+LSP_Client::LSP_Client(char *h, char* port) : LSP(false,port),host(h)
+{
+
+}
+
 void LSP_Client::init()
 {
 	LSP::init();
 	connector->setup(host, serverPort);
 	start_msg_receiver_thread();
-	uint8_t *bytes;
-	uint8_t *text = (uint8_t*) "text!\0";
+//	uint8_t *bytes;
+//	uint8_t *text = (uint8_t*) "text!\0";
+//
+//	LSP_Packet packet(40, 50, strlen( (char*)text), text);
+//	packet.print();
+//
+//	Serializer s;
+//	int len = s.marshal(packet, bytes);
+//	fprintf(stderr,"Writing %d serialized bytes\n", len); // See the length of message
+//	fwrite (bytes, len, 1, stdout);           // Write to stdout to allow direct command line piping
+//	printf("\n");
 
-	LSP_Packet packet(40, 50, strlen( (char*)text), text);
-	packet.print();
+//	connector->send_message(bytes, len);
+}
 
-	Serializer s;
-	int len = s.marshal(packet, bytes);
-	fprintf(stderr,"Writing %d serialized bytes\n", len); // See the length of message
-	fwrite (bytes, len, 1, stdout);           // Write to stdout to allow direct command line piping
-	printf("\n");
+LSP_Client::~LSP_Client()
+{
 
-	connector->send_message(bytes, len);
+}
+
+/* ---------------------------------------------------------------*/
+/** LSP_Worker METHODS */
+/* ---------------------------------------------------------------*/
+LSP_Worker::LSP_Worker(char *host, char* port) : LSP_Client(host,port)
+{
+	msg_proc = new WorkerMessageProcessor(inbox, connInfos);
+}
+
+LSP_Worker::~LSP_Worker()
+{
+	delete msg_proc;
+}
+
+/* ---------------------------------------------------------------*/
+/** LSP_Requester METHODS */
+/* ---------------------------------------------------------------*/
+LSP_Requester::LSP_Requester(char* h, char* port, char* hashMsg, unsigned len):
+	LSP_Client(h,port),hash(hashMsg),length(len)
+{
+	msg_proc = new RequestMessageProcessor(inbox, connInfos);
+}
+
+LSP_Requester::~LSP_Requester()
+{
+	delete msg_proc;
 }

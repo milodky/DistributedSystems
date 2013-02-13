@@ -13,7 +13,7 @@ public:
 	virtual void process_incoming_msg(LSP_Packet& packet);
 
 	/* Process a data packet */
-	virtual void process_data_packet(LSP_Packet& packet) = 0;
+	virtual void process_data_packet(LSP_Packet& packet);
 
 	/* Process a connection request packet */
 	void process_conn_req(LSP_Packet& packet);

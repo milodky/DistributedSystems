@@ -7,11 +7,14 @@
 #define LSP_H
 
 #include "header.h"
-#include "MessageReceiver.h"
-#include "MessageSender.h"
-#include "connection.h"
 #include "connectionInfo.h"
 #include "inbox.h"
+#include "connection.h"
+#include "MessageReceiver.h"
+#include "MessageSender.h"
+#include "ServerMessageProcessor.h"
+#include "RequestMessageProcessor.h"
+#include "WorkerMessageProcessor.h"
 
 // Global Parameters. For both server and clients.
 
@@ -47,13 +50,14 @@ protected:
 	MessageReceiver* msgReceiver;
 	MessageSender* msgSender;
 	Connector* connector;
-	vector<ConnInfo*> *connectionInfo;
+	vector<ConnInfo*> *connInfos;
 	char* serverPort;
 
-
 	pthread_attr_t attr;
+
 	/* This is the thread that will listen to all incoming activity. */
 	pthread_t msg_recvr_thread;
+
 	/* This is the thread that will keep checking if any msg has to be sent
 	and send it*/
 	pthread_t msg_sender_thread;
@@ -77,9 +81,9 @@ public:
 class LSP_Server : public LSP
 {
 private:
-
+	ServerMessageProcessor* msg_proc;
 public:
-	LSP_Server(char* port) : LSP(true,port) {}
+	LSP_Server(char* port);
 
 	void create(int port);
 	int  read(void* pld, uint32_t* conn_id);
@@ -88,10 +92,7 @@ public:
 
 	void init();
 
-	virtual ~LSP_Server()
-	{
-
-	}
+	virtual ~LSP_Server();
 };
 
 
@@ -101,7 +102,7 @@ protected:
 	char* host;
 
 public:
-	LSP_Client(char *h, char* port) : LSP(false,port),host(h){}
+	LSP_Client(char *h, char* port);
 
 	void create(const char* dest, int port);
 
@@ -111,16 +112,17 @@ public:
 
 	void init();
 
-	virtual ~LSP_Client()
-	{
-
-	}
+	virtual ~LSP_Client();
 };
 
 class LSP_Worker : public LSP_Client
 {
+private:
+	WorkerMessageProcessor* msg_proc;
 public:
-	LSP_Worker(char *host, char* port) : LSP_Client(host,port) {}
+	LSP_Worker(char *host, char* port);
+
+	virtual ~LSP_Worker();
 
 };
 
@@ -129,9 +131,12 @@ class LSP_Requester : public LSP_Client
 private:
 	char* hash;
 	unsigned length;
+
+	RequestMessageProcessor* msg_proc;
 public:
-	LSP_Requester(char* h, char* port, char* hashMsg, unsigned len):
-		LSP_Client(h,port),hash(hashMsg),length(len) {}
+	LSP_Requester(char* h, char* port, char* hashMsg, unsigned len);
+
+	virtual ~LSP_Requester();
 };
 
 #endif

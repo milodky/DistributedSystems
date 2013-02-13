@@ -14,7 +14,6 @@ class Connector : public Uncopyable
 private:
 	bool isServer;
 	MessageReceiver* 	msgReceiver;
-	//MessageSender* msgSender;
 
 protected:
 	struct addrinfo*	addressInfoPtr; // Filled up by system call getaddrinfo
@@ -22,18 +21,8 @@ protected:
 	int 				sockfd; // A nonnegative socket file descriptor indicates success
 
 public:
-	/**
-	 * Public Constructor
-	 */
-	Connector(bool isServer) : isServer(isServer)
-	{
-		addressInfoPtr = NULL;
-		ai_node = NULL;
-		sockfd = BAD_SOCKFD;
-
-		msgReceiver = NULL;
-		//msgSender = NULL;
-	}
+	/** Public Constructor */
+	Connector(bool isServer);
 
 	bool getIsServer(){return isServer;}
 
@@ -64,24 +53,9 @@ public:
 	 */
 	int send_message(char* const recvr_hostname, const int recvr_port, uint8_t* const msg, const int len);
 
-	void setMsgReceiver(MessageReceiver* msgReceiver)
-	{
-		assert (this->msgReceiver == NULL);
-		this->msgReceiver = msgReceiver;
-	}
+	void setMsgReceiver(MessageReceiver* msgReceiver);
 
-//	void setMsgSender(MessageSender* msgSender)
-//	{
-//		assert (this->msgSender == NULL);
-//		this->msgSender = msgSender;
-//	}
-	virtual ~Connector()
-	{
-		/* This data structure is no longer required */
-		if (addressInfoPtr) freeaddrinfo(addressInfoPtr);
-		if(sockfd != BAD_SOCKFD)
-			close(sockfd);
-	}
+	virtual ~Connector();
 };
 
 #endif

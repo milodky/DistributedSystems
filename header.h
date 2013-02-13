@@ -15,6 +15,7 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <queue>
+#include <map>
 #include <vector>
 #include <string>
 #include <exception>

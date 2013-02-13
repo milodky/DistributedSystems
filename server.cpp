@@ -6,6 +6,7 @@ void connect(char* port)
 {
 	LSP_Server server(port);
 	server.init();
+	server.run();
 }
 
 void Sender()

@@ -8,6 +8,7 @@ ServerMessageProcessor::ServerMessageProcessor(Inbox* in, vector<ConnInfo*> *inf
 
 void ServerMessageProcessor::process_conn_req(LSP_Packet& packet)
 {
+	fprintf(stderr, "ServerMessageProcessor:: Processing Connection Request from %s : %d\n", packet.getHostname(), packet.getPort());
 	/* Create a new connection info object for this client */
 	unsigned conn_id = get_next_conn_id();
 	ConnInfo *connInfo =
@@ -16,7 +17,11 @@ void ServerMessageProcessor::process_conn_req(LSP_Packet& packet)
 	connInfos->push_back(connInfo);
 
 	/* Send an acknowledgment packet */
-	LSP_Packet ack_packet = create_ack_packet(packet);
+	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", conn_id);
+
+	// Need a dummy packet to push in the connection ID
+	LSP_Packet p(conn_id, 0, 0, NULL);
+	LSP_Packet ack_packet = create_ack_packet(p);
 	connInfo->add_to_outMsgs(ack_packet);
 }
 

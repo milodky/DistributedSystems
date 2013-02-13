@@ -17,8 +17,8 @@ compile:
 # -lpthread -> includes the pthread library for linking
 build:
 
-	#g++ -g -o server server.cpp $(SRC) $(LIBS)
-	#g++ -g -o request client.cpp $(SRC) $(LIBS)
+	g++ -g -o server server.cpp $(SRC) $(LIBS)
+	g++ -g -o request client.cpp $(SRC) $(LIBS)
 	g++ -g -o worker worker.cpp $(SRC) $(LIBS)
 
 clean:

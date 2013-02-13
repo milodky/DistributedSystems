@@ -8,8 +8,8 @@ LSP_Packet Serializer::unmarshal(uint8_t* bytes, int msg_len)
 	msg = lspmessage__unpack(NULL, msg_len, bytes);
 	if (msg == NULL)
 	{
-		fprintf(stderr, "Error unpacking incoming message\n");
-		throw "Unmarshal Error!";
+		fprintf(stderr, "Serializer::Error unpacking incoming message\n");
+		throw "Serializer::Unmarshal Error!";
 	}
 
 	LSP_Packet packet = convert_from(msg);

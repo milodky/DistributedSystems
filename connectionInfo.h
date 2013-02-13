@@ -6,6 +6,8 @@
 class ConnInfo : public Uncopyable
 {
 private:
+	pthread_mutex_t mutex_outbox;
+	queue<LSP_Packet> outMsgs;
 
 public:
 	char hostName[INET_ADDRSTRLEN];
@@ -26,16 +28,16 @@ public:
 
 	bool msgSent;
 
-
-	queue<LSP_Packet> outMsgs;
-
 	/* Methods */
 	ConnInfo(int connId, int p, const char* const host);
 
 	void add_to_outMsgs(LSP_Packet packet);
+	LSP_Packet get_front_msg() const;
 
-	bool isMsgToBeSent();
+	bool isMsgToBeSent() const;
 	int getOutMsgsCount() const;
+
+	~ConnInfo();
 };
 
 #endif

@@ -25,7 +25,7 @@ void lsp_set_drop_rate(double rate){drop_rate = rate;}
 void* listener_run(void* arg)
 {
 	struct ListenerData* params = (struct ListenerData *) arg;
-	printf("Running Listener Thread...\n");
+	fprintf(stderr, "LSP:: Running Listener Thread...\n");
 	params->lsp_instance->runListener();
 	delete params;
 }
@@ -33,14 +33,14 @@ void* listener_run(void* arg)
 void* talker_run(void* arg)
 {
 	struct TalkerData* params = (struct TalkerData *) arg;
-	printf("Running Talker Thread...\n");
+	fprintf(stderr, "LSP:: Running Talker Thread...\n");
 	params->lsp_instance->runTalker();
 	delete params;
 }
 
 
 /* LSP CLASS METHODS */
-LSP::LSP(bool isServer,char* port)
+LSP::LSP(bool isServer, char* port)
 {
 	serverPort = port;
 	inbox = new Inbox();
@@ -107,8 +107,8 @@ LSP::~LSP()
 		Error("pthread_join");
 	if (pthread_join(msg_sender_thread, NULL))
 			Error("pthread_join");
-	printf("Joined Listener Thread.\n");
-	printf("Joined Sender Thread.\n");
+	fprintf(stderr, "Joined Listener Thread.\n");
+	fprintf(stderr, "Joined Sender Thread.\n");
 
 	if(connector) delete connector;
 	if(msgReceiver) delete msgReceiver;
@@ -131,10 +131,14 @@ void LSP_Server::init()
 	LSP::init();
 	connector->setup(NULL, serverPort);
 	start_msg_receiver_thread();
-	// connector->send_message((uint8_t*) "test", 6);
 	start_msg_sender_thread();
 
 //		connector.send_message("test");
+}
+
+void LSP_Server::run()
+{
+	msg_proc->poll_inbox();
 }
 
 LSP_Server::~LSP_Server()
@@ -154,6 +158,7 @@ void LSP_Client::init()
 	LSP::init();
 	connector->setup(host, serverPort);
 	start_msg_receiver_thread();
+	start_msg_sender_thread();
 //	uint8_t *bytes;
 //	uint8_t *text = (uint8_t*) "text!\0";
 //
@@ -167,6 +172,12 @@ void LSP_Client::init()
 //	printf("\n");
 
 //	connector->send_message(bytes, len);
+}
+
+void LSP_Client::run()
+{
+	msg_proc->send_conn_req_packet(host, serverPort);
+	msg_proc->poll_inbox();
 }
 
 LSP_Client::~LSP_Client()

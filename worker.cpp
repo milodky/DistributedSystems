@@ -37,6 +37,7 @@ void connect(char* host, char *port)
 {
 	LSP_Worker worker(host,port);
 	worker.init();
+	worker.run();
 }
 
 int main(int argc, char** argv)

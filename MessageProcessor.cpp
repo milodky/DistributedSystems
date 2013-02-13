@@ -8,13 +8,14 @@ MessageProcessor::MessageProcessor(Inbox* in, vector<ConnInfo*> *infos)
 
 int MessageProcessor::poll_inbox()
 {
+	fprintf(stderr, "MessageProcessor:: Polling inbox.. \n");
 	while(true)
 	{
 		/* Empty Inbox: Life is chill! :-) */
 		if(inbox->isEmpty()) continue;
 
 		LSP_Packet packet = inbox->pop_msg();
-
+		fprintf(stderr, "MessageProcessor:: Received Packet: \n");
 		process_incoming_msg(packet);
 	}
 }
@@ -42,7 +43,7 @@ void MessageProcessor::stamp_msg_type(LSP_Packet& packet)
 	}
 	else
 	{
-		fprintf( stderr, "Unknown Packet Type!\n");
+		fprintf( stderr, "MessageProcessor:: Unknown Packet Type!\n");
 		packet.print();
 	}
 }
@@ -68,6 +69,7 @@ void MessageProcessor::process_incoming_msg(LSP_Packet& packet)
 {
 	stamp_msg_type(packet);
 	stamp_data_type(packet);
+	packet.print();
 }
 
 
@@ -84,7 +86,22 @@ LSP_Packet MessageProcessor::create_ack_packet(LSP_Packet& packet) const
 	return LSP_Packet(packet.getConnId(), packet.getSeqNo(), 0, NULL);
 }
 
+/* Create a Connection Request */
+LSP_Packet MessageProcessor::create_conn_req_packet() const
+{
+	return LSP_Packet(0, 0, 0, NULL);
+}
 
+void MessageProcessor::send_conn_req_packet(char* hostname, char* port)
+{
+	/* Create a new connection info object for this client */
+	ConnInfo *connInfo = new ConnInfo(-1, atoi(port), hostname);
+
+	connInfos->push_back(connInfo);
+
+	fprintf(stderr, "MessageProcessor:: Pushing Connection Request to outbox. Server %s : %s\n", hostname, port);
+	connInfo->add_to_outMsgs(create_conn_req_packet());
+}
 
 MessageProcessor::~MessageProcessor()
 {

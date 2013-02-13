@@ -14,7 +14,7 @@ Connector::Connector(bool isServer) : isServer(isServer)
  */
 bool Connector::populateAddrInfo(char* const host, char* const portStr)
 {
-	fprintf(stderr, "Populating Address Info.. ");
+	fprintf(stderr, "Connector:: Populating Address Info.. ");
 
 	int status;
 	struct addrinfo hints;
@@ -34,7 +34,7 @@ bool Connector::populateAddrInfo(char* const host, char* const portStr)
 
 	if ((status = getaddrinfo(host, portStr, &hints, &addressInfoPtr)) != 0)
 	{
-		fprintf(stderr, "\npopulateAddrInfo() :: getaddrinfo error: %s\n", gai_strerror(status));
+		fprintf(stderr, "\nConnector:: populateAddrInfo() :: getaddrinfo error: %s\n", gai_strerror(status));
 		return false;
 	}
 	fprintf(stderr, "Done.\n");
@@ -43,7 +43,7 @@ bool Connector::populateAddrInfo(char* const host, char* const portStr)
 
 bool Connector::createSocket(struct addrinfo* const addressInfoPtr)
 {
-	fprintf(stderr, "Creating a socket.. ");
+	fprintf(stderr, "Connector:: Creating a socket.. ");
 	if ((sockfd = socket(addressInfoPtr->ai_family, addressInfoPtr->ai_socktype, addressInfoPtr->ai_protocol)) == -1)
 	{
 		printf("\n");
@@ -56,7 +56,7 @@ bool Connector::createSocket(struct addrinfo* const addressInfoPtr)
 
 bool Connector::bindToPort(struct addrinfo* const addressInfoPtr)
 {
-	fprintf(stderr, "Binding to port.. ");
+	fprintf(stderr, "Connector:: Binding to port.. ");
 	if (bind(sockfd, addressInfoPtr->ai_addr, addressInfoPtr->ai_addrlen) == -1)
 	{
 		perror("Bind");
@@ -84,7 +84,7 @@ int Connector::setup(char* const host, char* const portStr)
 				}
 				else
 				{
-					fprintf(stderr, "Closing socket: %d/n", sockfd);
+					fprintf(stderr, "Connector:: Closing socket: %d/n", sockfd);
 					close(sockfd);
 					sockfd = BAD_SOCKFD;
 				}
@@ -99,7 +99,7 @@ int Connector::setup(char* const host, char* const portStr)
 
 	if (p == NULL)
 	{
-		fprintf(stderr, "listener: failed to bind socket\n");
+		fprintf(stderr, "Connector::listener: failed to bind socket\n");
 		return 2;
 	}
 	ai_node = p;
@@ -144,15 +144,15 @@ int Connector::listen()
 		return FAILURE;
 	}
 
-	int 				bytes_read;
-	char 				recv_data[MAX_MSG_SIZE];
+	size_t bytes_read;
+	uint8_t	recv_data[MAX_MSG_SIZE];
 	const int FLAGS = 0;
 	struct sockaddr_storage from_addr;
 	socklen_t fromlen;
 
 	char from_ipv4[INET_ADDRSTRLEN];
 
-	printf("\nWaiting on port..\n");
+	printf("\nConnector:: Listening on port..\n");
 	fflush(stdout);
 
 	while (1)
@@ -173,11 +173,12 @@ int Connector::listen()
 				get_in_addr((struct sockaddr *)&from_addr),
 				from_ipv4, sizeof from_ipv4);
 
-		printf("[%s : %d] said: ", from_ipv4,
-				ntohs(((struct sockaddr_in *) &from_addr)->sin_port));
+		int port = ntohs(((struct sockaddr_in *) &from_addr)->sin_port);
+		printf("Connector:: Received msg from [%s : %d]\n", from_ipv4, port);
+		printBytes(recv_data, bytes_read);
 
-		printf("%s\n", recv_data);
-
+		/* Send received data to Message Receiver Module */
+		msgReceiver->receive_msg(from_ipv4, port, recv_data, bytes_read);
 		fflush(stdout);
 	}
 	return 0;

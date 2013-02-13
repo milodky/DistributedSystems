@@ -37,6 +37,12 @@ public:
 	/* Create an ACK packet */
 	LSP_Packet create_ack_packet(LSP_Packet& packet) const;
 
+	/* Create a Connection Request */
+	LSP_Packet create_conn_req_packet() const;
+
+	/* Send a Connection Request */
+	void send_conn_req_packet(char* hostname, char* port);
+
 	virtual ~MessageProcessor();
 };
 

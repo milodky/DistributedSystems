@@ -10,19 +10,32 @@ ConnInfo::ConnInfo(int connId, int p, const char* const host) : connectionID(con
 	isAlive = true;  //Assumed alive since connection request has just come in.
 
 	//change these based on client and server
-//	countMsgsRcd = 1; //only connection request is got at this point.
+	//	countMsgsRcd = 1; //only connection request is got at this point.
 
 	seq_no = 0;
 	epochsSinceMsgRcd = 0;
 	epochsSinceMsgSent = 0;
+
+	pthread_mutex_init(&mutex_outbox, NULL);
 }
 
 void ConnInfo::add_to_outMsgs(LSP_Packet packet)
 {
+	/* Lock before modifying! */
+	pthread_mutex_lock (&mutex_outbox);
+
 	outMsgs.push(packet);
+
+	/* Unlock after modifying! */
+	pthread_mutex_unlock (&mutex_outbox);
 }
 
-bool ConnInfo::isMsgToBeSent()
+LSP_Packet ConnInfo::get_front_msg() const
+{
+	return outMsgs.front();
+}
+
+bool ConnInfo::isMsgToBeSent() const
 {
 	if(isAlive && !msgSent && outMsgs.size()!=0)
 		return true;
@@ -32,4 +45,9 @@ bool ConnInfo::isMsgToBeSent()
 int ConnInfo::getOutMsgsCount() const
 {
 	return outMsgs.size();
+}
+
+ConnInfo::~ConnInfo()
+{
+	pthread_mutex_destroy(&mutex_outbox);
 }

@@ -10,6 +10,7 @@ void MessageReceiver::receive_msg(
 {
 	try
 	{
+		printf("MessageReceiver:: Received msg from %s : %d\n", ipv4, port);
 		LSP_Packet packet = serializer->unmarshal(msg, msg_len);
 
 		/* Required for conn request msgs where we dont yet have conn_id */

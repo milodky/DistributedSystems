@@ -1,4 +1,6 @@
 #include "WorkerMessageProcessor.h"
+#include <sstream>
+using namespace std;
 
 WorkerMessageProcessor::WorkerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos)
 	: MessageProcessor(in,infos)
@@ -35,22 +37,39 @@ void WorkerMessageProcessor::process_data_packet(LSP_Packet& packet)
 	switch(packet.getDataType())
 	{
 	case CRACKREQUEST:
-//		Update seq number. If outbox has any msg with sequence number less than current, remove from outbox. This case will only happen when server
-//		sends a crack request after the worker sends an 'Alive' message, but before the server gets it.
-
+//		Update seq number. If outbox has any msg with sequence number less than
+//		current, remove from outbox. This case will only happen when server
+//		sends a crack request after the worker sends an 'Alive' message,
+//		but before the server gets it.
+		process_crack_request(packet);
 		break;
 	default:
 		fprintf( stderr, "Unknown Data Type!\n");
 		packet.print();
 	}
-
-//write code
-//remove msg from outbox, when seqno exceeds that of last message, and packet type not ack.
 }
 
 void WorkerMessageProcessor::process_crack_request(LSP_Packet& packet)
 {
 	uint8_t* bytes = packet.getBytes();
+	string s((char*)bytes);
+	stringstream iss(s);
+	string ignore;
+	iss >> ignore;
+	string hash;
+	iss >> hash;
+	string startString;
+	iss >> startString;
+	int start = atoi(startString.c_str());
+	string countString;
+	iss >> countString;
+	int count = atoi(countString.c_str());
+	string lengthString;
+	iss >> lengthString;
+	int length = atoi(lengthString.c_str());
+	char* password;
+	//Start as a separate thread
+	process_crack_request(hash, start, count, length, password);
 }
 
 void WorkerMessageProcessor::process_crack_request(string sha, int start, int count, int length, char* password)
@@ -78,12 +97,6 @@ string WorkerMessageProcessor::numToString(int x,int length)
 	str.insert(0,length-str.length(),'a');
 	return str;
 }
-
-void WorkerMessageProcessor::process_crack_request(uint8_t* sha, uint8_t* start, uint8_t* count, uint8_t* length, char* password)
-{
-	//convert appropriately and call process_crack_request(string sha, int start, int count, int length, char* password)
-}
-
 
 WorkerMessageProcessor::~WorkerMessageProcessor()
 {

@@ -51,6 +51,8 @@ void WorkerMessageProcessor::process_data_packet(LSP_Packet& packet)
 
 void WorkerMessageProcessor::process_crack_request(LSP_Packet& packet)
 {
+//	This comes from the server and has the following format:
+//	c hash lower upper
 	uint8_t* bytes = packet.getBytes();
 	string s((char*)bytes);
 	stringstream iss(s);
@@ -61,20 +63,20 @@ void WorkerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	string startString;
 	iss >> startString;
 	int start = atoi(startString.c_str());
-	string countString;
-	iss >> countString;
-	int count = atoi(countString.c_str());
+	string endString;
+	iss >> endString;
+	int end = atoi(endString.c_str());
 	string lengthString;
 	iss >> lengthString;
 	int length = atoi(lengthString.c_str());
 	char* password;
 	//Start as a separate thread
-	process_crack_request(hash, start, count, length, password);
+	process_crack_request(hash, start, end, length, password);
 }
 
-void WorkerMessageProcessor::process_crack_request(string sha, int start, int count, int length, char* password)
+void WorkerMessageProcessor::process_crack_request(string sha, int start, int end, int length, char* password)
 {
-	for(int i = start; i < count; i++)
+	for(int i = start; i < end; i++)
 	{
 		string str = numToString(i,length);
 		if(str.compare(password)==0)

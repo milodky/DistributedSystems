@@ -19,6 +19,8 @@ public:
 
 	ConnInfo* get_conn_info();
 
+	ConnInfo* get_conn_info(int);
+
 	/* Process incoming Packet */
 	virtual void process_incoming_msg(LSP_Packet& packet);
 

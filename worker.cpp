@@ -19,9 +19,9 @@ string numToString(int x,int length)
 	return str;
 }
 
-void searchIn(string password, int start, int count, int length)
+void searchIn(string password, int start, int end, int length)
 {
-	for(int i = start; i < count; i++)
+	for(int i = start; i < end; i++)
 	{
 		string str = numToString(i,length);
 		cout << str << endl;

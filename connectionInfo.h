@@ -36,8 +36,9 @@ public:
 
 	bool isMsgToBeSent() const;
 	int getOutMsgsCount() const;
-
+	void setWorker(bool worker);
 	~ConnInfo();
+
 };
 
 #endif

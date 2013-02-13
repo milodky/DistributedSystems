@@ -8,7 +8,7 @@ ConnInfo::ConnInfo(int connId, int p, const char* const host) : connectionID(con
 	//default values when constructed.
 	msgSent = false; //Only now connection request has come in. So msgSent will be false.
 	isAlive = true;  //Assumed alive since connection request has just come in.
-
+	isWorker = false;
 	//change these based on client and server
 	//	countMsgsRcd = 1; //only connection request is got at this point.
 
@@ -45,6 +45,11 @@ bool ConnInfo::isMsgToBeSent() const
 int ConnInfo::getOutMsgsCount() const
 {
 	return outMsgs.size();
+}
+
+void ConnInfo::setWorker(bool worker)
+{
+	isWorker = worker;
 }
 
 ConnInfo::~ConnInfo()

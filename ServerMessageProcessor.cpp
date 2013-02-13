@@ -1,7 +1,7 @@
 #include "ServerMessageProcessor.h"
 
 ServerMessageProcessor::ServerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos)
-	: MessageProcessor(in, infos)
+	: MessageProcessor(in,infos)
 {
 
 }
@@ -36,8 +36,10 @@ void ServerMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 	case ACK:
 		break;
 	case DATA:
+	{
 		process_data_packet(packet);
 		break;
+	}
 	default:
 		fprintf( stderr, "Unknown Packet Type!\n");
 		packet.print();
@@ -49,8 +51,12 @@ void ServerMessageProcessor::process_data_packet(LSP_Packet& packet)
 	switch(packet.getDataType())
 	{
 	case JOINREQUEST:
+		//Change conn info isWorker corresponding to conn id as true.
+//		A join request can come only from a worker.
+		process_join_request(packet);
 		break;
 	case CRACKREQUEST:
+		process_crack_request(packet);
 		break;
 	case FOUND:
 		break;
@@ -65,6 +71,86 @@ void ServerMessageProcessor::process_data_packet(LSP_Packet& packet)
 
 //write code
 //remove msg from outbox, when seqno exceeds that of last message, and packet type not ack.
+}
+
+void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
+{
+//	crack request to server comes from request and is of the format
+//	c sha len
+//	The server has to split the task equally among all available workers and
+//	send crack requests to each worker
+
+	uint8_t* bytes = packet.getBytes();
+	string s((char*)bytes);
+	stringstream iss(s);
+	string ignore;
+	iss >> ignore;
+	string hash;
+	iss >> hash;
+	string lengthString;
+	iss >> lengthString;
+	int length = atoi(lengthString.c_str());
+	unsigned workersCount = get_workers_count();
+	if(workersCount == 0)
+	{
+//		Send msg to client that the request cannot be processed
+		printf("No resources to process your request!\n");
+		return;
+	}
+	if(length == 0)
+	{
+//		Send msg to client that the request was faulty.
+		printf("The password to be found cannot be of length 0");
+		return;
+	}
+	if(length<4)
+	{
+//		Assign only 1 worker. Sending message to more workers will take more time
+//		than processing by a single worker for 17576 entries.
+		ConnInfo* cInfo;
+		for(vector<ConnInfo*>::iterator it=connInfos->begin();
+						it!=connInfos->end(); ++it)
+		{
+			if((*it)->isAlive && (*it)->isWorker)
+			{
+				cInfo = (*it);
+				break;
+			}
+		}
+		std::ostringstream sin;
+	    sin << pow(26,length);
+        string start = sin.str();
+        sin << 	pow(26,length+1)-1;
+        string end = sin.str();
+	    string data = "c " + hash + " "  + start + "  " +end;
+		send_crack_worker_request(cInfo, data.c_str());//,pow(26,length),(pow(26,length+1)-1));
+	}
+}
+
+void ServerMessageProcessor::send_crack_worker_request(ConnInfo* cInfo,const char* hash)
+{
+//	The crack request that the server sends to the worker will have the format
+//	c hash lower upper
+	LSP_Packet packet(cInfo->connectionID, cInfo->seq_no,strlen(hash), (uint8_t*)hash);
+	cInfo->add_to_outMsgs(packet);
+}
+
+void ServerMessageProcessor::process_join_request(LSP_Packet& packet)
+{
+	ConnInfo* cInfo = get_conn_info(packet.getConnId());
+	cInfo->setWorker(true);
+}
+
+unsigned ServerMessageProcessor::get_workers_count()
+{
+	unsigned count =0;
+	for(vector<ConnInfo*>::iterator it=connInfos->begin();
+					it!=connInfos->end(); ++it)
+	{
+		if((*it)->isAlive && (*it)->isWorker)
+			++count;
+	}
+	return count;
 }
 
 unsigned ServerMessageProcessor::get_next_conn_id() const

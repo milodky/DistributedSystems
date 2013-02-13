@@ -22,7 +22,19 @@ int MessageProcessor::poll_inbox()
 
 ConnInfo* MessageProcessor::get_conn_info()
 {
+	assert(connInfos->size()==1);
 	return (*connInfos)[0];
+}
+
+ConnInfo* MessageProcessor::get_conn_info(int connId)
+{
+	for(vector<ConnInfo*>::iterator it=connInfos->begin();
+				it!=connInfos->end(); ++it)
+	{
+		if((*it)->connectionID == connId)
+			return (*it);
+
+	}
 }
 
 void MessageProcessor::stamp_msg_type(LSP_Packet& packet)

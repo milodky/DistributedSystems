@@ -23,11 +23,15 @@ void RequestMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 	}
 }
 
-void RequestMessageProcessor::process_ack_packet(LSP_Packet& packet)
+int RequestMessageProcessor::process_ack_packet(LSP_Packet& packet)
 {
 //  If seq number is 0, send crack request to server.
 //  Payload will be 'c hash len'
-	MessageProcessor::process_ack_packet(packet);
+	if(!MessageProcessor::process_ack_packet(packet))
+		return FAILURE;
+
+
+	return SUCCESS;
 }
 
 void RequestMessageProcessor::process_data_packet(LSP_Packet& packet)

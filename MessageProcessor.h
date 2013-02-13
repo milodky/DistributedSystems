@@ -34,7 +34,7 @@ public:
 	void stamp_data_type(LSP_Packet& packet);
 
 	/* Process an acknowledgment packet */
-	virtual void process_ack_packet(LSP_Packet& packet);
+	virtual int process_ack_packet(LSP_Packet& packet);
 
 	/* Create an ACK packet */
 	LSP_Packet create_ack_packet(LSP_Packet& packet) const;

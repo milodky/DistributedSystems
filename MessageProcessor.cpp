@@ -15,7 +15,7 @@ int MessageProcessor::poll_inbox()
 		if(inbox->isEmpty()) continue;
 
 		LSP_Packet packet = inbox->pop_msg();
-		fprintf(stderr, "MessageProcessor:: Received Packet: \n");
+		fprintf(stderr, "MessageProcessor:: Received Packet. \n");
 		process_incoming_msg(packet);
 	}
 }
@@ -35,6 +35,8 @@ ConnInfo* MessageProcessor::get_conn_info(int connId)
 			return (*it);
 
 	}
+	assert (false);
+	return NULL;
 }
 
 void MessageProcessor::stamp_msg_type(LSP_Packet& packet)
@@ -84,11 +86,30 @@ void MessageProcessor::process_incoming_msg(LSP_Packet& packet)
 	packet.print();
 }
 
-
-void MessageProcessor::process_ack_packet(LSP_Packet& packet)
+/**
+ * Check if conn ID and Seq Num match the last message in appropriate outbox.
+ * Remove from outMsgs.
+ * If they do not match, drop the ack packet.
+ */
+int MessageProcessor::process_ack_packet(LSP_Packet& packet)
 {
-//	Check if conn ID and Seq Num match the last message in appropriate outbox. Remove from outMsgs.
-//	If they do not match, drop the ack packet.
+	assert (packet.getConnId() > 0);
+
+	ConnInfo* connInfo;
+	LSP_Packet out_pkt = connInfo->get_front_msg();
+
+	assert (packet.getConnId() == out_pkt.getConnId());
+	if(packet.getSeqNo() != out_pkt.getSeqNo())
+	{
+		fprintf(stderr, "MessageProcessor:: Ignoring ACK Packet %d. Expecting %d\n",
+				packet.getSeqNo(), out_pkt.getSeqNo());
+		return FAILURE;
+	}
+
+	/* Pop from conn info */
+	connInfo->pop_outMsgs();
+
+	return SUCCESS;
 }
 
 

@@ -31,8 +31,10 @@ public:
 	/* Methods */
 	ConnInfo(int connId, int p, const char* const host);
 
+	/* OutBox Handling */
 	void add_to_outMsgs(LSP_Packet packet);
 	LSP_Packet get_front_msg() const;
+	void pop_outMsgs();
 
 	bool isMsgToBeSent() const;
 	int getOutMsgsCount() const;

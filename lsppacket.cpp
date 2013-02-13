@@ -38,29 +38,27 @@ void LSP_Packet::setHostNameAndPort(char* const hostname, const int port)
 
 void LSP_Packet::print()
 {
-	printf("LSP_Packet{\nconn_id: %d, seq_no: %d, len: %u ",
+	printf("LSP_Packet::conn_id: %d seq_no: %d ",
 			conn_id, seq_no, len);
 
 	switch(type)
 	{
-	case CONN_REQ: printf("Message Type: CONN_REQ"); break;
-	case ACK: printf("Message Type: ACK"); break;
-	case DATA: printf("Message Type: DATA"); break;
+	case CONN_REQ: printf("MsgType: CONN_REQ"); break;
+	case ACK: printf("MsgType: ACK"); break;
+	case DATA: printf("MsgType: DATA"); break;
 	}
 	printf(" ");
+
 	switch(dataType)
 	{
-	case JOINREQUEST: printf("Date Type: JOINREQUEST"); break;
-	case CRACKREQUEST: printf("Date Type: CRACKREQUEST"); break;
-	case FOUND: printf("Date Type: FOUND"); break;
-	case NOTFOUND: printf("Date Type: NOTFOUND"); break;
-	case ALIVE: printf("Date Type: ALIVE"); break;
+	case JOINREQUEST: printf("DataType: JOINREQUEST"); break;
+	case CRACKREQUEST: printf("DataType: CRACKREQUEST"); break;
+	case FOUND: printf("DataType: FOUND"); break;
+	case NOTFOUND: printf("DataType: NOTFOUND"); break;
+	case ALIVE: printf("DataType: ALIVE"); break;
 	}
 	printf(" ");
-	printf("len: %u ", len);
 	printBytes(bytes, len);
-
-	printf("}\n");
 }
 
 LSP_Packet::~LSP_Packet()

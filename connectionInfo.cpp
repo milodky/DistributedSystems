@@ -24,6 +24,7 @@ void ConnInfo::add_to_outMsgs(LSP_Packet packet)
 	/* Lock before modifying! */
 	pthread_mutex_lock (&mutex_outbox);
 
+	fprintf(stderr, "ConnInfo::Adding packet to conn_id:%d Outbox:\n", connectionID);
 	outMsgs.push(packet);
 
 	/* Unlock after modifying! */
@@ -33,6 +34,18 @@ void ConnInfo::add_to_outMsgs(LSP_Packet packet)
 LSP_Packet ConnInfo::get_front_msg() const
 {
 	return outMsgs.front();
+}
+
+void ConnInfo::pop_outMsgs()
+{
+	/* Lock before modifying! */
+	pthread_mutex_lock (&mutex_outbox);
+
+	fprintf(stderr, "ConnInfo::Popping packet to conn_id:%d Outbox:\n", connectionID);
+	outMsgs.pop();
+
+	/* Unlock after modifying! */
+	pthread_mutex_unlock (&mutex_outbox);
 }
 
 bool ConnInfo::isMsgToBeSent() const

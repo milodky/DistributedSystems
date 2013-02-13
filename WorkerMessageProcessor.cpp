@@ -25,11 +25,14 @@ void WorkerMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 	}
 }
 
-void WorkerMessageProcessor::process_ack_packet(LSP_Packet& packet)
+int WorkerMessageProcessor::process_ack_packet(LSP_Packet& packet)
 {
 //  If seq number is 0, send join request to server.
 //  Payload will be 'j'
-	MessageProcessor::process_ack_packet(packet);
+	if(!MessageProcessor::process_ack_packet(packet))
+		return FAILURE;
+
+	return SUCCESS;
 }
 
 void WorkerMessageProcessor::process_data_packet(LSP_Packet& packet)

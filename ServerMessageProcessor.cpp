@@ -103,10 +103,16 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 		printf("The password to be found cannot be of length 0");
 		return;
 	}
+	if(length>5)
+	{
+//		Send msg to client that the password is too long. Cannot process.
+		return;
+	}
 	if(length<4)
 	{
 //		Assign only 1 worker. Sending message to more workers will take more time
 //		than processing by a single worker for 17576 entries.
+
 		ConnInfo* cInfo;
 		for(vector<ConnInfo*>::iterator it=connInfos->begin();
 						it!=connInfos->end(); ++it)
@@ -118,12 +124,35 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 			}
 		}
 		std::ostringstream sin;
-	    sin << pow(26,length);
-        string start = sin.str();
-        sin << 	pow(26,length+1)-1;
+        sin << 	pow(26,length);
         string end = sin.str();
-	    string data = "c " + hash + " "  + start + "  " +end;
-		send_crack_worker_request(cInfo, data.c_str());//,pow(26,length),(pow(26,length+1)-1));
+	    string data = "c " + hash + " 0" + "  " +end;
+		send_crack_worker_request(cInfo, data.c_str());
+	}
+	else if(length > 4)
+	{
+		int start = 0;
+		int numPoss = pow(26,length);
+		int each = ceil(numPoss/workersCount);
+		for(vector<ConnInfo*>::iterator it=connInfos->begin();
+								it!=connInfos->end(); ++it)
+		{
+			if((*it)->isAlive && (*it)->isWorker)
+			{
+				ConnInfo* cInfo = (*it);
+				std::ostringstream sin;
+				sin << start;
+				string startString = sin.str();
+				if(start+each>numPoss)
+					sin << 	numPoss;
+				else
+					sin << 	start+each;
+				string endString = sin.str();
+				string data = "c " + hash + " "  + startString + "  " +endString;
+				send_crack_worker_request(cInfo, data.c_str());
+				start = start + each + 1;
+			}
+		}
 	}
 }
 

@@ -17,6 +17,8 @@ public:
 
 	int poll_inbox();
 
+	ConnInfo* get_conn_info();
+
 	/* Process incoming Packet */
 	virtual void process_incoming_msg(LSP_Packet& packet);
 
@@ -30,7 +32,7 @@ public:
 	void stamp_data_type(LSP_Packet& packet);
 
 	/* Process an acknowledgment packet */
-	void process_ack_packet(LSP_Packet& packet);
+	virtual void process_ack_packet(LSP_Packet& packet);
 
 	/* Create an ACK packet */
 	LSP_Packet create_ack_packet(LSP_Packet& packet) const;

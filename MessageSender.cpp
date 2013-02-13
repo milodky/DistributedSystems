@@ -20,7 +20,6 @@ void MessageSender::pollToSend(vector<ConnInfo*>* connectionInfo)
 {
 	while(1)
 	{
-
 		for(vector<ConnInfo*>::iterator it=connectionInfo->begin();
 			it!=connectionInfo->end(); ++it)
 		{

@@ -19,6 +19,11 @@ int MessageProcessor::poll_inbox()
 	}
 }
 
+ConnInfo* MessageProcessor::get_conn_info()
+{
+	return (*connInfos)[0];
+}
+
 void MessageProcessor::stamp_msg_type(LSP_Packet& packet)
 {
 	if(packet.getConnId() == 0 && packet.getSeqNo() == 0 &&
@@ -68,7 +73,8 @@ void MessageProcessor::process_incoming_msg(LSP_Packet& packet)
 
 void MessageProcessor::process_ack_packet(LSP_Packet& packet)
 {
-//remove msg from outbox
+//	Check if conn ID and Seq Num match the last message in appropriate outbox. Remove from outMsgs.
+//	If they do not match, drop the ack packet.
 }
 
 
@@ -77,6 +83,7 @@ LSP_Packet MessageProcessor::create_ack_packet(LSP_Packet& packet) const
 {
 	return LSP_Packet(packet.getConnId(), packet.getSeqNo(), 0, NULL);
 }
+
 
 
 MessageProcessor::~MessageProcessor()

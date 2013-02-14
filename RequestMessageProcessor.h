@@ -7,7 +7,7 @@ class RequestMessageProcessor : public MessageProcessor
 {
 private:
 	const char* hashMsg;
-	unsigned hashMsglen;
+	unsigned password_length;
 
 public:
 	RequestMessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos);

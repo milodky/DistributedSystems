@@ -46,7 +46,7 @@ int RequestMessageProcessor::process_ack_packet(LSP_Packet& packet)
 	if(	connInfo->getSeqNo() == 1)
 	{
 		fprintf( stderr, "RequestMessageProcessor::Pushing crack Request(%s:%u) to outbox\n",
-				hashMsg, hashMsglen);
+				hashMsg, password_length);
 		LSP_Packet c_pkt = create_crack_req_packet();
 		connInfo->add_to_outMsgs(c_pkt);
 	}
@@ -62,12 +62,9 @@ LSP_Packet RequestMessageProcessor::create_crack_req_packet()
 {
 	ConnInfo* connInfo = get_conn_info();
 
-	unsigned data_length = 2 + hashMsglen; /* 1 byte for c and 1 for size */
-
-	uint8_t* data = new uint8_t[data_length];
-	data[0] = 'c';
-	data[1] = hashMsglen;
-	memcpy(data + 2, hashMsg, hashMsglen);
+	uint8_t data[100];
+	sprintf((char*) data, "c %u %s", password_length, hashMsg);
+	unsigned data_length = strlen((char*)data);
 
 	LSP_Packet c_pkt(
 			connInfo->getConnectionId(),
@@ -75,7 +72,6 @@ LSP_Packet RequestMessageProcessor::create_crack_req_packet()
 			data_length,
 			data);
 
-	delete data;
 	return c_pkt;
 }
 
@@ -116,7 +112,7 @@ void RequestMessageProcessor::process_data_packet(LSP_Packet& packet)
 void RequestMessageProcessor::set_password_data(const char* const hashMsg, const unsigned len)
 {
 	this->hashMsg = hashMsg;
-	this->hashMsglen = len;
+	this->password_length = len;
 }
 
 RequestMessageProcessor::~RequestMessageProcessor()

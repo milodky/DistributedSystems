@@ -88,10 +88,11 @@ int MessageProcessor::check_msg_sequence_and_pop_outbox(LSP_Packet& packet)
 
 	/*	TODO Server gets higher priority when both send packets with the same seq no */
 	if((packet.getSeqNo() == out_pkt.getSeqNo() && packet.getType() == ACK) ||
-			packet.getSeqNo() == out_pkt.getSeqNo() + 1 && packet.getType() == DATA)
+			(packet.getSeqNo() == out_pkt.getSeqNo() + 1 && packet.getType() == DATA))
 	{
 		/* Pop from conn info */
-		connInfo->pop_outMsgs();
+		if(packet.getSeqNo() == out_pkt.getSeqNo() && packet.getType() == ACK)
+			connInfo->pop_outMsgs();
 
 		return SUCCESS;
 	}
@@ -141,7 +142,9 @@ int MessageProcessor::process_ack_packet(LSP_Packet& packet)
 /* Create an ACK packet */
 LSP_Packet MessageProcessor::create_ack_packet(LSP_Packet& packet) const
 {
-	return LSP_Packet(packet.getConnId(), packet.getSeqNo(), 0, NULL);
+	LSP_Packet ack_packet(packet.getConnId(), packet.getSeqNo(), 0, NULL);
+	ack_packet.setType(ACK);
+	return ack_packet;
 }
 
 /* Create a Connection Request */

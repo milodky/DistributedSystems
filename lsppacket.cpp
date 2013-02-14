@@ -14,7 +14,8 @@ LSP_Packet::LSP_Packet(int conn_id, int seq_no, size_t len, uint8_t* bytes)
 
 LSP_Packet::LSP_Packet(const LSP_Packet& that)
 : conn_id(that.conn_id), seq_no(that.seq_no),
-  len(that.len), bytes(new uint8_t[len]), type(that.type), port(that.port)
+  len(that.len), bytes(new uint8_t[len]), type(that.type),
+  dataType(that.dataType), port(that.port)
 {
 	memcpy(this->bytes, that.bytes, len);
 	strcpy(this->hostname, that.hostname);
@@ -44,18 +45,24 @@ void LSP_Packet::print()
 	{
 	case CONN_REQ: printf("MsgType: CONN_REQ"); break;
 	case ACK: printf("MsgType: ACK"); break;
+	case DATA: break;
+	default:
+		printBytes(bytes, len);
+		return;
 	}
 	printf(" ");
 
 	switch(dataType)
 	{
 	case JOINREQUEST: printf("DataType: JOINREQUEST"); break;
-	case CRACKREQUEST: printf("DataType: CRACKREQUEST"); break;
+	case CRACKREQUEST: printf("DataType: CRACKREQUEST");
+		printf(" len: %u Data: %s", len, bytes);
+		break;
 	case FOUND: printf("DataType: FOUND"); break;
 	case NOTFOUND: printf("DataType: NOTFOUND"); break;
 	case ALIVE: printf("DataType: ALIVE"); break;
 	}
-	printf(" len: %u Data: %s", len, bytes);
+	printf("\n");
 }
 
 LSP_Packet::~LSP_Packet()

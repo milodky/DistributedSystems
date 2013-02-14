@@ -1,7 +1,7 @@
 #include "ServerMessageProcessor.h"
 
-ServerMessageProcessor::ServerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos)
-	: MessageProcessor(in,infos, mutex_connInfos)
+ServerMessageProcessor::ServerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos,pthread_mutex_t& mutex_connInfos)
+	: MessageProcessor(in,infos,mutex_connInfos)
 {
 
 }
@@ -15,12 +15,12 @@ void ServerMessageProcessor::process_conn_req(LSP_Packet& packet)
 			new ConnInfo(conn_id, packet.getPort(), packet.getHostname());
 
 	/* Lock before modifying! */
-	pthread_mutex_lock (&mutex_connInfos);
+    pthread_mutex_lock (&mutex_connInfos);
 
-	connInfos->push_back(connInfo);
+    connInfos->push_back(connInfo);
 
-	/* Unlock after modifying! */
-	pthread_mutex_unlock (&mutex_connInfos);
+    /* Unlock after modifying! */
+    pthread_mutex_unlock (&mutex_connInfos);
 
 	/* Send an acknowledgment packet */
 	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", conn_id);
@@ -59,6 +59,7 @@ void ServerMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 
 void ServerMessageProcessor::process_data_packet(LSP_Packet& packet)
 {
+
 	switch(packet.getDataType())
 	{
 	case JOINREQUEST:
@@ -89,12 +90,14 @@ void ServerMessageProcessor::process_data_packet(LSP_Packet& packet)
 
 void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 {
+	fprintf(stderr, "ServerMessageProcessor:: Processing crack Request from %s : %d\n", packet.getHostname(), packet.getPort());
 //	crack request to server comes from request and is of the format
 //	c sha len
 //	Send ack to request
 	LSP_Packet ack_packet = create_ack_packet(packet);
 	ConnInfo* connInfo = get_conn_info(packet.getConnId());
 	connInfo->add_to_outMsgs(ack_packet);
+	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", packet.getConnId());
 
 //	The server has to split the task equally among all available(non-busy) workers and
 //	send crack requests to each worker
@@ -208,13 +211,19 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 
 void ServerMessageProcessor::process_join_request_packet(LSP_Packet& packet)
 {
+	fprintf(stderr, "ServerMessageProcessor:: Processing Join Request from %s : %d\n", packet.getHostname(), packet.getPort());
 	ConnInfo* cInfo = get_conn_info(packet.getConnId());
 	cInfo->setIsWorker(true);
+	assert(cInfo->isIsWorker() == true);
+	LSP_Packet ack_packet = create_ack_packet(packet);
+	cInfo->add_to_outMsgs(ack_packet);
+	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", packet.getConnId());
 }
 
 
 void ServerMessageProcessor::process_found_packet(LSP_Packet& packet)
 {
+	fprintf(stderr, "ServerMessageProcessor:: Processing Found Request from %s : %d\n", packet.getHostname(), packet.getPort());
 //	Payload of form
 //	f pass
 	ConnInfo* cInfo = get_conn_info(packet.getConnId());
@@ -222,6 +231,7 @@ void ServerMessageProcessor::process_found_packet(LSP_Packet& packet)
 	assert(cInfo->isIsWorker() == true);
 	LSP_Packet ack_packet = create_ack_packet(packet);
 	cInfo->add_to_outMsgs(ack_packet);
+	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", packet.getConnId());
 //	Remove map entry.
 	int clientId = cInfo->popClients();
 	assert(clientWorkerInfo.find(clientId)!=clientWorkerInfo.end());
@@ -234,6 +244,7 @@ void ServerMessageProcessor::process_found_packet(LSP_Packet& packet)
 
 void ServerMessageProcessor::process_not_found_packet(LSP_Packet& packet)
 {
+	fprintf(stderr, "ServerMessageProcessor:: Processing Not Found Request from %s : %d\n", packet.getHostname(), packet.getPort());
 //	Update map entry. If all have returned 'not found', send message to client,
 //	remove map entry.
 	ConnInfo* cInfo = get_conn_info(packet.getConnId());
@@ -241,6 +252,7 @@ void ServerMessageProcessor::process_not_found_packet(LSP_Packet& packet)
 	assert(cInfo->isIsWorker() == true);
 	LSP_Packet ack_packet = create_ack_packet(packet);
 	cInfo->add_to_outMsgs(ack_packet);
+	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", packet.getConnId());
 //	Update map entry.
 	int clientId = cInfo->popClients();
 
@@ -285,15 +297,18 @@ void ServerMessageProcessor::process_not_found_packet(LSP_Packet& packet)
 		uint8_t* bytes = (uint8_t*)"x";
 		LSP_Packet client_packet(clientId,conInfo->getSeqNo(),2,bytes);
 		conInfo->add_to_outMsgs(client_packet);
+//		Remove entry from map.
 	}
 }
 
 void ServerMessageProcessor::process_alive_packet(LSP_Packet& packet)
 {
+	fprintf(stderr, "ServerMessageProcessor:: Processing Alive Request from %s : %d\n", packet.getHostname(), packet.getPort());
 	ConnInfo* cInfo = get_conn_info(packet.getConnId());
 //	Send ack packet.
 	LSP_Packet ack_packet = create_ack_packet(packet);
 	cInfo->add_to_outMsgs(ack_packet);
+	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", packet.getConnId());
 //	Update seq no
 	cInfo->incrementSeqNo();
 

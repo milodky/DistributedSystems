@@ -80,10 +80,6 @@ void WorkerMessageProcessor::process_data_packet(LSP_Packet& packet)
 	switch(packet.getDataType())
 	{
 	case CRACKREQUEST:
-//		Update seq number. If outbox has any msg with sequence number less than
-//		current, remove from outbox. This case will only happen when server
-//		sends a crack request after the worker sends an 'Alive' message,
-//		but before the server gets it.
 		process_crack_request(packet);
 		break;
 	default:
@@ -94,6 +90,11 @@ void WorkerMessageProcessor::process_data_packet(LSP_Packet& packet)
 
 void WorkerMessageProcessor::process_crack_request(LSP_Packet& packet)
 {
+//		Update seq number. If outbox has any msg with sequence number less than
+//		current, remove from outbox. This case will only happen when server
+//		sends a crack request after the worker sends an 'Alive' message,
+//		but before the server gets it.
+
 //	This comes from the server and has the following format:
 //	c hash lower upper
 	uint8_t* bytes = packet.getBytes();
@@ -113,6 +114,11 @@ void WorkerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	iss >> lengthString;
 	int length = atoi(lengthString.c_str());
 	char* password;
+//	Send an ack
+	ConnInfo* cInfo = get_conn_info();
+	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", packet.getConnId());
+	LSP_Packet ack_packet = create_ack_packet(packet);
+	cInfo->add_to_outMsgs(ack_packet);
 	//Start as a separate thread
 	process_crack_request(hash, start, end, length, password);
 }

@@ -25,6 +25,7 @@ void RequestMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 
 int RequestMessageProcessor::process_ack_packet(LSP_Packet& packet)
 {
+	fprintf(stderr, "ServerMessageProcessor:: Processing Ack Request from %s : %d\n", packet.getHostname(), packet.getPort());
 //  If seq number is 0, send crack request to server.
 //  Payload will be 'c hash len'
 	ConnInfo* connInfo = get_conn_info();

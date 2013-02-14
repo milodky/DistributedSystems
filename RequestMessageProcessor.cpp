@@ -6,9 +6,10 @@ RequestMessageProcessor::RequestMessageProcessor(Inbox* in, vector<ConnInfo*> *i
 
 }
 
-void RequestMessageProcessor::process_incoming_msg(LSP_Packet& packet)
+int RequestMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 {
-	MessageProcessor::process_incoming_msg(packet);
+	if(MessageProcessor::process_incoming_msg(packet) == FAILURE)
+		return FAILURE;
 	switch(packet.getType())
 	{
 	case ACK:
@@ -21,6 +22,7 @@ void RequestMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 		fprintf( stderr, "Unknown Packet Type!\n");
 		packet.print();
 	}
+	return SUCCESS;
 }
 
 int RequestMessageProcessor::process_ack_packet(LSP_Packet& packet)

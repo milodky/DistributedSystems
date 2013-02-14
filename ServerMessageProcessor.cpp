@@ -31,9 +31,10 @@ void ServerMessageProcessor::process_conn_req(LSP_Packet& packet)
 	connInfo->add_to_outMsgs(ack_packet);
 }
 
-void ServerMessageProcessor::process_incoming_msg(LSP_Packet& packet)
+int ServerMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 {
-	MessageProcessor::process_incoming_msg(packet);
+	if(MessageProcessor::process_incoming_msg(packet) == FAILURE)
+		return FAILURE;
 	switch(packet.getType())
 	{
 	case CONN_REQ:
@@ -55,6 +56,7 @@ void ServerMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 		fprintf( stderr, "Unknown Packet Type!\n");
 		packet.print();
 	}
+	return SUCCESS;
 }
 
 void ServerMessageProcessor::process_data_packet(LSP_Packet& packet)

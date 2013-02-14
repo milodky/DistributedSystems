@@ -9,7 +9,7 @@ private:
 public:
 	WorkerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos);
 
-	virtual void process_incoming_msg(LSP_Packet& packet);
+	virtual int process_incoming_msg(LSP_Packet& packet);
 	virtual void process_data_packet(LSP_Packet& packet);
 	virtual int process_ack_packet(LSP_Packet& packet);
 

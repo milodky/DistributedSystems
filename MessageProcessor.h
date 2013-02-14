@@ -23,7 +23,7 @@ public:
 	ConnInfo* get_conn_info(int);
 
 	/* Process incoming Packet */
-	virtual void process_incoming_msg(LSP_Packet& packet);
+	virtual int process_incoming_msg(LSP_Packet& packet);
 
 	/* Process a data packet */
 	virtual void process_data_packet(LSP_Packet& packet) = 0;

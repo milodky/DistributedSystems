@@ -58,7 +58,7 @@ public:
 	ServerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos);
 
 	/* Process incoming Packet */
-	virtual void process_incoming_msg(LSP_Packet& packet);
+	virtual int process_incoming_msg(LSP_Packet& packet);
 
 	void send_crack_worker_request(ConnInfo* cInfo,const char* hash);
 

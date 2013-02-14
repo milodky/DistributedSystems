@@ -85,17 +85,22 @@ int MessageProcessor::check_msg_sequence_and_pop_outbox(LSP_Packet& packet)
 	LSP_Packet out_pkt = connInfo->get_front_msg();
 
 	assert (packet.getConnId() == out_pkt.getConnId() || out_pkt.getConnId() == 0);
-	if(packet.getSeqNo() < out_pkt.getSeqNo() || packet.getSeqNo() > out_pkt.getSeqNo() + 1)
+
+	/*	TODO Server gets higher priority when both send packets with the same seq no */
+	if((packet.getSeqNo() == out_pkt.getSeqNo() && packet.getType() == ACK) ||
+			packet.getSeqNo() == out_pkt.getSeqNo() + 1 && packet.getType() == DATA)
+	{
+		/* Pop from conn info */
+		connInfo->pop_outMsgs();
+
+		return SUCCESS;
+	}
+	else
 	{
 		fprintf(stderr, "MessageProcessor:: Ignoring Packet %d. Expecting %d\n",
-				packet.getSeqNo(), out_pkt.getSeqNo());
+						packet.getSeqNo(), out_pkt.getSeqNo());
 		return FAILURE;
 	}
-
-	/* Pop from conn info */
-	connInfo->pop_outMsgs();
-
-	return SUCCESS;
 }
 
 /**
@@ -114,7 +119,15 @@ int MessageProcessor::process_incoming_msg(LSP_Packet& packet)
 	/* Process ACK packets LATER !! */
 	if(packet.getType() == ACK) return SUCCESS;
 
-	return check_msg_sequence_and_pop_outbox(packet);
+	if(check_msg_sequence_and_pop_outbox(packet) == SUCCESS)
+	{
+		ConnInfo* connInfo = get_conn_info(packet.getConnId());
+		if(packet.getType() == DATA)
+			connInfo->incrementSeqNo();
+		return SUCCESS;
+	}
+	else
+		return FAILURE;
 }
 
 int MessageProcessor::process_ack_packet(LSP_Packet& packet)

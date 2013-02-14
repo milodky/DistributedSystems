@@ -41,9 +41,8 @@ int RequestMessageProcessor::process_ack_packet(LSP_Packet& packet)
 	if(MessageProcessor::process_ack_packet(packet) == FAILURE)
 		return FAILURE;
 
-	connInfo->incrementSeqNo();
 	/* Special Handling: Send Crack Request to Server */
-	if(	connInfo->getSeqNo() == 1)
+	if(	connInfo->getSeqNo() == 0)
 	{
 		LSP_Packet c_pkt = create_crack_req_packet();
 		fprintf( stderr, "RequestMessageProcessor::Pushing crack Request[%s] to outbox\n",

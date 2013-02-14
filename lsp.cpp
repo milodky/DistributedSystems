@@ -113,14 +113,29 @@ LSP::~LSP()
 	fprintf(stderr, "Joined Listener Thread.\n");
 	fprintf(stderr, "Joined Sender Thread.\n");
 
-	pthread_mutex_destroy(&mutex_connInfos);
 
 	if(connector) delete connector;
 	if(msgReceiver) delete msgReceiver;
 	if(inbox) delete inbox;
 	if(msgSender) delete msgSender;
-	if(connInfos) delete connInfos;
 
+	if(connInfos)
+	{
+		/* Lock before modifying! */
+		pthread_mutex_lock (&mutex_connInfos);
+
+		for(vector<ConnInfo*>::iterator it=connInfos->begin(); it!=connInfos->end(); ++it)
+		{
+			if((*it)) delete (*it);
+		}
+
+		/* Unlock after modifying! */
+		pthread_mutex_unlock (&mutex_connInfos);
+
+		delete connInfos;
+	}
+
+	pthread_mutex_destroy(&mutex_connInfos);
 }
 
 /* ---------------------------------------------------------------*/

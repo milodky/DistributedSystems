@@ -41,9 +41,8 @@ int WorkerMessageProcessor::process_ack_packet(LSP_Packet& packet)
 	if(MessageProcessor::process_ack_packet(packet) == FAILURE)
 		return FAILURE;
 
-	connInfo->incrementSeqNo();
 	/* Special Handling: Send Crack Request to Server */
-	if(	connInfo->getSeqNo() == 1)
+	if(	connInfo->getSeqNo() == 0)
 	{
 		fprintf( stderr, "WorkerMessageProcessor::Pushing join Request to outbox\n");
 

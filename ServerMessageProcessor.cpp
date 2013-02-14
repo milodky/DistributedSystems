@@ -151,7 +151,7 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 		std::ostringstream sin;
         sin << end;
         string endString = sin.str();
-	    string data = "c " + hash + " 0" + "  " +endString;
+	    string data = "c " + hash + " 0" + " " +endString;
 //	    Add entry in map.
 	    WorkerInfo w(cInfo->getConnectionId(), 0, 0, end);
 	    int connId = packet.getConnId();
@@ -163,6 +163,7 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 //		Add connId of client to workers' clients queue.
 		cInfo->pushClients(connId);
 //		Send crack request to worker.
+		cInfo->incrementSeqNo();
 		send_crack_worker_request(cInfo, data.c_str());
 	}
 	else if(length > 4)
@@ -190,6 +191,7 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 //	    		Add entry in map
 			    WorkerInfo w(cInfo->getConnectionId(), 0,start, last);
 			    int connId = packet.getConnId();
+			    cInfo->incrementSeqNo();
 				if(clientWorkerInfo.find(connId)==clientWorkerInfo.end())
 				{
 					vector<WorkerInfo> workers;
@@ -240,6 +242,7 @@ void ServerMessageProcessor::process_found_packet(LSP_Packet& packet)
 	clientWorkerInfo.erase(clientId);
 //	Send result to client.
 	ConnInfo* conInfo = get_conn_info(clientId);
+	conInfo->incrementSeqNo();
 	LSP_Packet client_packet(clientId,conInfo->getSeqNo(),packet.getLen(),packet.getBytes());
 	conInfo->add_to_outMsgs(client_packet);
 }
@@ -260,11 +263,9 @@ void ServerMessageProcessor::process_not_found_packet(LSP_Packet& packet)
 
 //	If clientId not in maps keys, it means that one of the workers
 //	has already found the password.
-//	Update seq number and return
 	vector<WorkerInfo> &workers = clientWorkerInfo[clientId];
 	if(clientWorkerInfo.find(clientId) == clientWorkerInfo.end())
 	{
-		cInfo->incrementSeqNo();
 		return;
 	}
 //	Update processing status of this worker.
@@ -296,6 +297,7 @@ void ServerMessageProcessor::process_not_found_packet(LSP_Packet& packet)
 	if(!stillProcessing)
 	{
 		ConnInfo* conInfo = get_conn_info(clientId);
+		conInfo->incrementSeqNo();
 		uint8_t* bytes = (uint8_t*)"x";
 		LSP_Packet client_packet(clientId,conInfo->getSeqNo(),2,bytes);
 		conInfo->add_to_outMsgs(client_packet);
@@ -311,9 +313,6 @@ void ServerMessageProcessor::process_alive_packet(LSP_Packet& packet)
 	LSP_Packet ack_packet = create_ack_packet(packet);
 	cInfo->add_to_outMsgs(ack_packet);
 	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", packet.getConnId());
-//	Update seq no
-	cInfo->incrementSeqNo();
-
 }
 unsigned ServerMessageProcessor::get_workers_count()
 {

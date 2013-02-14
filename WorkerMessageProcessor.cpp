@@ -45,7 +45,7 @@ int WorkerMessageProcessor::process_ack_packet(LSP_Packet& packet)
 	if(	connInfo->getSeqNo() == 0)
 	{
 		fprintf( stderr, "WorkerMessageProcessor::Pushing join Request to outbox\n");
-
+		connInfo->incrementSeqNo();
 		LSP_Packet j_pkt = create_join_req_packet();
 		connInfo->add_to_outMsgs(j_pkt);
 	}
@@ -135,6 +135,7 @@ void WorkerMessageProcessor::process_crack_request(string sha, int start, int en
 			break;
 		}
 	}
+	printf("Not found\n");
 }
 
 string WorkerMessageProcessor::numToString(int x,int length)

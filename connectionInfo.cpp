@@ -43,6 +43,7 @@ void ConnInfo::pop_outMsgs()
 
 	fprintf(stderr, "ConnInfo::Popping packet to conn_id:%d Outbox:\n", connectionID);
 	outMsgs.pop();
+	msgSent = false;
 
 	/* Unlock after modifying! */
 	pthread_mutex_unlock (&mutex_outbox);

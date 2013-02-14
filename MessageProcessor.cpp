@@ -95,10 +95,10 @@ int MessageProcessor::process_ack_packet(LSP_Packet& packet)
 {
 	assert (packet.getConnId() > 0);
 
-	ConnInfo* connInfo;
+	ConnInfo* connInfo = get_conn_info(packet.getConnId());
 	LSP_Packet out_pkt = connInfo->get_front_msg();
 
-	assert (packet.getConnId() == out_pkt.getConnId());
+	assert (packet.getConnId() == out_pkt.getConnId() || out_pkt.getConnId() == 0);
 	if(packet.getSeqNo() != out_pkt.getSeqNo())
 	{
 		fprintf(stderr, "MessageProcessor:: Ignoring ACK Packet %d. Expecting %d\n",

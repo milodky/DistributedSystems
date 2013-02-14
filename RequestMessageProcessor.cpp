@@ -27,10 +27,16 @@ int RequestMessageProcessor::process_ack_packet(LSP_Packet& packet)
 {
 //  If seq number is 0, send crack request to server.
 //  Payload will be 'c hash len'
+	ConnInfo* connInfo = get_conn_info();
+
+	/* Set the connection ID */
+	if(	connInfo->getConnectionId() == 0 && connInfo->getSeqNo() == 0)
+	{
+		connInfo->setConnectionId(packet.getConnId());
+	}
+
 	if(!MessageProcessor::process_ack_packet(packet))
 		return FAILURE;
-
-	ConnInfo* connInfo = get_conn_info();
 
 	connInfo->incrementSeqNo();
 	/* Special Handling: Send Crack Request to Server */

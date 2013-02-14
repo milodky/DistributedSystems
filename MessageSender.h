@@ -13,11 +13,13 @@ class MessageSender : public Uncopyable
 private:
 	Connector *connector;
 	Serializer serializer;
+
+	pthread_mutex_t& mutex_connInfos;
 	vector<ConnInfo*> *connectionInfo;
 
 public:
 
-	MessageSender(vector<ConnInfo*> *info, Connector * conn);
+	MessageSender(vector<ConnInfo*> *info,pthread_mutex_t& mutex_connInfos, Connector * conn);
 	void send_msg(ConnInfo &cInfo);
 	void pollToSend(vector<ConnInfo*>* connectionInfo);
 };

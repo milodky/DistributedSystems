@@ -10,10 +10,11 @@ class MessageProcessor : public Uncopyable
 {
 protected:
 	Inbox* inbox;
+	pthread_mutex_t& mutex_connInfos;
 	vector<ConnInfo*> *connInfos;
 
 public:
-	MessageProcessor(Inbox* in, vector<ConnInfo*> *infos);
+	MessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos);
 
 	int poll_inbox();
 

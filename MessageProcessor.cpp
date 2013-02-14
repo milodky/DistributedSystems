@@ -1,7 +1,7 @@
 #include "MessageProcessor.h"
 
-MessageProcessor::MessageProcessor(Inbox* in, vector<ConnInfo*> *infos)
-	: inbox(in), connInfos(infos)
+MessageProcessor::MessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos)
+	: inbox(in), mutex_connInfos(mutex_connInfos), connInfos(infos)
 {
 
 }
@@ -130,7 +130,13 @@ void MessageProcessor::send_conn_req_packet(char* hostname, char* port)
 	/* Create a new connection info object for this client */
 	ConnInfo *connInfo = new ConnInfo(0, atoi(port), hostname);
 
+	/* Lock before modifying! */
+	pthread_mutex_lock (&mutex_connInfos);
+
 	connInfos->push_back(connInfo);
+
+	/* Unlock after modifying! */
+	pthread_mutex_unlock (&mutex_connInfos);
 
 	fprintf(stderr, "MessageProcessor:: Pushing Connection Request to outbox. Server %s : %s\n", hostname, port);
 	connInfo->add_to_outMsgs(create_conn_req_packet());

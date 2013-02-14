@@ -55,7 +55,7 @@ class ServerMessageProcessor : public MessageProcessor
 private:
 	map<int, vector<WorkerInfo> > clientWorkerInfo;
 public:
-	ServerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos);
+	ServerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos);
 
 	/* Process incoming Packet */
 	virtual void process_incoming_msg(LSP_Packet& packet);

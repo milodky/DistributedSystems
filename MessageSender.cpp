@@ -1,7 +1,10 @@
 #include "MessageSender.h"
 
-MessageSender::MessageSender(vector<ConnInfo*> *info, Connector * conn)
-: connectionInfo(info),connector(conn)
+MessageSender::MessageSender(
+		vector<ConnInfo*> *info,
+		pthread_mutex_t& mutex_connInfos,
+		Connector * conn)
+: connectionInfo(info), mutex_connInfos(mutex_connInfos), connector(conn)
 {
 
 }
@@ -31,12 +34,18 @@ void MessageSender::pollToSend(vector<ConnInfo*>* connectionInfo)
 	fprintf(stderr, "MessageSender:: Polling from outbox...\n");
 	while(1)
 	{
+		/* Lock before modifying! */
+		pthread_mutex_lock (&mutex_connInfos);
+
 		for(vector<ConnInfo*>::iterator it=connectionInfo->begin();
 				it!=connectionInfo->end(); ++it)
 		{
 			if((*it)->isMsgToBeSent())
 				send_msg(**it);
 		}
+
+		/* Unlock after modifying! */
+		pthread_mutex_unlock (&mutex_connInfos);
 	}
 }
 

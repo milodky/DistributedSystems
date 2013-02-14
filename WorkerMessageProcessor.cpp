@@ -2,8 +2,8 @@
 #include <sstream>
 using namespace std;
 
-WorkerMessageProcessor::WorkerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos)
-	: MessageProcessor(in,infos)
+WorkerMessageProcessor::WorkerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos)
+	: MessageProcessor(in,infos, mutex_connInfos)
 {
 
 }

@@ -63,7 +63,7 @@ protected:
 	pthread_t msg_recvr_thread;
 
 	/* This is the thread that will keep checking if any msg has to be sent
-	and send it*/
+	and send it */
 	pthread_t msg_sender_thread;
 
 public:

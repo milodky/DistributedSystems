@@ -10,7 +10,7 @@ private:
 	unsigned hashMsglen;
 
 public:
-	RequestMessageProcessor(Inbox* in, vector<ConnInfo*> *infos);
+	RequestMessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos);
 
 	virtual void process_incoming_msg(LSP_Packet& packet);
 	virtual void process_data_packet(LSP_Packet& packet);

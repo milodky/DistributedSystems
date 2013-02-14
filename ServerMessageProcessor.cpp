@@ -1,7 +1,7 @@
 #include "ServerMessageProcessor.h"
 
-ServerMessageProcessor::ServerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos)
-	: MessageProcessor(in,infos)
+ServerMessageProcessor::ServerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos)
+	: MessageProcessor(in,infos, mutex_connInfos)
 {
 
 }
@@ -14,7 +14,13 @@ void ServerMessageProcessor::process_conn_req(LSP_Packet& packet)
 	ConnInfo *connInfo =
 			new ConnInfo(conn_id, packet.getPort(), packet.getHostname());
 
+	/* Lock before modifying! */
+	pthread_mutex_lock (&mutex_connInfos);
+
 	connInfos->push_back(connInfo);
+
+	/* Unlock after modifying! */
+	pthread_mutex_unlock (&mutex_connInfos);
 
 	/* Send an acknowledgment packet */
 	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", conn_id);

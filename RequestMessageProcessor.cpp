@@ -1,7 +1,7 @@
 #include "RequestMessageProcessor.h"
 
-RequestMessageProcessor::RequestMessageProcessor(Inbox* in, vector<ConnInfo*> *infos)
-	: MessageProcessor(in,infos)
+RequestMessageProcessor::RequestMessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos)
+	: MessageProcessor(in,infos, mutex_connInfos)
 {
 
 }

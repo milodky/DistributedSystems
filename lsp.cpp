@@ -43,11 +43,14 @@ void* talker_run(void* arg)
 LSP::LSP(bool isServer, char* port)
 {
 	serverPort = port;
+
 	inbox = new Inbox();
 	connInfos = new vector<ConnInfo*>();
 	connector = new Connector(isServer);
 	msgReceiver = new MessageReceiver(inbox);
-	msgSender = new MessageSender(connInfos,connector);
+
+	pthread_mutex_init(&mutex_connInfos, NULL);
+	msgSender = new MessageSender(connInfos, mutex_connInfos, connector);
 	/* Binding the socket connector and msg receiver class */
 	connector->setMsgReceiver(msgReceiver);
 }
@@ -110,6 +113,8 @@ LSP::~LSP()
 	fprintf(stderr, "Joined Listener Thread.\n");
 	fprintf(stderr, "Joined Sender Thread.\n");
 
+	pthread_mutex_destroy(&mutex_connInfos);
+
 	if(connector) delete connector;
 	if(msgReceiver) delete msgReceiver;
 	if(inbox) delete inbox;
@@ -123,7 +128,7 @@ LSP::~LSP()
 /* ---------------------------------------------------------------*/
 LSP_Server::LSP_Server(char* port) : LSP(true,port)
 {
-	msg_proc = new ServerMessageProcessor(inbox, connInfos);
+	msg_proc = new ServerMessageProcessor(inbox, connInfos, mutex_connInfos);
 }
 
 void LSP_Server::init()
@@ -177,7 +182,7 @@ LSP_Client::~LSP_Client()
 /* ---------------------------------------------------------------*/
 LSP_Worker::LSP_Worker(char *host, char* port) : LSP_Client(host,port)
 {
-	msg_proc = new WorkerMessageProcessor(inbox, connInfos);
+	msg_proc = new WorkerMessageProcessor(inbox, connInfos, mutex_connInfos);
 }
 
 void LSP_Worker::run()
@@ -196,7 +201,7 @@ LSP_Worker::~LSP_Worker()
 LSP_Requester::LSP_Requester(char* h, char* port, char* hashMsg, unsigned len):
 	LSP_Client(h,port),hash(hashMsg),length(len)
 {
-	msg_proc = new RequestMessageProcessor(inbox, connInfos);
+	msg_proc = new RequestMessageProcessor(inbox, connInfos, mutex_connInfos);
 }
 
 void LSP_Requester::run()

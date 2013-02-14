@@ -79,18 +79,8 @@ void MessageProcessor::stamp_data_type(LSP_Packet& packet)
 		packet.setDataType(NOTKNOWN);
 }
 
-
-/**
- * Check if conn ID and Seq Num match the last message in appropriate outbox.
- * Remove from outMsgs.
- * If they do not match, drop the ack packet.
- */
-int MessageProcessor::process_incoming_msg(LSP_Packet& packet)
+int MessageProcessor::check_msg_sequence_and_pop_outbox(LSP_Packet& packet)
 {
-	stamp_msg_type(packet);
-	stamp_data_type(packet);
-	packet.print();
-
 	ConnInfo* connInfo = get_conn_info(packet.getConnId());
 	LSP_Packet out_pkt = connInfo->get_front_msg();
 
@@ -108,11 +98,30 @@ int MessageProcessor::process_incoming_msg(LSP_Packet& packet)
 	return SUCCESS;
 }
 
+/**
+ * Check if conn ID and Seq Num match the last message in appropriate outbox.
+ * Remove from outMsgs.
+ * If they do not match, drop the ack packet.
+ */
+int MessageProcessor::process_incoming_msg(LSP_Packet& packet)
+{
+	stamp_msg_type(packet);
+	stamp_data_type(packet);
+	packet.print();
+
+	if(packet.getType() == CONN_REQ) return SUCCESS;
+
+	/* Process ACK packets LATER !! */
+	if(packet.getType() == ACK) return SUCCESS;
+
+	return check_msg_sequence_and_pop_outbox(packet);
+}
+
 int MessageProcessor::process_ack_packet(LSP_Packet& packet)
 {
 	assert (packet.getConnId() > 0);
 
-	return SUCCESS;
+	return check_msg_sequence_and_pop_outbox(packet);
 }
 
 

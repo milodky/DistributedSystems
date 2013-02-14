@@ -34,6 +34,8 @@ public:
 	/* Figure out the data type and stamp it on the packet object */
 	void stamp_data_type(LSP_Packet& packet);
 
+	int check_msg_sequence_and_pop_outbox(LSP_Packet& packet);
+
 	/* Process an acknowledgment packet */
 	virtual int process_ack_packet(LSP_Packet& packet);
 

@@ -45,9 +45,9 @@ int RequestMessageProcessor::process_ack_packet(LSP_Packet& packet)
 	/* Special Handling: Send Crack Request to Server */
 	if(	connInfo->getSeqNo() == 1)
 	{
-		fprintf( stderr, "RequestMessageProcessor::Pushing crack Request(%s:%u) to outbox\n",
-				hashMsg, password_length);
 		LSP_Packet c_pkt = create_crack_req_packet();
+		fprintf( stderr, "RequestMessageProcessor::Pushing crack Request[%s] to outbox\n",
+				c_pkt.getBytes());
 		connInfo->add_to_outMsgs(c_pkt);
 	}
 
@@ -63,7 +63,7 @@ LSP_Packet RequestMessageProcessor::create_crack_req_packet()
 	ConnInfo* connInfo = get_conn_info();
 
 	uint8_t data[100];
-	sprintf((char*) data, "c %u %s", password_length, hashMsg);
+	sprintf((char*) data, "c %s %u", hashMsg, password_length);
 	unsigned data_length = strlen((char*)data);
 
 	LSP_Packet c_pkt(

@@ -38,14 +38,12 @@ void LSP_Packet::setHostNameAndPort(char* const hostname, const int port)
 
 void LSP_Packet::print()
 {
-	printf("LSP_Packet::conn_id: %d seq_no: %d ",
-			conn_id, seq_no, len);
+	printf("LSP_Packet::conn_id: %d seq_no: %d ", conn_id, seq_no);
 
 	switch(type)
 	{
 	case CONN_REQ: printf("MsgType: CONN_REQ"); break;
 	case ACK: printf("MsgType: ACK"); break;
-	case DATA: printf("MsgType: DATA"); break;
 	}
 	printf(" ");
 
@@ -57,8 +55,7 @@ void LSP_Packet::print()
 	case NOTFOUND: printf("DataType: NOTFOUND"); break;
 	case ALIVE: printf("DataType: ALIVE"); break;
 	}
-	printf(" ");
-	printBytes(bytes, len);
+	printf(" len: %u Data: %s", len, bytes);
 }
 
 LSP_Packet::~LSP_Packet()

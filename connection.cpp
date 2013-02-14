@@ -174,8 +174,8 @@ int Connector::listen()
 				from_ipv4, sizeof from_ipv4);
 
 		int port = ntohs(((struct sockaddr_in *) &from_addr)->sin_port);
-		printf("Connector:: Received msg from [%s : %d]\n", from_ipv4, port);
-		printBytes(recv_data, bytes_read);
+//		printf("Connector:: Received msg from [%s : %d]\n", from_ipv4, port);
+//		printBytes(recv_data, bytes_read);
 
 		/* Send received data to Message Receiver Module */
 		msgReceiver->receive_msg(from_ipv4, port, recv_data, bytes_read);

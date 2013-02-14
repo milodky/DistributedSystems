@@ -31,10 +31,15 @@ void ServerMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 	switch(packet.getType())
 	{
 	case CONN_REQ:
+	{
 		process_conn_req(packet);
 		break;
+	}
 	case ACK:
+	{
+		process_ack_packet(packet);
 		break;
+	}
 	case DATA:
 	{
 		process_data_packet(packet);

@@ -32,7 +32,40 @@ int WorkerMessageProcessor::process_ack_packet(LSP_Packet& packet)
 	if(!MessageProcessor::process_ack_packet(packet))
 		return FAILURE;
 
+	ConnInfo* connInfo = get_conn_info();
+
+	connInfo->seq_no++;
+	/* Special Handling: Send Crack Request to Server */
+	if(	connInfo->seq_no == 1)
+	{
+		LSP_Packet j_pkt = create_join_req_packet();
+		connInfo->add_to_outMsgs(j_pkt);
+	}
+
 	return SUCCESS;
+}
+
+/**
+ * Create a crack request Data:
+ * byte[0] = 'c', byte[1] = len, following bytes = hash
+ */
+LSP_Packet WorkerMessageProcessor::create_join_req_packet()
+{
+	ConnInfo* connInfo = get_conn_info();
+
+	unsigned data_length = 1;
+
+	uint8_t* data = new uint8_t[data_length];
+	data[0] = 'j';
+
+	LSP_Packet c_pkt(
+			connInfo->connectionID,
+			connInfo->seq_no,
+			data_length,
+			data);
+
+	delete data;
+	return c_pkt;
 }
 
 void WorkerMessageProcessor::process_data_packet(LSP_Packet& packet)

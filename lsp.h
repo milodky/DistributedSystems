@@ -125,6 +125,7 @@ class LSP_Worker : public LSP_Client
 private:
 
 public:
+	void run();
 	LSP_Worker(char *host, char* port);
 	virtual ~LSP_Worker();
 
@@ -137,6 +138,7 @@ private:
 	unsigned length;
 
 public:
+	void run();
 	LSP_Requester(char* h, char* port, char* hashMsg, unsigned len);
 	virtual ~LSP_Requester();
 };

@@ -30,8 +30,42 @@ int RequestMessageProcessor::process_ack_packet(LSP_Packet& packet)
 	if(!MessageProcessor::process_ack_packet(packet))
 		return FAILURE;
 
+	ConnInfo* connInfo = get_conn_info();
+
+	connInfo->seq_no++;
+	/* Special Handling: Send Crack Request to Server */
+	if(	connInfo->seq_no == 1)
+	{
+		LSP_Packet c_pkt = create_crack_req_packet();
+		connInfo->add_to_outMsgs(c_pkt);
+	}
 
 	return SUCCESS;
+}
+
+/**
+ * Create a crack request Data:
+ * byte[0] = 'c', byte[1] = len, following bytes = hash
+ */
+LSP_Packet RequestMessageProcessor::create_crack_req_packet()
+{
+	ConnInfo* connInfo = get_conn_info();
+
+	unsigned data_length = 2 + hashMsglen; /* 1 byte for c and 1 for size */
+
+	uint8_t* data = new uint8_t[data_length];
+	data[0] = 'c';
+	data[1] = hashMsglen;
+	memcpy(data + 2, hashMsg, hashMsglen);
+
+	LSP_Packet c_pkt(
+			connInfo->connectionID,
+			connInfo->seq_no,
+			data_length,
+			data);
+
+	delete data;
+	return c_pkt;
 }
 
 void RequestMessageProcessor::process_data_packet(LSP_Packet& packet)
@@ -66,6 +100,12 @@ void RequestMessageProcessor::process_data_packet(LSP_Packet& packet)
 
 //write code
 //remove msg from outbox, when seqno exceeds that of last message, and packet type not ack.
+}
+
+void RequestMessageProcessor::set_password_data(const char* const hashMsg, const unsigned len)
+{
+	this->hashMsg = hashMsg;
+	this->hashMsglen = len;
 }
 
 RequestMessageProcessor::~RequestMessageProcessor()

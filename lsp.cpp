@@ -159,19 +159,6 @@ void LSP_Client::init()
 	connector->setup(host, serverPort);
 	start_msg_receiver_thread();
 	start_msg_sender_thread();
-//	uint8_t *bytes;
-//	uint8_t *text = (uint8_t*) "text!\0";
-//
-//	LSP_Packet packet(40, 50, strlen( (char*)text), text);
-//	packet.print();
-//
-//	Serializer s;
-//	int len = s.marshal(packet, bytes);
-//	fprintf(stderr,"Writing %d serialized bytes\n", len); // See the length of message
-//	fwrite (bytes, len, 1, stdout);           // Write to stdout to allow direct command line piping
-//	printf("\n");
-
-//	connector->send_message(bytes, len);
 }
 
 void LSP_Client::run()
@@ -193,6 +180,11 @@ LSP_Worker::LSP_Worker(char *host, char* port) : LSP_Client(host,port)
 	msg_proc = new WorkerMessageProcessor(inbox, connInfos);
 }
 
+void LSP_Worker::run()
+{
+	LSP_Client::run();
+}
+
 LSP_Worker::~LSP_Worker()
 {
 	delete msg_proc;
@@ -205,6 +197,12 @@ LSP_Requester::LSP_Requester(char* h, char* port, char* hashMsg, unsigned len):
 	LSP_Client(h,port),hash(hashMsg),length(len)
 {
 	msg_proc = new RequestMessageProcessor(inbox, connInfos);
+}
+
+void LSP_Requester::run()
+{
+	((RequestMessageProcessor*) msg_proc)->set_password_data(hash, length);
+	LSP_Client::run();
 }
 
 LSP_Requester::~LSP_Requester()

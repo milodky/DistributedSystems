@@ -128,7 +128,7 @@ LSP_Packet MessageProcessor::create_conn_req_packet() const
 void MessageProcessor::send_conn_req_packet(char* hostname, char* port)
 {
 	/* Create a new connection info object for this client */
-	ConnInfo *connInfo = new ConnInfo(-1, atoi(port), hostname);
+	ConnInfo *connInfo = new ConnInfo(0, atoi(port), hostname);
 
 	connInfos->push_back(connInfo);
 

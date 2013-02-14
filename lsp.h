@@ -50,8 +50,10 @@ protected:
 	MessageReceiver* msgReceiver;
 	MessageSender* msgSender;
 	Connector* connector;
-	vector<ConnInfo*> *connInfos;
 	MessageProcessor* msg_proc;
+
+	pthread_mutex_t mutex_connInfos;
+	vector<ConnInfo*> *connInfos;
 
 	char* serverPort;
 

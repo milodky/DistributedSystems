@@ -36,13 +36,15 @@ int WorkerMessageProcessor::process_ack_packet(LSP_Packet& packet)
 	{
 		connInfo->setConnectionId(packet.getConnId());
 	}
-	if(!MessageProcessor::process_ack_packet(packet))
+	if(MessageProcessor::process_ack_packet(packet) == FAILURE)
 		return FAILURE;
 
 	connInfo->incrementSeqNo();
 	/* Special Handling: Send Crack Request to Server */
 	if(	connInfo->getSeqNo() == 1)
 	{
+		fprintf( stderr, "WorkerMessageProcessor::Pushing join Request to outbox\n");
+
 		LSP_Packet j_pkt = create_join_req_packet();
 		connInfo->add_to_outMsgs(j_pkt);
 	}

@@ -35,13 +35,15 @@ int RequestMessageProcessor::process_ack_packet(LSP_Packet& packet)
 		connInfo->setConnectionId(packet.getConnId());
 	}
 
-	if(!MessageProcessor::process_ack_packet(packet))
+	if(MessageProcessor::process_ack_packet(packet) == FAILURE)
 		return FAILURE;
 
 	connInfo->incrementSeqNo();
 	/* Special Handling: Send Crack Request to Server */
 	if(	connInfo->getSeqNo() == 1)
 	{
+		fprintf( stderr, "RequestMessageProcessor::Pushing crack Request(%s:%u) to outbox\n",
+				hashMsg, hashMsglen);
 		LSP_Packet c_pkt = create_crack_req_packet();
 		connInfo->add_to_outMsgs(c_pkt);
 	}

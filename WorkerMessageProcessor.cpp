@@ -34,9 +34,9 @@ int WorkerMessageProcessor::process_ack_packet(LSP_Packet& packet)
 
 	ConnInfo* connInfo = get_conn_info();
 
-	connInfo->seq_no++;
+	connInfo->incrementSeqNo();
 	/* Special Handling: Send Crack Request to Server */
-	if(	connInfo->seq_no == 1)
+	if(	connInfo->getSeqNo() == 1)
 	{
 		LSP_Packet j_pkt = create_join_req_packet();
 		connInfo->add_to_outMsgs(j_pkt);
@@ -59,8 +59,8 @@ LSP_Packet WorkerMessageProcessor::create_join_req_packet()
 	data[0] = 'j';
 
 	LSP_Packet c_pkt(
-			connInfo->connectionID,
-			connInfo->seq_no,
+			connInfo->getConnectionId(),
+			connInfo->getSeqNo(),
 			data_length,
 			data);
 

@@ -32,9 +32,9 @@ int RequestMessageProcessor::process_ack_packet(LSP_Packet& packet)
 
 	ConnInfo* connInfo = get_conn_info();
 
-	connInfo->seq_no++;
+	connInfo->incrementSeqNo();
 	/* Special Handling: Send Crack Request to Server */
-	if(	connInfo->seq_no == 1)
+	if(	connInfo->getSeqNo() == 1)
 	{
 		LSP_Packet c_pkt = create_crack_req_packet();
 		connInfo->add_to_outMsgs(c_pkt);
@@ -59,8 +59,8 @@ LSP_Packet RequestMessageProcessor::create_crack_req_packet()
 	memcpy(data + 2, hashMsg, hashMsglen);
 
 	LSP_Packet c_pkt(
-			connInfo->connectionID,
-			connInfo->seq_no,
+			connInfo->getConnectionId(),
+			connInfo->getSeqNo(),
 			data_length,
 			data);
 

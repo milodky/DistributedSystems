@@ -207,7 +207,7 @@ int Connector::send_message(uint8_t* const msg, const int len)
  * Explicitly mention the recipient hostname and recipient port.
  * Same socket can be used to send to different recipients.
  */
-int Connector::send_message(char* const recvr_hostname, const int recvr_port, uint8_t* const msg, const int len)
+int Connector::send_message(const char* const recvr_hostname, const int recvr_port, uint8_t* const msg, const int len)
 {
 	if (sockfd == BAD_SOCKFD)
 	{

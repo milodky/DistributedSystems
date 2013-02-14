@@ -31,7 +31,7 @@ ConnInfo* MessageProcessor::get_conn_info(int connId)
 	for(vector<ConnInfo*>::iterator it=connInfos->begin();
 				it!=connInfos->end(); ++it)
 	{
-		if((*it)->connectionID == connId)
+		if((*it)->getConnectionId() == connId)
 			return (*it);
 
 	}

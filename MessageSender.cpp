@@ -14,15 +14,15 @@ void MessageSender::send_msg(ConnInfo &cInfo)
 	int len = serializer.marshal(packet,buf);
 	if(connector->getIsServer())
 	{
-		connector->send_message(cInfo.hostName, cInfo.port, buf, len);
-		fprintf(stderr, "MessageSender:: Message sent to %s : %d\n", cInfo.hostName, cInfo.port);
+		connector->send_message(cInfo.getHostName(), cInfo.getPort(), buf, len);
+		fprintf(stderr, "MessageSender:: Message sent to %s : %d\n", cInfo.getHostName(), cInfo.getPort());
 	}
 	else
 	{
 		connector->send_message(buf,len);
 		fprintf(stderr, "MessageSender:: Message sent to server.\n");
 	}
-	cInfo.msgSent = true;
+	cInfo.setMsgSent(true);
 	free(buf);
 }
 

@@ -60,9 +60,82 @@ int ConnInfo::getOutMsgsCount() const
 	return outMsgs.size();
 }
 
-void ConnInfo::setWorker(bool worker)
-{
-	isWorker = worker;
+int ConnInfo::popClients() {
+	int c = clients.front();
+	clients.pop();
+	return c;
+}
+
+void ConnInfo::pushClients(int client) {
+	this->clients.push(client);
+}
+
+int ConnInfo::getConnectionId() const {
+	return connectionID;
+}
+
+void ConnInfo::setConnectionId(int connectionId) {
+	connectionID = connectionId;
+}
+
+char* ConnInfo::getHash() const {
+	return hash;
+}
+
+void ConnInfo::setHash(char* hash) {
+	this->hash = hash;
+}
+
+const char* ConnInfo::getHostName() const {
+	return hostName;
+}
+
+bool ConnInfo::isIsAlive() const {
+	return isAlive;
+}
+
+void ConnInfo::setIsAlive(bool isAlive) {
+	this->isAlive = isAlive;
+}
+
+bool ConnInfo::isIsWorker() const {
+	return isWorker;
+}
+
+void ConnInfo::setIsWorker(bool isWorker) {
+	this->isWorker = isWorker;
+}
+
+int ConnInfo::getLen() const {
+	return len;
+}
+
+void ConnInfo::setLen(int len) {
+	this->len = len;
+}
+
+bool ConnInfo::isMsgSent() const {
+	return msgSent;
+}
+
+void ConnInfo::setMsgSent(bool msgSent) {
+	this->msgSent = msgSent;
+}
+
+int ConnInfo::getPort() const {
+	return port;
+}
+
+void ConnInfo::setPort(int port) {
+	this->port = port;
+}
+
+int ConnInfo::getSeqNo() const {
+	return seq_no;
+}
+
+void ConnInfo::incrementSeqNo() {
+	seq_no = seq_no + 1;
 }
 
 ConnInfo::~ConnInfo()

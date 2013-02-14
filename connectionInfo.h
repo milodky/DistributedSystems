@@ -8,8 +8,6 @@ class ConnInfo : public Uncopyable
 private:
 	pthread_mutex_t mutex_outbox;
 	queue<LSP_Packet> outMsgs;
-
-public:
 	char hostName[INET_ADDRSTRLEN];
 	int port;
 	int connectionID;
@@ -26,21 +24,46 @@ public:
 	bool isAlive;
 	bool isWorker;
 
+	/* Information to be stored only in case of request. */
+	char* hash;
+	int len;
+
+	/* Information to be stored only in case of worker */
+	queue<int> clients;
+
 	bool msgSent;
 
+public:
 	/* Methods */
 	ConnInfo(int connId, int p, const char* const host);
 
-	/* OutBox Handling */
 	void add_to_outMsgs(LSP_Packet packet);
 	LSP_Packet get_front_msg() const;
-	void pop_outMsgs();
 
 	bool isMsgToBeSent() const;
 	int getOutMsgsCount() const;
-	void setWorker(bool worker);
-	~ConnInfo();
+	void pop_outMsgs();
+	int popClients();
+	void pushClients(int client);
+	int getConnectionId() const;
+	void setConnectionId(int connectionId);
+	char* getHash() const;
+	void setHash(char* hash);
+	const char* getHostName() const;
+	bool isIsAlive() const;
+	void setIsAlive(bool isAlive);
+	bool isIsWorker() const;
+	void setIsWorker(bool isWorker);
+	int getLen() const;
+	void setLen(int len);
+	bool isMsgSent() const;
+	void setMsgSent(bool msgSent);
+	int getPort() const;
+	void setPort(int port);
+	int getSeqNo() const;
+	void incrementSeqNo();
 
+	~ConnInfo();
 };
 
 #endif

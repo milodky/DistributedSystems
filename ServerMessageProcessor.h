@@ -12,17 +12,48 @@ class WorkerInfo
 	int processingStatus; //0 - processing, 1 - found, -1 - not found
 	int start;
 	int end;
+public:
+	WorkerInfo(int cId, int pStatus, int s, int e):
+		connId(cId), processingStatus(pStatus),start(s),end(e)
+{}
+
+	int getConnId() const {
+		return connId;
+	}
+
+	void setConnId(int connId) {
+		this->connId = connId;
+	}
+
+	int getEnd() const {
+		return end;
+	}
+
+	void setEnd(int end) {
+		this->end = end;
+	}
+
+	int getProcessingStatus() const {
+		return processingStatus;
+	}
+
+	void setProcessingStatus(int processingStatus) {
+		this->processingStatus = processingStatus;
+	}
+
+	int getStart() const {
+		return start;
+	}
+
+	void setStart(int start) {
+		this->start = start;
+	}
 };
-class Task
-{
-	int cId;
-	char* hash;
-	int len;
-};
+
 class ServerMessageProcessor : public MessageProcessor
 {
 private:
-	map<Task, vector<WorkerInfo> > clientWorkerInfo;
+	map<int, vector<WorkerInfo> > clientWorkerInfo;
 public:
 	ServerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos);
 
@@ -39,6 +70,8 @@ public:
 	void process_found_packet(LSP_Packet& packet);
 
 	void process_not_found_packet(LSP_Packet& packet);
+
+	void process_alive_packet(LSP_Packet& packet);
 
 	/* Process a data packet */
 	virtual void process_data_packet(LSP_Packet& packet);

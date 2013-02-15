@@ -21,6 +21,7 @@
 #include <string>
 #include <exception>
 #include <openssl/sha.h>
+#include <math.h>
 
 using namespace std;
 

@@ -3,7 +3,6 @@
 
 #include "MessageProcessor.h"
 #include <sstream>
-#include <math.h>
 #include <stdlib.h>
 
 class WorkerInfo

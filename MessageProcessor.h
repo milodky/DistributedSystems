@@ -48,6 +48,9 @@ public:
 	/* Send a Connection Request */
 	void send_conn_req_packet(char* hostname, char* port);
 
+	/* COnvert from a number to a string of length */
+	string numToString(int x,int length);
+
 	virtual ~MessageProcessor();
 };
 

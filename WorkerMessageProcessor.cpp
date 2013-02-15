@@ -76,6 +76,8 @@ LSP_Packet WorkerMessageProcessor::create_join_req_packet()
 	return c_pkt;
 }
 
+
+
 void WorkerMessageProcessor::process_data_packet(LSP_Packet& packet)
 {
 	switch(packet.getDataType())
@@ -107,48 +109,106 @@ void WorkerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	iss >> hash;
 	string startString;
 	iss >> startString;
-	int start = atoi(startString.c_str());
+	int start = strToNum(startString);
 	string endString;
 	iss >> endString;
-	int end = atoi(endString.c_str());
-	string lengthString;
-	iss >> lengthString;
-	int length = atoi(lengthString.c_str());
-	char* password;
-//	Send an ack
+	int end = strToNum(endString);
+	int length = strlen(startString.c_str());
+	//	Send an ack
 	ConnInfo* cInfo = get_conn_info();
 	fprintf(stderr, "WorkerMessageProcessor:: Pushing ACK packet to Outbox for server.\n");
 	LSP_Packet ack_packet = create_ack_packet(packet);
 	cInfo->add_to_outMsgs(ack_packet);
 	//Start as a separate thread
-	process_crack_request(hash, start, end, length, password);
+	cInfo->incrementSeqNo();
+	LSP_Packet p = process_crack_request(hash.c_str(), start, end, length);
+	cInfo->add_to_outMsgs(p);
+
 }
 
-void WorkerMessageProcessor::process_crack_request(string sha, int start, int end, int length, char* password)
+LSP_Packet WorkerMessageProcessor::process_crack_request(const char* sha, int start, int end, int length)
 {
+	bool found = false;
 	for(int i = start; i <= end; i++)
 	{
 		string str = numToString(i,length);
-		if(str.compare(password)==0)
+		char buf[SHA_DIGEST_LENGTH*2];
+		getSHA(str.c_str(),buf);
+		if(strcmp(sha,buf)==0)
 		{
+			found = true;
+			LSP_Packet c_pkt(create_found_packet(str));
 			printf("Found: %s",str.c_str());
-			break;
+			return c_pkt;
 		}
 	}
-	printf("Not found\n");
+	if(!found)
+	{
+		LSP_Packet c_pkt(create_not_found_packet());
+		return c_pkt;
+	}
 }
 
-string WorkerMessageProcessor::numToString(int x,int length)
+LSP_Packet WorkerMessageProcessor::create_found_packet(string str)
 {
-	string str = "";
-	int y;
-	do {
-		y=x%26;
-		str=char('a'+y) +str;
-		x/=26;
-	}while(x);
-	str.insert(0,length-str.length(),'a');
-	return str;
+	ConnInfo* connInfo = get_conn_info();
+
+	uint8_t data[20];
+	sprintf((char*) data, "f %s", str.c_str());
+	unsigned data_length = strlen((char*)data);
+
+	LSP_Packet c_pkt(
+			connInfo->getConnectionId(),
+			connInfo->getSeqNo(),
+			data_length,
+			data);
+
+	return c_pkt;
+}
+
+LSP_Packet WorkerMessageProcessor::create_not_found_packet()
+{
+	ConnInfo* connInfo = get_conn_info();
+
+	unsigned data_length = 1;
+
+	uint8_t* data = new uint8_t[data_length];
+	data[0] = 'x';
+
+	LSP_Packet c_pkt(
+			connInfo->getConnectionId(),
+			connInfo->getSeqNo(),
+			data_length,
+			data);
+
+	delete data;
+	return c_pkt;
+}
+
+int WorkerMessageProcessor::strToNum(string x)
+{
+	int sum = 0;
+	for(int i=0;i<strlen(x.c_str());i++)
+	{
+		char a = x[i] - 'a';
+		sum += int(a)*pow(26,i);
+	}
+	return sum;
+}
+
+void WorkerMessageProcessor::getSHA(const char* str, char* sha)
+{
+	int i = 0;
+	unsigned char temp[SHA_DIGEST_LENGTH];
+
+	memset(sha, 0x0, SHA_DIGEST_LENGTH*2);
+	memset(temp, 0x0, SHA_DIGEST_LENGTH);
+
+	SHA1((unsigned char *)str, strlen(str), temp);
+
+	for (i=0; i < SHA_DIGEST_LENGTH; i++) {
+		sprintf((char*)&(sha[i*2]), "%02x", temp[i]);
+	}
 }
 
 WorkerMessageProcessor::~WorkerMessageProcessor()

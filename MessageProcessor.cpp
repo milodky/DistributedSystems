@@ -16,6 +16,7 @@ int MessageProcessor::poll_inbox()
 
 		LSP_Packet packet = inbox->pop_msg();
 		fprintf(stderr, "MessageProcessor:: Received Packet. \n");
+		packet.print();
 		process_incoming_msg(packet);
 	}
 }
@@ -195,6 +196,19 @@ void MessageProcessor::send_conn_req_packet(char* hostname, char* port)
 
 	fprintf(stderr, "MessageProcessor:: Pushing Connection Request to outbox. Server %s : %s\n", hostname, port);
 	connInfo->add_to_outMsgs(create_conn_req_packet());
+}
+
+string MessageProcessor::numToString(int x,int length)
+{
+	string str = "";
+	int y;
+	do {
+		y=x%26;
+		str=char('a'+y) +str;
+		x/=26;
+	}while(x);
+	str.insert(0,length-str.length(),'a');
+	return str;
 }
 
 MessageProcessor::~MessageProcessor()

@@ -9,18 +9,20 @@ SRC = lsp.cpp connection.cpp functions.cpp lspmessage.pb-c.c \
 # For compiling we do not need the -lssl option.
 # -l option is only used for linking. It is required while building
 compile:
+	g++ -S tempSHAgenerator.cpp
 	g++ -S server.cpp $(SRC)
 	g++ -S client.cpp $(SRC)
 	g++ -S worker.cpp $(SRC)
+	
 
 # -lpthread -> includes the pthread library for linking
 build:
-
+	g++ -g -o SHA tempSHAgenerator.cpp -lssl
 	g++ -g -o server server.cpp $(SRC) $(LIBS)
 	g++ -g -o request client.cpp $(SRC) $(LIBS)
 	g++ -g -o worker worker.cpp $(SRC) $(LIBS)
 
 clean:
-	rm -f *.o *.gch *.s server request worker client
+	rm -f *.o *.gch *.s server request worker client SHA
 	
 	

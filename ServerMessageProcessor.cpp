@@ -148,10 +148,12 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 			}
 		}
 		int end = pow(26,length);
-		std::ostringstream sin;
-        sin << end;
-        string endString = sin.str();
-	    string data = "c " + hash + " 0" + " " +endString;
+		//std::ostringstream sin;
+        //sin << end;
+        //string endString = sin.str();
+        string startString = numToString(0,length);
+        string endString = numToString(end,length);
+	    string data = "c " + hash + " "+startString + " " +endString;
 //	    Add entry in map.
 	    WorkerInfo w(cInfo->getConnectionId(), 0, 0, end);
 	    int connId = packet.getConnId();
@@ -169,7 +171,7 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	else if(length >= 4)
 	{
 		int start = 0;
-		int numPoss = pow(26,length);
+		int numPoss = pow(26,length)-1;
 		int each = ceil(numPoss/workersCount);
 		for(vector<ConnInfo*>::iterator it=connInfos->begin();
 								it!=connInfos->end(); ++it)
@@ -177,17 +179,19 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 			if((*it)->isIsAlive() && (*it)->isIsWorker())
 			{
 				ConnInfo* cInfo = (*it);
-				std::ostringstream sin;
-				sin << start;
-				string startString = sin.str();
+				//std::ostringstream sin;
+				//sin << start;
+				//string startString = sin.str();
 				int last;
 				if(start+each>numPoss)
 					last = 	numPoss;
 				else
 					last = 	start+each;
-				sin << last;
-				string endString = sin.str();
-				string data = "c " + hash + " "  + startString + "  " +endString;
+				//sin << last;
+				//string endString = sin.str();
+				string startString = numToString(start,length);
+				string endString = numToString(last,length);
+				string data = "c " + hash + " "  + startString + " " +endString;
 //	    		Add entry in map
 			    WorkerInfo w(cInfo->getConnectionId(), 0,start, last);
 			    int connId = packet.getConnId();
@@ -335,7 +339,8 @@ void ServerMessageProcessor::send_crack_worker_request(ConnInfo* cInfo,const cha
 {
 //	The crack request that the server sends to the worker will have the format
 //	c hash lower upper
-	LSP_Packet packet(cInfo->getConnectionId(), cInfo->getSeqNo(),strlen(hash), (uint8_t*)hash);
+	fprintf(stderr, "ServerMessageProcessor:: Pushing crack packet to Outbox for conn_id: %u\n", cInfo->getConnectionId());
+	LSP_Packet packet(cInfo->getConnectionId(), cInfo->getSeqNo(),strlen(hash)+1, (uint8_t*)hash);
 	cInfo->add_to_outMsgs(packet);
 }
 

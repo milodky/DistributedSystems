@@ -64,7 +64,7 @@ LSP_Packet RequestMessageProcessor::create_crack_req_packet()
 
 	uint8_t data[100];
 	sprintf((char*) data, "c %s %u", hashMsg, password_length);
-	unsigned data_length = strlen((char*)data);
+	unsigned data_length = strlen((char*)data)+1;
 
 	LSP_Packet c_pkt(
 			connInfo->getConnectionId(),

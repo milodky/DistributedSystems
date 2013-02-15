@@ -14,10 +14,13 @@ public:
 	virtual int process_ack_packet(LSP_Packet& packet);
 
 	void process_crack_request(LSP_Packet& packet);
-	void process_crack_request(string sha, int start, int end, int length, char* password);
-	string numToString(int x,int length);
+	LSP_Packet process_crack_request(const char* sha, int start, int end, int length);
+	int strToNum(string x);
+	void getSHA(const char* str, char* sha);
 
 	LSP_Packet create_join_req_packet();
+	LSP_Packet create_found_packet(string str);
+	LSP_Packet create_not_found_packet();
 
 	virtual ~WorkerMessageProcessor();
 };

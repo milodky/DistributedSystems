@@ -13,8 +13,10 @@ private:
 	int connectionID;
 
 	//might have to be made volatile
-	int epochsSinceMsgRcd;
-	int epochsSinceMsgSent;
+	unsigned epoch_count;
+
+	/* Time stamp of the most recent communication that occured */
+	clock_t timestamp;
 
 //	int countMsgsRcd;
 
@@ -62,6 +64,13 @@ public:
 	void setPort(int port);
 	int getSeqNo() const;
 	void incrementSeqNo();
+
+	void incrementEpochCount();
+	void resetEpochCount();
+	unsigned getEpochCount() const;
+
+	clock_t getTimestamp() const;
+	void updateTimestamp();
 
 	~ConnInfo();
 };

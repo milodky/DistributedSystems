@@ -1,4 +1,3 @@
-
 LIBS = -lprotobuf-c -lpthread -lssl
 
 SRC = lsp.cpp connection.cpp functions.cpp lspmessage.pb-c.c \

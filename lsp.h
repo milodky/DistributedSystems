@@ -2,7 +2,7 @@
  * Header file for lsp protocol
  *
  */
-
+#pragma once
 #ifndef LSP_H
 #define LSP_H
 
@@ -66,6 +66,9 @@ public:
 	virtual void runEpoch() = 0;
 
 	virtual ~LSP();
+
+	vector<ConnInfo*>* getConnInfos() const;
+	pthread_mutex_t getMutexConnInfos() const;
 };
 
 class LSP_Server : public LSP

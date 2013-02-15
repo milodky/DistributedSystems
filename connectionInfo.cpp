@@ -13,8 +13,7 @@ ConnInfo::ConnInfo(int connId, int p, const char* const host) : connectionID(con
 	//	countMsgsRcd = 1; //only connection request is got at this point.
 
 	seq_no = 0;
-	epochsSinceMsgRcd = 0;
-	epochsSinceMsgSent = 0;
+	epoch_count = 0;
 
 	pthread_mutex_init(&mutex_outbox, NULL);
 }
@@ -137,6 +136,30 @@ int ConnInfo::getSeqNo() const {
 
 void ConnInfo::incrementSeqNo() {
 	seq_no = seq_no + 1;
+}
+
+clock_t ConnInfo::getTimestamp() const {
+	return timestamp;
+}
+
+void ConnInfo::updateTimestamp()
+{
+	this->timestamp = clock();
+}
+
+void ConnInfo::incrementEpochCount()
+{
+	epoch_count++;
+}
+
+void ConnInfo::resetEpochCount()
+{
+	epoch_count = 0;
+}
+
+unsigned ConnInfo::getEpochCount() const
+{
+	return epoch_count;
 }
 
 ConnInfo::~ConnInfo()

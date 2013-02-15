@@ -15,11 +15,7 @@ int epoch_cnt = _EPOCH_CNT;
 double drop_rate = _DROP_RATE;
 
 /*
- *
- *
  *				LSP RELATED FUNCTIONS
- *
- *
  */
 
 void lsp_set_epoch_lth(double lth){epoch_lth = lth;}
@@ -28,9 +24,9 @@ void lsp_set_drop_rate(double rate){drop_rate = rate;}
 
 /** LSP Methods */
 
-/**
- * Code for execution as the listener thread
- */
+/* ---------------------------------------------------------------*/
+/** THREAD FUNCTION CALLS */
+/* ---------------------------------------------------------------*/
 void* listener_run(void* arg)
 {
 	struct ThreadData* params = (ThreadData *) arg;
@@ -166,6 +162,14 @@ LSP::~LSP()
 	pthread_mutex_destroy(&mutex_connInfos);
 }
 
+vector<ConnInfo*>* LSP::getConnInfos() const {
+	return connInfos;
+}
+
+pthread_mutex_t LSP::getMutexConnInfos() const {
+	return mutex_connInfos;
+}
+
 /* ---------------------------------------------------------------*/
 /** LSP_Server METHODS */
 /* ---------------------------------------------------------------*/
@@ -177,7 +181,7 @@ LSP_Server::LSP_Server(char* port) : LSP(true,port)
 
 void LSP_Server::runEpoch()
 {
-
+	epoch->run();
 }
 
 void LSP_Server::init()
@@ -186,6 +190,7 @@ void LSP_Server::init()
 	connector->setup(NULL, serverPort);
 	start_msg_receiver_thread();
 	start_msg_sender_thread();
+	start_epoch_thread();
 }
 
 void LSP_Server::run()
@@ -208,7 +213,7 @@ LSP_Client::LSP_Client(char *h, char* port) : LSP(false,port),host(h)
 
 void LSP_Client::runEpoch()
 {
-
+	epoch->run();
 }
 
 void LSP_Client::init()
@@ -217,6 +222,7 @@ void LSP_Client::init()
 	connector->setup(host, serverPort);
 	start_msg_receiver_thread();
 	start_msg_sender_thread();
+	start_epoch_thread();
 }
 
 void LSP_Client::run()

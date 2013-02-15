@@ -117,7 +117,7 @@ void WorkerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	char* password;
 //	Send an ack
 	ConnInfo* cInfo = get_conn_info();
-	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", packet.getConnId());
+	fprintf(stderr, "WorkerMessageProcessor:: Pushing ACK packet to Outbox for server.\n");
 	LSP_Packet ack_packet = create_ack_packet(packet);
 	cInfo->add_to_outMsgs(ack_packet);
 	//Start as a separate thread
@@ -126,7 +126,7 @@ void WorkerMessageProcessor::process_crack_request(LSP_Packet& packet)
 
 void WorkerMessageProcessor::process_crack_request(string sha, int start, int end, int length, char* password)
 {
-	for(int i = start; i < end; i++)
+	for(int i = start; i <= end; i++)
 	{
 		string str = numToString(i,length);
 		if(str.compare(password)==0)

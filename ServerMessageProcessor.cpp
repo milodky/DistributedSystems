@@ -166,7 +166,7 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 		cInfo->incrementSeqNo();
 		send_crack_worker_request(cInfo, data.c_str());
 	}
-	else if(length > 4)
+	else if(length >= 4)
 	{
 		int start = 0;
 		int numPoss = pow(26,length);

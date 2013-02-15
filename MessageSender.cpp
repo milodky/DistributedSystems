@@ -27,7 +27,7 @@ void MessageSender::send_msg(ConnInfo &cInfo)
 	}
 	if(packet.getType() == ACK)
 	{
-		fprintf(stderr, "MessageSender::Popping ACK Message.\n");
+		fprintf(stderr, "MessageSender::Popping ACK Message in %d\n",cInfo.getConnectionId());
 		cInfo.pop_outMsgs();
 		cInfo.setMsgSent(false); /* Next msg hasn't been set*/
 	}

@@ -81,25 +81,52 @@ void MessageProcessor::stamp_data_type(LSP_Packet& packet)
 
 int MessageProcessor::check_msg_sequence_and_pop_outbox(LSP_Packet& packet)
 {
+//	ConnInfo* connInfo = get_conn_info(packet.getConnId());
+//	LSP_Packet out_pkt = connInfo->get_front_msg();
+//
+//	assert (packet.getConnId() == out_pkt.getConnId() || out_pkt.getConnId() == 0);
+//
+//	/*	TODO Server gets higher priority when both send packets with the same seq no */
+//	if((packet.getSeqNo() == out_pkt.getSeqNo() && packet.getType() == ACK) ||
+//			(packet.getSeqNo() == out_pkt.getSeqNo() + 1 && packet.getType() == DATA))
+//	{
+//		/* Pop from conn info */
+//		if(packet.getSeqNo() == out_pkt.getSeqNo() && packet.getType() == ACK)
+//		{
+//			fprintf(stderr, "MessageSender::Popping Message from outMsgs in %d\n",connInfo->getConnectionId());
+//			connInfo->pop_outMsgs();
+//		}
+//
+//
+//		return SUCCESS;
+//	}
+//	else
+//	{
+//		fprintf(stderr, "MessageProcessor:: Ignoring Packet %d. Expecting %d\n",
+//						packet.getSeqNo(), out_pkt.getSeqNo());
+//		return FAILURE;
+//	}
 	ConnInfo* connInfo = get_conn_info(packet.getConnId());
-	LSP_Packet out_pkt = connInfo->get_front_msg();
+	int seqNo = connInfo->getSeqNo();
 
-	assert (packet.getConnId() == out_pkt.getConnId() || out_pkt.getConnId() == 0);
+	assert (packet.getConnId() == connInfo->getConnectionId() || connInfo->getConnectionId() == 0);
 
 	/*	TODO Server gets higher priority when both send packets with the same seq no */
-	if((packet.getSeqNo() == out_pkt.getSeqNo() && packet.getType() == ACK) ||
-			(packet.getSeqNo() == out_pkt.getSeqNo() + 1 && packet.getType() == DATA))
+	if((packet.getSeqNo() == seqNo && packet.getType() == ACK) ||
+			(packet.getSeqNo() == seqNo + 1 && packet.getType() == DATA))
 	{
 		/* Pop from conn info */
-		if(packet.getSeqNo() == out_pkt.getSeqNo() && packet.getType() == ACK)
+		if(packet.getSeqNo() == seqNo && packet.getType() == ACK)
+		{
+			fprintf(stderr, "MessageSender::Popping Message from outMsgs in %d\n",connInfo->getConnectionId());
 			connInfo->pop_outMsgs();
-
+		}
 		return SUCCESS;
 	}
 	else
 	{
 		fprintf(stderr, "MessageProcessor:: Ignoring Packet %d. Expecting %d\n",
-						packet.getSeqNo(), out_pkt.getSeqNo());
+						packet.getSeqNo(), seqNo);
 		return FAILURE;
 	}
 }

@@ -1,5 +1,14 @@
 #include "lsp.h"
 #include "serializer.h"
+#include "connectionInfo.h"
+#include "inbox.h"
+#include "connection.h"
+#include "MessageReceiver.h"
+#include "MessageSender.h"
+#include "ServerMessageProcessor.h"
+#include "RequestMessageProcessor.h"
+#include "WorkerMessageProcessor.h"
+#include "epoch.h"
 
 double epoch_lth = _EPOCH_LTH;
 int epoch_cnt = _EPOCH_CNT;
@@ -163,6 +172,7 @@ LSP::~LSP()
 LSP_Server::LSP_Server(char* port) : LSP(true,port)
 {
 	msg_proc = new ServerMessageProcessor(inbox, connInfos, mutex_connInfos);
+	epoch = new EpochServer(this);
 }
 
 void LSP_Server::runEpoch()
@@ -176,8 +186,6 @@ void LSP_Server::init()
 	connector->setup(NULL, serverPort);
 	start_msg_receiver_thread();
 	start_msg_sender_thread();
-
-//		connector.send_message("test");
 }
 
 void LSP_Server::run()
@@ -187,14 +195,15 @@ void LSP_Server::run()
 
 LSP_Server::~LSP_Server()
 {
-	delete msg_proc;
+	if (msg_proc) delete msg_proc;
+	if (epoch) delete epoch;
 }
 /* ---------------------------------------------------------------*/
 /** LSP_Client METHODS */
 /* ---------------------------------------------------------------*/
 LSP_Client::LSP_Client(char *h, char* port) : LSP(false,port),host(h)
 {
-
+	epoch = new EpochClient(this);
 }
 
 void LSP_Client::runEpoch()
@@ -218,7 +227,7 @@ void LSP_Client::run()
 
 LSP_Client::~LSP_Client()
 {
-
+	if (epoch) delete epoch;
 }
 
 /* ---------------------------------------------------------------*/
@@ -236,7 +245,7 @@ void LSP_Worker::run()
 
 LSP_Worker::~LSP_Worker()
 {
-	delete msg_proc;
+	if (msg_proc) delete msg_proc;
 }
 
 /* ---------------------------------------------------------------*/
@@ -256,5 +265,5 @@ void LSP_Requester::run()
 
 LSP_Requester::~LSP_Requester()
 {
-	delete msg_proc;
+	if (msg_proc) delete msg_proc;
 }

@@ -7,29 +7,11 @@
 #define LSP_H
 
 #include "header.h"
-#include "connectionInfo.h"
-#include "inbox.h"
-#include "connection.h"
-#include "MessageReceiver.h"
-#include "MessageSender.h"
-#include "ServerMessageProcessor.h"
-#include "RequestMessageProcessor.h"
-#include "WorkerMessageProcessor.h"
 
-// Global Parameters. For both server and clients.
-
-#define _EPOCH_LTH 2.0
-#define _EPOCH_CNT 5;
-#define _DROP_RATE 0.0;
 
 void lsp_set_epoch_lth(double lth);
 void lsp_set_epoch_cnt(int cnt);
 void lsp_set_drop_rate(double rate);
-
-/* Inbox Thread */
-
-/* Outbox Thread */
-void* listener_run(void*);
 
 struct ThreadData
 {

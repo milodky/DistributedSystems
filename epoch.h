@@ -1,7 +1,7 @@
-#ifndef INBOX_H
-#define INBOX_H
+#ifndef EPOCH_H
+#define EPOCH_H
 
-#include "lsp.h"
+#include "header.h"
 
 class Epoch : public Uncopyable
 {
@@ -11,7 +11,7 @@ protected:
 public:
 	Epoch(LSP* lsp);
 
-	~Epoch();
+	virtual ~Epoch();
 };
 
 class EpochServer : public Epoch
@@ -19,11 +19,11 @@ class EpochServer : public Epoch
 private:
 
 public:
-	EpochServer();
+	EpochServer(LSP* lsp);
 
 	LSP_Server* get_lsp();
 
-	~EpochServer();
+	virtual ~EpochServer();
 };
 
 class EpochClient: public Epoch
@@ -31,10 +31,10 @@ class EpochClient: public Epoch
 private:
 
 public:
-	EpochClient();
+	EpochClient(LSP* lsp);
 
 	LSP_Client* get_lsp();
 
-	~EpochClient();
+	virtual ~EpochClient();
 };
 #endif

@@ -25,11 +25,6 @@ using namespace std;
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 
-//#define LOCALHOST "localhost"
-
-//#define SERVER_ADDR LOCALHOST
-//#define SERVER_PORT "5000"
-
 const int BAD_SOCKFD = -1;
 
 #define SUCCESS 0
@@ -37,12 +32,20 @@ const int BAD_SOCKFD = -1;
 
 #define MAX_MSG_SIZE 1024
 
+// Global Parameters. For both server and clients.
+
+#define _EPOCH_LTH 2.0
+#define _EPOCH_CNT 5;
+#define _DROP_RATE 0.0;
+
 void printBytes(uint8_t* data, size_t len);
 
 /* Class Declarations */
 struct _LSPMessage;
 
 class LSP;
+class LSP_Server;
+class LSP_Client;
 class Inbox;
 class MessageReceiver;
 class Connector;
@@ -71,6 +74,5 @@ public:
 /* Function Declarations */
 void Error(const char *str, ...);
 void pprint(_LSPMessage& msg);
-
 
 #endif

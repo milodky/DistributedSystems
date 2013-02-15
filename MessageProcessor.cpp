@@ -16,7 +16,6 @@ int MessageProcessor::poll_inbox()
 
 		LSP_Packet packet = inbox->pop_msg();
 		fprintf(stderr, "MessageProcessor:: Received Packet. \n");
-		packet.print();
 		process_incoming_msg(packet);
 	}
 }
@@ -82,31 +81,6 @@ void MessageProcessor::stamp_data_type(LSP_Packet& packet)
 
 int MessageProcessor::check_msg_sequence_and_pop_outbox(LSP_Packet& packet)
 {
-//	ConnInfo* connInfo = get_conn_info(packet.getConnId());
-//	LSP_Packet out_pkt = connInfo->get_front_msg();
-//
-//	assert (packet.getConnId() == out_pkt.getConnId() || out_pkt.getConnId() == 0);
-//
-//	/*	TODO Server gets higher priority when both send packets with the same seq no */
-//	if((packet.getSeqNo() == out_pkt.getSeqNo() && packet.getType() == ACK) ||
-//			(packet.getSeqNo() == out_pkt.getSeqNo() + 1 && packet.getType() == DATA))
-//	{
-//		/* Pop from conn info */
-//		if(packet.getSeqNo() == out_pkt.getSeqNo() && packet.getType() == ACK)
-//		{
-//			fprintf(stderr, "MessageSender::Popping Message from outMsgs in %d\n",connInfo->getConnectionId());
-//			connInfo->pop_outMsgs();
-//		}
-//
-//
-//		return SUCCESS;
-//	}
-//	else
-//	{
-//		fprintf(stderr, "MessageProcessor:: Ignoring Packet %d. Expecting %d\n",
-//						packet.getSeqNo(), out_pkt.getSeqNo());
-//		return FAILURE;
-//	}
 	ConnInfo* connInfo = get_conn_info(packet.getConnId());
 	int seqNo = connInfo->getSeqNo();
 
@@ -117,11 +91,11 @@ int MessageProcessor::check_msg_sequence_and_pop_outbox(LSP_Packet& packet)
 			(packet.getSeqNo() == seqNo + 1 && packet.getType() == DATA))
 	{
 		/* Pop from conn info */
-		if(packet.getSeqNo() == seqNo && packet.getType() == ACK)
-		{
-			fprintf(stderr, "MessageSender::Popping Message from outMsgs in %d\n",connInfo->getConnectionId());
+//		if(packet.getSeqNo() == seqNo && packet.getType() == ACK)
+//		{
+			fprintf(stderr, "MessageProcessor::Popping Message from outMsgs in %d\n",connInfo->getConnectionId());
 			connInfo->pop_outMsgs();
-		}
+//		}
 		return SUCCESS;
 	}
 	else
@@ -141,7 +115,6 @@ int MessageProcessor::process_incoming_msg(LSP_Packet& packet)
 {
 	stamp_msg_type(packet);
 	stamp_data_type(packet);
-	packet.print();
 
 	if(packet.getType() == CONN_REQ) return SUCCESS;
 

@@ -20,9 +20,16 @@ ConnInfo::ConnInfo(int connId, int p, const char* const host) : connectionID(con
 
 void ConnInfo::add_to_outMsgs(LSP_Packet packet)
 {
+	LSP_Packet lsp_packet = get_front_msg();
+
+	if(lsp_packet.getType() == ACK)
+	{
+		pop_outMsgs();
+	}
+
 	/* Lock before modifying! */
 	pthread_mutex_lock (&mutex_outbox);
-
+	fprintf(stderr, "ConnInfo::outbox size is :%u\n", outMsgs.size());
 	fprintf(stderr, "ConnInfo::Adding packet to conn_id:%d Outbox:\n", connectionID);
 	outMsgs.push(packet);
 

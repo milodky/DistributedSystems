@@ -31,12 +31,7 @@ void lsp_set_drop_rate(double rate);
 /* Outbox Thread */
 void* listener_run(void*);
 
-struct ListenerData
-{
-	LSP* lsp_instance;
-};
-
-struct TalkerData
+struct ThreadData
 {
 	LSP* lsp_instance;
 };
@@ -66,6 +61,11 @@ protected:
 	and send it */
 	pthread_t msg_sender_thread;
 
+	/* This is the epoch thread */
+	pthread_t epoch_thread;
+
+	void join_threads();
+
 public:
 	LSP(bool isServer,char* port);
 
@@ -75,9 +75,13 @@ public:
 
 	void start_msg_sender_thread();
 
+	void start_epoch_thread();
+
 	void runListener();
 
 	void runTalker();
+
+	virtual void runEpoch() = 0;
 
 	virtual ~LSP();
 };
@@ -85,6 +89,7 @@ public:
 class LSP_Server : public LSP
 {
 private:
+	EpochServer* epoch;
 
 public:
 	LSP_Server(char* port);
@@ -93,6 +98,8 @@ public:
 	int  read(void* pld, uint32_t* conn_id);
 	bool write(void* pld, int lth, uint32_t conn_id);
 	// bool close(uint32_t conn_id);
+
+	virtual void runEpoch();
 
 	void init();
 	void run();
@@ -105,6 +112,7 @@ class LSP_Client : public LSP
 {
 protected:
 	char* host;
+	EpochClient* epoch;
 
 public:
 	LSP_Client(char *h, char* port);
@@ -115,9 +123,10 @@ public:
 	bool write(uint8_t* pld, int lth);
 	bool close();
 
+	virtual void runEpoch();
+
 	void init();
 	void run();
-
 
 	virtual ~LSP_Client();
 };

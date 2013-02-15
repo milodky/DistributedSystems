@@ -5,7 +5,7 @@ SRC = lsp.cpp connection.cpp functions.cpp lspmessage.pb-c.c \
 	connectionInfo.cpp serializer.cpp MessageReceiver.cpp \
 	MessageProcessor.cpp inbox.cpp MessageSender.cpp \
 	lsppacket.cpp RequestMessageProcessor.cpp ServerMessageProcessor.cpp \
-	WorkerMessageProcessor.cpp 
+	WorkerMessageProcessor.cpp epoch.cpp
 
 # For compiling we do not need the -lssl option.
 # -l option is only used for linking. It is required while building

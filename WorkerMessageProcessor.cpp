@@ -44,7 +44,7 @@ int WorkerMessageProcessor::process_ack_packet(LSP_Packet& packet)
 	/* Special Handling: Send Crack Request to Server */
 	if(	connInfo->getSeqNo() == 0)
 	{
-		fprintf( stderr, "WorkerMessageProcessor::Pushing join Request to outbox\n");
+		fprintf( stderr, "WorkerMessageProcessor::Pushing JOIN REQUEST to outbox\n");
 		connInfo->incrementSeqNo();
 		LSP_Packet j_pkt = create_join_req_packet();
 		connInfo->add_to_outMsgs(j_pkt);

@@ -24,7 +24,7 @@ void lsp_set_drop_rate(double rate){drop_rate = rate;}
  */
 void* listener_run(void* arg)
 {
-	struct ListenerData* params = (struct ListenerData *) arg;
+	struct ThreadData* params = (ThreadData *) arg;
 	fprintf(stderr, "LSP:: Running Listener Thread...\n");
 	params->lsp_instance->runListener();
 	delete params;
@@ -32,14 +32,23 @@ void* listener_run(void* arg)
 
 void* talker_run(void* arg)
 {
-	struct TalkerData* params = (struct TalkerData *) arg;
+	struct ThreadData* params = (ThreadData *) arg;
 	fprintf(stderr, "LSP:: Running Talker Thread...\n");
 	params->lsp_instance->runTalker();
 	delete params;
 }
 
+void* epoch_run(void* arg)
+{
+	struct ThreadData* params = (ThreadData *) arg;
+	fprintf(stderr, "LSP:: Running Epoch Thread...\n");
+	params->lsp_instance->runEpoch();
+	delete params;
+}
 
-/* LSP CLASS METHODS */
+/* ---------------------------------------------------------------*/
+/** LSP METHODS */
+/* ---------------------------------------------------------------*/
 LSP::LSP(bool isServer, char* port)
 {
 	serverPort = port;
@@ -57,13 +66,6 @@ LSP::LSP(bool isServer, char* port)
 
 void LSP::init()
 {
-//	//Test-sanu - remove later
-//	ConnInfo *c = new ConnInfo(0,1,"C1");
-//	LSP_Packet p(0,1,strlen("Hello"),(uint8_t*)"Hello");
-//	c->outMsgs.push(p);
-//	connInfos->push_back(c);
-
-
 	if (pthread_attr_init(&attr))
 	{
 		perror("pthread_attr_init");
@@ -74,22 +76,30 @@ void LSP::init()
 void LSP::start_msg_receiver_thread()
 {
 	int e;
-	ListenerData *listener_data = new ListenerData();
-	listener_data->lsp_instance = this;
+	ThreadData *data = new ThreadData();
+	data->lsp_instance = this;
 
-	if (e = pthread_create(&msg_recvr_thread, &attr, listener_run,
-							(void *) listener_data))
+	if (e = pthread_create(&msg_recvr_thread, &attr, listener_run, (void *) data))
 		Error("pthread_create %d", e);
 }
 
 void LSP::start_msg_sender_thread()
 {
 	int e;
-	TalkerData* talker_data = new TalkerData();
-	talker_data->lsp_instance = this;
+	ThreadData* data = new ThreadData();
+	data->lsp_instance = this;
 
-	if (e = pthread_create(&msg_sender_thread, &attr, talker_run,
-							(void *) talker_data))
+	if (e = pthread_create(&msg_sender_thread, &attr, talker_run, (void *) data))
+		Error("pthread_create %d", e);
+}
+
+void LSP::start_epoch_thread()
+{
+	int e;
+	ThreadData* data = new ThreadData();
+	data->lsp_instance = this;
+
+	if (e = pthread_create(&epoch_thread, &attr, epoch_run, (void *) data))
 		Error("pthread_create %d", e);
 }
 
@@ -104,15 +114,24 @@ void LSP::runTalker()
 	msgSender->pollToSend(connInfos);
 }
 
-LSP::~LSP()
+void LSP::join_threads()
 {
 	if (pthread_join(msg_recvr_thread, NULL))
 		Error("pthread_join");
+	fprintf(stderr, "Joined Listener Thread.\n");
+
 	if (pthread_join(msg_sender_thread, NULL))
 			Error("pthread_join");
-	fprintf(stderr, "Joined Listener Thread.\n");
 	fprintf(stderr, "Joined Sender Thread.\n");
 
+	if (pthread_join(epoch_thread, NULL))
+		Error("pthread_join");
+	fprintf(stderr, "Joined Epoch Thread.\n");
+}
+
+LSP::~LSP()
+{
+	join_threads();
 
 	if(connector) delete connector;
 	if(msgReceiver) delete msgReceiver;
@@ -146,6 +165,11 @@ LSP_Server::LSP_Server(char* port) : LSP(true,port)
 	msg_proc = new ServerMessageProcessor(inbox, connInfos, mutex_connInfos);
 }
 
+void LSP_Server::runEpoch()
+{
+
+}
+
 void LSP_Server::init()
 {
 	LSP::init();
@@ -169,6 +193,11 @@ LSP_Server::~LSP_Server()
 /** LSP_Client METHODS */
 /* ---------------------------------------------------------------*/
 LSP_Client::LSP_Client(char *h, char* port) : LSP(false,port),host(h)
+{
+
+}
+
+void LSP_Client::runEpoch()
 {
 
 }

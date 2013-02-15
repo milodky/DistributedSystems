@@ -54,6 +54,9 @@ class WorkerMessageProcessor;
 class ConnInfo;
 class MessageSender;
 class LSP_Packet;
+class Epoch;
+class EpochServer;
+class EpochClient;
 
 class Uncopyable
 {

@@ -10,6 +10,9 @@ LSP_Packet::LSP_Packet(int conn_id, int seq_no, size_t len, uint8_t* bytes)
   len(len), bytes(new uint8_t[len]), type(UNKNOWN)
 {
 	memcpy(this->bytes, bytes, len);
+
+	stamp_msg_type();
+	stamp_data_type();
 }
 
 LSP_Packet::LSP_Packet(const LSP_Packet& that)
@@ -30,6 +33,46 @@ LSP_Packet::LSP_Packet(const LSP_Packet& that)
 //
 //		memcpy(this->bytes, that.bytes, len);
 //	}
+
+void LSP_Packet::stamp_msg_type()
+{
+	if(getConnId() == 0 && getSeqNo() == 0 &&
+			getLen() == 0)
+	{
+		setType(CONN_REQ);
+	}
+	else if(getConnId() != 0 && getLen() == 0)
+	{
+		setType(ACK);
+	}
+	else if(getConnId() != 0 && getSeqNo() != 0 &&
+			getLen() != 0)
+	{
+		setType(DATA);
+	}
+	else
+	{
+		fprintf( stderr, "MessageProcessor:: Unknown Packet Type!\n");
+		print();
+	}
+}
+
+void LSP_Packet::stamp_data_type()
+{
+	uint8_t* bytes = getBytes();
+	if(bytes[0] == 'j')
+		setDataType(JOINREQUEST);
+	else if(bytes[0] == 'c')
+		setDataType(CRACKREQUEST);
+	else if(bytes[0] == 'f')
+		setDataType(FOUND);
+	else if (bytes[0] == 'x')
+		setDataType(NOTFOUND);
+	else if (bytes[0] == 'a')
+		setDataType(ALIVE);
+	else
+		setDataType(NOTKNOWN);
+}
 
 void LSP_Packet::setHostNameAndPort(char* const hostname, const int port)
 {

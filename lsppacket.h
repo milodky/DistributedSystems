@@ -25,6 +25,9 @@ private:
 
 	LSP_Packet& operator = (const LSP_Packet& that);
 
+	void stamp_msg_type();
+	void stamp_data_type();
+
 public:
 //	LSP_Packet(): conn_id(-1), seq_no(-1);
 
@@ -36,6 +39,7 @@ public:
 
 	void setHostNameAndPort(char* hostname, int port);
 	void print();
+
 
 	~LSP_Packet();
 

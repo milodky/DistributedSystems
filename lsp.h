@@ -54,21 +54,18 @@ public:
 	void init();
 
 	void start_msg_receiver_thread();
-
 	void start_msg_sender_thread();
-
 	void start_epoch_thread();
 
 	void runListener();
-
 	void runTalker();
-
 	virtual void runEpoch() = 0;
 
 	virtual ~LSP();
 
-	vector<ConnInfo*>* getConnInfos() const;
-	pthread_mutex_t getMutexConnInfos() const;
+	vector<ConnInfo*>* getConnInfos();
+	pthread_mutex_t& getMutexConnInfos();
+	MessageProcessor* getMsgProc() const;
 };
 
 class LSP_Server : public LSP

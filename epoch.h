@@ -15,8 +15,10 @@ public:
 	virtual void run();
 
 	bool epoch_passed(const clock_t start, const clock_t end);
+	void check_epoch(ConnInfo* connInfo);
+	void send_packet_again(ConnInfo* connInfo);
+	virtual int take_action(ConnInfo* connInfo) = 0;
 
-	virtual int take_action() = 0;
 	virtual ~Epoch();
 };
 
@@ -31,8 +33,8 @@ public:
 	LSP_Server* get_lsp();
 
 	virtual void run();
+	virtual int take_action(ConnInfo* connInfo);
 
-	virtual int take_action();
 	virtual ~EpochServer();
 };
 
@@ -47,8 +49,7 @@ public:
 	LSP_Client* get_lsp();
 
 	virtual void run();
-
-	virtual int take_action();
+	virtual int take_action(ConnInfo* connInfo);
 
 	virtual ~EpochClient();
 };

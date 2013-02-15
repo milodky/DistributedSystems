@@ -162,12 +162,16 @@ LSP::~LSP()
 	pthread_mutex_destroy(&mutex_connInfos);
 }
 
-vector<ConnInfo*>* LSP::getConnInfos() const {
+vector<ConnInfo*>* LSP::getConnInfos() {
 	return connInfos;
 }
 
-pthread_mutex_t LSP::getMutexConnInfos() const {
+pthread_mutex_t& LSP::getMutexConnInfos() {
 	return mutex_connInfos;
+}
+
+MessageProcessor* LSP::getMsgProc() const {
+	return msg_proc;
 }
 
 /* ---------------------------------------------------------------*/

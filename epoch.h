@@ -15,7 +15,7 @@ public:
 	virtual void run();
 
 	bool epoch_passed(const clock_t start, const clock_t end);
-	void check_epoch(ConnInfo* connInfo);
+	int check_epoch(ConnInfo* connInfo);
 	void send_packet_again(ConnInfo* connInfo);
 	virtual int take_action(ConnInfo* connInfo) = 0;
 

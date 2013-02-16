@@ -23,7 +23,7 @@ bool Epoch::epoch_passed(const clock_t start, const clock_t end)
 	return (end - start) / CLOCKS_PER_SEC >= _EPOCH_LTH;
 }
 
-void Epoch::check_epoch(ConnInfo* connInfo)
+int Epoch::check_epoch(ConnInfo* connInfo)
 {
 	clock_t last, current;
 
@@ -36,10 +36,7 @@ void Epoch::check_epoch(ConnInfo* connInfo)
 	/* Connection has been broken. */
 	if (connInfo->getEpochCount() >= _EPOCH_CNT)
 	{
-		fprintf(stderr, "EpochClient:: Conn_id: %d EPOCH COUNT REACHED MAX. count: %u\n",
-						connInfo->getConnectionId(), connInfo->getEpochCount());
-		fprintf(stderr, "Connection terminated with Server. Exiting...\n");
-		exit (FAILURE);
+		return FAILURE;
 	}
 
 	/* Epoch passed. Epoch count yet to reach _EPOCH_CNT */
@@ -51,6 +48,8 @@ void Epoch::check_epoch(ConnInfo* connInfo)
 		connInfo->incrementEpochCount();
 		take_action(connInfo);
 	}
+
+	return SUCCESS;
 }
 
 void Epoch::send_packet_again(ConnInfo* connInfo)
@@ -93,11 +92,22 @@ void EpochServer::run()
 		/* Lock before modifying! */
 		pthread_mutex_lock (&mutex_connInfos);
 
-		for(vector<ConnInfo*>::iterator it=connInfos->begin();
-				it!=connInfos->end(); ++it)
+		vector<ConnInfo*>::iterator it=connInfos->begin();
+		while(it!=connInfos->end())
 		{
 			/* *it refers to the vector element which is ConnInfo* */
-			check_epoch(*it);
+			if(check_epoch(*it) == FAILURE)
+			{
+				/* Client did not respond within the epoch count */
+				fprintf(stderr, "\nEpoch:: CONNECTION EXPIRED for Client conn_id: %d\n",
+						(*it)->getConnectionId());
+				delete *it;
+				connInfos->erase(it);
+			}
+			else
+			{
+				++it;
+			}
 		}
 
 		/* Unlock after modifying! */
@@ -140,7 +150,14 @@ void EpochClient::run()
 	clock_t last, current;
 	while(true)
 	{
-		check_epoch(connInfo);
+		if(check_epoch(connInfo) == FAILURE)
+		{
+			/* Server did not respond in time. Exiting.. */
+			fprintf(stderr, "EpochClient:: Conn_id: %d EPOCH COUNT REACHED MAX. count: %u\n",
+							connInfo->getConnectionId(), connInfo->getEpochCount());
+			fprintf(stderr, "Connection terminated with Server. Exiting...\n");
+			exit (FAILURE);
+		}
 		sleep(0);
 	}
 }

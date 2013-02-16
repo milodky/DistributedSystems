@@ -17,6 +17,8 @@ int MessageProcessor::poll_inbox()
 		LSP_Packet packet = inbox->pop_msg();
 		fprintf(stderr, "MessageProcessor:: Received Packet. \n");
 		process_incoming_msg(packet);
+
+		sleep(0);
 	}
 }
 

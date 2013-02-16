@@ -102,6 +102,8 @@ void EpochServer::run()
 
 		/* Unlock after modifying! */
 		pthread_mutex_unlock (&mutex_connInfos);
+
+		sleep(0);
 	}
 }
 
@@ -139,6 +141,7 @@ void EpochClient::run()
 	while(true)
 	{
 		check_epoch(connInfo);
+		sleep(0);
 	}
 }
 

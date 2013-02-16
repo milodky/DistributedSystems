@@ -180,6 +180,8 @@ int Connector::listen()
 		/* Send received data to Message Receiver Module */
 		msgReceiver->receive_msg(from_ipv4, port, recv_data, bytes_read);
 		fflush(stdout);
+
+		sleep(0);
 	}
 	return 0;
 }

@@ -59,7 +59,7 @@ public:
 	/* Process incoming Packet */
 	virtual int process_incoming_msg(LSP_Packet& packet);
 
-	void send_crack_worker_request(ConnInfo* cInfo,const char* hash);
+	void send_crack_worker_request(LSP_Packet & packet, ConnInfo* cInfo, WorkerInfo& w, const char* hash);
 
 	/* Process a join request */
 	void process_join_request_packet(LSP_Packet& packet);

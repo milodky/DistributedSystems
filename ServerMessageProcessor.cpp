@@ -132,6 +132,7 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 //		Send msg to client that the password is too long. Cannot process.
 		return;
 	}
+
 	if(length<4)
 	{
 //		Assign only 1 worker. Sending message to more workers will take more time
@@ -147,26 +148,13 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 				break;
 			}
 		}
-		int end = pow(26,length);
-		//std::ostringstream sin;
-        //sin << end;
-        //string endString = sin.str();
-        string startString = numToString(0,length);
+		int end = pow(26,length)-1;
+		string startString = numToString(0,length);
         string endString = numToString(end,length);
 	    string data = "c " + hash + " "+startString + " " +endString;
-//	    Add entry in map.
-	    WorkerInfo w(cInfo->getConnectionId(), 0, 0, end);
-	    int connId = packet.getConnId();
-//	    There can only be one request from a particular client.
-	    assert(clientWorkerInfo.find(connId)==clientWorkerInfo.end());
-		vector<WorkerInfo> workers;
-		workers.push_back(w);
-		clientWorkerInfo[connId] = workers;
-//		Add connId of client to workers' clients queue.
-		cInfo->pushClients(connId);
+	    WorkerInfo w(cInfo->getConnectionId(), 0,0, end);
 //		Send crack request to worker.
-		cInfo->incrementSeqNo();
-		send_crack_worker_request(cInfo, data.c_str());
+		send_crack_worker_request(packet, cInfo,w, data.c_str());
 	}
 	else if(length >= 4)
 	{
@@ -192,24 +180,8 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 				string startString = numToString(start,length);
 				string endString = numToString(last,length);
 				string data = "c " + hash + " "  + startString + " " +endString;
-//	    		Add entry in map
-			    WorkerInfo w(cInfo->getConnectionId(), 0,start, last);
-			    int connId = packet.getConnId();
-			    cInfo->incrementSeqNo();
-				if(clientWorkerInfo.find(connId)==clientWorkerInfo.end())
-				{
-					vector<WorkerInfo> workers;
-					workers.push_back(w);
-					clientWorkerInfo[connId] = workers;
-				}
-				else
-				{
-					clientWorkerInfo[connId].push_back(w);
-				}
-//				Add connId of client to workers' clients queue.
-				cInfo->pushClients(connId);
-//				Send crack request to worker.
-				send_crack_worker_request(cInfo, data.c_str());
+				WorkerInfo w(cInfo->getConnectionId(), 0,start, last);
+				send_crack_worker_request(packet, cInfo, w, data.c_str());
 				start = start + each + 1;
 			}
 		}
@@ -335,13 +307,30 @@ unsigned ServerMessageProcessor::get_next_conn_id() const
 	return connInfos->size() + 1;
 }
 
-void ServerMessageProcessor::send_crack_worker_request(ConnInfo* cInfo,const char* hash)
+void ServerMessageProcessor::send_crack_worker_request(LSP_Packet &packet, ConnInfo* cInfo,WorkerInfo &w, const char* hash)
 {
 //	The crack request that the server sends to the worker will have the format
 //	c hash lower upper
+//	Add entry in map
+
+	int connId = packet.getConnId();
+	cInfo->incrementSeqNo();
+	if(clientWorkerInfo.find(connId)==clientWorkerInfo.end())
+	{
+		vector<WorkerInfo> workers;
+		workers.push_back(w);
+		clientWorkerInfo[connId] = workers;
+	}
+	else
+	{
+		clientWorkerInfo[connId].push_back(w);
+	}
+//	Add connId of client to workers' clients queue.
+	cInfo->pushClients(connId);
+//	Send crack request to worker.
 	fprintf(stderr, "ServerMessageProcessor:: Pushing crack packet to Outbox for conn_id: %u\n", cInfo->getConnectionId());
-	LSP_Packet packet(cInfo->getConnectionId(), cInfo->getSeqNo(),strlen(hash)+1, (uint8_t*)hash);
-	cInfo->add_to_outMsgs(packet);
+	LSP_Packet p(cInfo->getConnectionId(), cInfo->getSeqNo(),strlen(hash)+1, (uint8_t*)hash);
+	cInfo->add_to_outMsgs(p);
 }
 
 ServerMessageProcessor::~ServerMessageProcessor()

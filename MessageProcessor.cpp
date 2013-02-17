@@ -33,10 +33,10 @@ ConnInfo* MessageProcessor::get_conn_info(int connId)
 	for(vector<ConnInfo*>::iterator it=connInfos->begin();
 				it!=connInfos->end(); ++it)
 	{
-		if((*it)->getConnectionId() == connId)
-			return (*it);
-
+		if((*it)->getConnectionId() == connId) return (*it);
 	}
+
+	fprintf(stderr, "MessageProcessor::No connInfo object for connId: %d\n", connId);
 	assert (false);
 	return NULL;
 }

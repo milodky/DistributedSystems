@@ -29,6 +29,12 @@ void ConnInfo::add_to_outMsgs(LSP_Packet packet)
 
 	/* Lock before modifying! */
 	pthread_mutex_lock (&mutex_outbox);
+
+	/* This has to hold all the time. The sent packet should always have
+	 * the same connection ID as the connection info object.
+	 * During, connection initiation both have the value 0 */
+	assert (getConnectionId() == packet.getConnId());
+
 	fprintf(stderr, "ConnInfo::outbox size is :%u\n", outMsgs.size());
 	fprintf(stderr, "ConnInfo::Adding packet to conn_id:%d Outbox:\n", connectionID);
 	outMsgs.push(packet);

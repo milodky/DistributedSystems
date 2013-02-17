@@ -1,14 +1,46 @@
 #include "ServerMessageProcessor.h"
 
-ServerMessageProcessor::ServerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos,pthread_mutex_t& mutex_connInfos)
+ServerMessageProcessor::ServerMessageProcessor(
+		Inbox* in, vector<ConnInfo*> *infos,
+		pthread_mutex_t& mutex_connInfos)
 	: MessageProcessor(in,infos,mutex_connInfos)
 {
 
 }
 
+bool ServerMessageProcessor::check_conn_req_validity(LSP_Packet& packet)
+{
+	/* Lock before modifying! */
+    pthread_mutex_lock (&mutex_connInfos);
+
+	for(vector<ConnInfo*>::iterator it=connInfos->begin();
+			it!=connInfos->end(); ++it)
+	{
+		if(packet.getPort() == (*it)->getPort() &&
+				!strcmp(packet.getHostname(), (*it)->getHostName()))
+		{
+			return false;
+		}
+	}
+
+    /* Unlock after modifying! */
+    pthread_mutex_unlock (&mutex_connInfos);
+
+    return true;
+}
+
 void ServerMessageProcessor::process_conn_req(LSP_Packet& packet)
 {
-	fprintf(stderr, "ServerMessageProcessor:: Processing Connection Request from %s : %d\n", packet.getHostname(), packet.getPort());
+	fprintf(stderr, "ServerMessageProcessor:: Processing Connection Request from %s : %d\n",
+			packet.getHostname(), packet.getPort());
+
+	if(!check_conn_req_validity(packet))
+	{
+		fprintf(stderr, "ServerMessageProcessor:: Connection already exists! Ignoring request from %s : %d\n",
+					packet.getHostname(), packet.getPort());
+		return;
+	}
+
 	/* Create a new connection info object for this client */
 	unsigned conn_id = get_next_conn_id();
 	ConnInfo *connInfo =

@@ -75,6 +75,8 @@ public:
 	/* Process a data packet */
 	virtual void process_data_packet(LSP_Packet& packet);
 
+	bool check_conn_req_validity(LSP_Packet& packet);
+
 	/* Process a connection request packet */
 	void process_conn_req(LSP_Packet& packet);
 

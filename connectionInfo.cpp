@@ -13,7 +13,8 @@ ConnInfo::ConnInfo(int connId, int p, const char* const host) : connectionID(con
 	//	countMsgsRcd = 1; //only connection request is got at this point.
 
 	seq_no = 0;
-	epoch_count = 0;
+	resetEpochCount();
+	updateTimestamp();
 
 	pthread_mutex_init(&mutex_outbox, NULL);
 }
@@ -89,6 +90,9 @@ int ConnInfo::getConnectionId() const {
 
 void ConnInfo::setConnectionId(int connectionId) {
 	connectionID = connectionId;
+
+	updateTimestamp();
+	resetEpochCount();
 }
 
 char* ConnInfo::getHash() const {

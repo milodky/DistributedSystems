@@ -1,7 +1,7 @@
 #include "MessageProcessor.h"
 
 MessageProcessor::MessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos)
-	: inbox(in), mutex_connInfos(mutex_connInfos), connInfos(infos)
+: inbox(in), mutex_connInfos(mutex_connInfos), connInfos(infos)
 {
 
 }
@@ -31,59 +31,30 @@ ConnInfo* MessageProcessor::get_conn_info()
 ConnInfo* MessageProcessor::get_conn_info(int connId)
 {
 	for(vector<ConnInfo*>::iterator it=connInfos->begin();
-				it!=connInfos->end(); ++it)
+			it!=connInfos->end(); ++it)
 	{
 		if((*it)->getConnectionId() == connId) return (*it);
 	}
 
 	fprintf(stderr, "MessageProcessor::No connInfo object for connId: %d\n", connId);
-	assert (false);
 	return NULL;
-}
-
-void MessageProcessor::stamp_msg_type(LSP_Packet& packet)
-{
-	if(packet.getConnId() == 0 && packet.getSeqNo() == 0 &&
-			packet.getLen() == 0)
-	{
-		packet.setType(CONN_REQ);
-	}
-	else if(packet.getConnId() != 0 && packet.getLen() == 0)
-	{
-		packet.setType(ACK);
-	}
-	else if(packet.getConnId() != 0 && packet.getSeqNo() != 0 &&
-			packet.getLen() != 0)
-	{
-		packet.setType(DATA);
-	}
-	else
-	{
-		fprintf( stderr, "MessageProcessor:: Unknown Packet Type!\n");
-		packet.print();
-	}
-}
-
-void MessageProcessor::stamp_data_type(LSP_Packet& packet)
-{
-	uint8_t* bytes = packet.getBytes();
-	if(bytes[0] == 'j')
-		packet.setDataType(JOINREQUEST);
-	else if(bytes[0] == 'c')
-		packet.setDataType(CRACKREQUEST);
-	else if(bytes[0] == 'f')
-		packet.setDataType(FOUND);
-	else if (bytes[0] == 'x')
-		packet.setDataType(NOTFOUND);
-	else if (bytes[0] == 'a')
-		packet.setDataType(ALIVE);
-	else
-		packet.setDataType(NOTKNOWN);
 }
 
 int MessageProcessor::check_msg_sequence_and_pop_outbox(LSP_Packet& packet)
 {
 	ConnInfo* connInfo = get_conn_info(packet.getConnId());
+	if(connInfo == NULL)
+	{
+		fprintf(stderr, "MessageProcessor:: Ignoring Packet.\n");
+		return FAILURE;
+	}
+
+	/**
+	 * Since a valid connection info object exists! update timestamp
+	 */
+	connInfo->updateTimestamp();
+	connInfo->resetEpochCount();
+
 	int seqNo = connInfo->getSeqNo();
 
 	assert (packet.getConnId() == connInfo->getConnectionId() || connInfo->getConnectionId() == 0);
@@ -93,19 +64,31 @@ int MessageProcessor::check_msg_sequence_and_pop_outbox(LSP_Packet& packet)
 			(packet.getSeqNo() == seqNo + 1 && packet.getType() == DATA))
 	{
 		/* Pop from conn info */
-//		if(packet.getSeqNo() == seqNo && packet.getType() == ACK)
-//		{
-			fprintf(stderr, "MessageProcessor::Popping Message from outMsgs in %d\n",connInfo->getConnectionId());
-			connInfo->pop_outMsgs();
-//		}
+		/**
+		 * Always pop!
+		 * case 1> We sent a data packet and it has been ack ed
+		 * case 2> We sent an ack packet and now we have received data
+		 * case 3 and 4 ??
+		 */
+		//		if(packet.getSeqNo() == seqNo && packet.getType() == ACK)
+		//		{
+		fprintf(stderr, "MessageProcessor::Popping Outbox for conn_id: %d\n",
+				connInfo->getConnectionId());
+		connInfo->pop_outMsgs();
+		//		}
 		return SUCCESS;
 	}
-	else
+	else if(packet.getType() == ACK)
 	{
-		fprintf(stderr, "MessageProcessor:: Ignoring Packet %d. Expecting %d\n",
-						packet.getSeqNo(), seqNo);
-		return FAILURE;
+		fprintf(stderr, "MessageProcessor:: conn_id: %d Ignoring ACK Packet seq: %d. Expecting %d\n",
+				connInfo->getConnectionId(), packet.getSeqNo(), seqNo);
 	}
+	else if(packet.getType() == DATA)
+	{
+		fprintf(stderr, "MessageProcessor:: conn_id: %d Ignoring Data Packet seq: %d. Expecting %d\n",
+				connInfo->getConnectionId(), packet.getSeqNo(), seqNo + 1);
+	}
+	return FAILURE;
 }
 
 /**
@@ -115,9 +98,6 @@ int MessageProcessor::check_msg_sequence_and_pop_outbox(LSP_Packet& packet)
  */
 int MessageProcessor::process_incoming_msg(LSP_Packet& packet)
 {
-	stamp_msg_type(packet);
-	stamp_data_type(packet);
-
 	if(packet.getType() == CONN_REQ) return SUCCESS;
 
 	/* Process ACK packets LATER !! */

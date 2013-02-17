@@ -28,12 +28,6 @@ public:
 	/* Process a data packet */
 	virtual void process_data_packet(LSP_Packet& packet) = 0;
 
-	/* Figure out the packet type and stamp it on the packet object */
-	void stamp_msg_type(LSP_Packet& packet);
-
-	/* Figure out the data type and stamp it on the packet object */
-	void stamp_data_type(LSP_Packet& packet);
-
 	int check_msg_sequence_and_pop_outbox(LSP_Packet& packet);
 
 	/* Process an acknowledgment packet */

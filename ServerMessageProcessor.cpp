@@ -10,6 +10,8 @@ ServerMessageProcessor::ServerMessageProcessor(
 
 bool ServerMessageProcessor::check_conn_req_validity(LSP_Packet& packet)
 {
+	bool return_value = true;
+
 	/* Lock before modifying! */
     pthread_mutex_lock (&mutex_connInfos);
 
@@ -19,14 +21,15 @@ bool ServerMessageProcessor::check_conn_req_validity(LSP_Packet& packet)
 		if(packet.getPort() == (*it)->getPort() &&
 				!strcmp(packet.getHostname(), (*it)->getHostName()))
 		{
-			return false;
+			return_value = false;
+			break;
 		}
 	}
 
     /* Unlock after modifying! */
     pthread_mutex_unlock (&mutex_connInfos);
 
-    return true;
+    return return_value;
 }
 
 void ServerMessageProcessor::process_conn_req(LSP_Packet& packet)
@@ -57,7 +60,9 @@ void ServerMessageProcessor::process_conn_req(LSP_Packet& packet)
 	/* Send an acknowledgment packet */
 	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", conn_id);
 
-	// Need a empty packet to push in the connection ID
+	/* Need an empty packet to push in the connection ID
+	 * Original packet will not have a connection ID set. It will have a 0 value
+	 */
 	LSP_Packet p(conn_id, 0, 0, NULL);
 	LSP_Packet ack_packet = create_ack_packet(p);
 	connInfo->add_to_outMsgs(ack_packet);

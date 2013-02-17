@@ -188,10 +188,11 @@ LSP_Packet WorkerMessageProcessor::create_not_found_packet()
 int WorkerMessageProcessor::strToNum(string x)
 {
 	int sum = 0;
-	for(int i=0;i<strlen(x.c_str());i++)
+	int length = strlen(x.c_str());
+	for(int i=0;i<length;i++)
 	{
 		char a = x[i] - 'a';
-		sum += int(a)*pow(26,i);
+		sum += int(a)*pow(26,(length-i-1));
 	}
 	return sum;
 }

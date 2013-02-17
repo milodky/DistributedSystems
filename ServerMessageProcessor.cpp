@@ -143,9 +143,11 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	iss >> ignore;
 	string hash;
 	iss >> hash;
-	string lengthString;
-	iss >> lengthString;
-	int length = atoi(lengthString.c_str());
+	string startS;
+	iss >> startS;
+	string endS;
+	iss >> endS;
+	int length = strlen(startS.c_str());
 	unsigned workersCount = get_workers_count();
 	if(workersCount == 0)
 	{
@@ -246,8 +248,8 @@ void ServerMessageProcessor::process_found_packet(LSP_Packet& packet)
 	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", packet.getConnId());
 //	Remove map entry.
 	int clientId = cInfo->popClients();
-	assert(clientWorkerInfo.find(clientId)!=clientWorkerInfo.end());
-	clientWorkerInfo.erase(clientId);
+	//assert(clientWorkerInfo.find(clientId)!=clientWorkerInfo.end());
+	//clientWorkerInfo.erase(clientId);
 //	Send result to client.
 	ConnInfo* conInfo = get_conn_info(clientId);
 	conInfo->incrementSeqNo();
@@ -357,6 +359,7 @@ void ServerMessageProcessor::send_crack_worker_request(LSP_Packet &packet, ConnI
 	{
 		clientWorkerInfo[connId].push_back(w);
 	}
+	assert(clientWorkerInfo.find(connId)!=clientWorkerInfo.end());
 //	Add connId of client to workers' clients queue.
 	cInfo->pushClients(connId);
 //	Send crack request to worker.

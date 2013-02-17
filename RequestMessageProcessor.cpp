@@ -63,7 +63,11 @@ LSP_Packet RequestMessageProcessor::create_crack_req_packet()
 	ConnInfo* connInfo = get_conn_info();
 
 	uint8_t data[100];
-	sprintf((char*) data, "c %s %u", hashMsg, password_length);
+	string startStr;
+	startStr.insert(0,password_length,'a');
+	string endStr;
+	endStr.insert(0,password_length,'z');
+	sprintf((char*) data, "c %s %s %s", hashMsg, startStr.c_str(), endStr.c_str());
 	unsigned data_length = strlen((char*)data)+1;
 
 	LSP_Packet c_pkt(

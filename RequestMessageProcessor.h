@@ -13,7 +13,7 @@ public:
 	RequestMessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos);
 
 	virtual int process_incoming_msg(LSP_Packet& packet);
-	virtual void process_data_packet(LSP_Packet& packet);
+	virtual int process_data_packet(LSP_Packet& packet);
 	virtual int process_ack_packet(LSP_Packet& packet);
 
 	void set_password_data(const char* const hashMsg, const unsigned len);

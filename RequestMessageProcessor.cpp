@@ -16,8 +16,7 @@ int RequestMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 		process_ack_packet(packet);
 		break;
 	case DATA:
-		process_data_packet(packet);
-		break;
+		return process_data_packet(packet);
 	default:
 		fprintf( stderr, "Unknown Packet Type!\n");
 		packet.print();
@@ -79,7 +78,7 @@ LSP_Packet RequestMessageProcessor::create_crack_req_packet()
 	return c_pkt;
 }
 
-void RequestMessageProcessor::process_data_packet(LSP_Packet& packet)
+int RequestMessageProcessor::process_data_packet(LSP_Packet& packet)
 {
 	LSP_Packet ack_packet = create_ack_packet(packet);
 	switch(packet.getDataType())
@@ -92,7 +91,7 @@ void RequestMessageProcessor::process_data_packet(LSP_Packet& packet)
 		fprintf( stderr, "Found: ");
 //		XXX - remove f from beginning of bytes.
 		printBytes(packet.getBytes(), packet.getLen());
-		break;
+		return COMPLETE;
 	}
 	case NOTFOUND:
 	{
@@ -100,7 +99,7 @@ void RequestMessageProcessor::process_data_packet(LSP_Packet& packet)
 		get_conn_info()->add_to_outMsgs(ack_packet);
 //		return password not found. For now being printed here. (could return -1 as a string perhaps)
 		fprintf( stderr, "Not Found\n");
-		break;
+		return COMPLETE;
 	}
 	default:
 	{

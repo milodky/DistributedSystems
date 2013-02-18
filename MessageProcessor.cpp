@@ -16,10 +16,11 @@ int MessageProcessor::poll_inbox()
 
 		LSP_Packet packet = inbox->pop_msg();
 		fprintf(stderr, "MessageProcessor:: Received Packet. \n");
-		process_incoming_msg(packet);
-
+		if(process_incoming_msg(packet) == COMPLETE)
+			break;
 		sleep(0);
 	}
+	return COMPLETE;
 }
 
 ConnInfo* MessageProcessor::get_conn_info()
@@ -164,6 +165,24 @@ string MessageProcessor::numToString(int x,int length)
 	}while(x);
 	str.insert(0,length-str.length(),'a');
 	return str;
+}
+
+LSP_Packet MessageProcessor::create_not_found_packet(ConnInfo *connInfo)
+{
+	unsigned data_length = 1;
+	connInfo->incrementSeqNo();
+
+	uint8_t* data = new uint8_t[data_length];
+	data[0] = 'x';
+
+	LSP_Packet c_pkt(
+			connInfo->getConnectionId(),
+			connInfo->getSeqNo(),
+			data_length,
+			data);
+
+	delete data;
+	return c_pkt;
 }
 
 MessageProcessor::~MessageProcessor()

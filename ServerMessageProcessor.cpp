@@ -96,7 +96,7 @@ int ServerMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 	return SUCCESS;
 }
 
-void ServerMessageProcessor::process_data_packet(LSP_Packet& packet)
+int ServerMessageProcessor::process_data_packet(LSP_Packet& packet)
 {
 
 	switch(packet.getDataType())
@@ -122,9 +122,7 @@ void ServerMessageProcessor::process_data_packet(LSP_Packet& packet)
 		fprintf( stderr, "Unknown Data Type!\n");
 		packet.print();
 	}
-
-//write code
-//remove msg from outbox, when seqno exceeds that of last message, and packet type not ack.
+	return SUCCESS;
 }
 
 void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
@@ -156,19 +154,20 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	unsigned workersCount = get_workers_count();
 	if(workersCount == 0)
 	{
-//		Send msg to client that the request cannot be processed
-		printf("No resources to process your request!\n");
+		LSP_Packet c_pkt(create_not_found_packet(connInfo));
+		connInfo->add_to_outMsgs(c_pkt);
 		return;
 	}
 	if(length == 0)
 	{
-//		Send msg to client that the request was faulty.
-		printf("The password to be found cannot be of length 0");
+		LSP_Packet c_pkt(create_not_found_packet(connInfo));
+		connInfo->add_to_outMsgs(c_pkt);
 		return;
 	}
 	if(length>5)
 	{
-//		Send msg to client that the password is too long. Cannot process.
+		LSP_Packet c_pkt(create_not_found_packet(connInfo));
+		connInfo->add_to_outMsgs(c_pkt);
 		return;
 	}
 
@@ -206,16 +205,11 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 			if((*it)->isIsAlive() && (*it)->isIsWorker())
 			{
 				ConnInfo* cInfo = (*it);
-				//std::ostringstream sin;
-				//sin << start;
-				//string startString = sin.str();
 				int last;
 				if(start+each>numPoss)
 					last = 	numPoss;
 				else
 					last = 	start+each;
-				//sin << last;
-				//string endString = sin.str();
 				string startString = numToString(start,length);
 				string endString = numToString(last,length);
 				string data = "c " + hash + " "  + startString + " " +endString;
@@ -253,8 +247,8 @@ void ServerMessageProcessor::process_found_packet(LSP_Packet& packet)
 	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", packet.getConnId());
 //	Remove map entry.
 	int clientId = cInfo->popClients();
-	//assert(clientWorkerInfo.find(clientId)!=clientWorkerInfo.end());
-	//clientWorkerInfo.erase(clientId);
+	assert(clientWorkerInfo.find(clientId)!=clientWorkerInfo.end());
+	clientWorkerInfo.erase(clientId);
 //	Send result to client.
 	ConnInfo* conInfo = get_conn_info(clientId);
 	conInfo->incrementSeqNo();
@@ -312,11 +306,11 @@ void ServerMessageProcessor::process_not_found_packet(LSP_Packet& packet)
 	if(!stillProcessing)
 	{
 		ConnInfo* conInfo = get_conn_info(clientId);
-		conInfo->incrementSeqNo();
-		uint8_t* bytes = (uint8_t*)"x";
-		LSP_Packet client_packet(clientId,conInfo->getSeqNo(),2,bytes);
-		conInfo->add_to_outMsgs(client_packet);
+		LSP_Packet c_pkt(create_not_found_packet(conInfo));
+		conInfo->add_to_outMsgs(c_pkt);
 //		Remove entry from map.
+		assert(clientWorkerInfo.find(clientId)!=clientWorkerInfo.end());
+		clientWorkerInfo.erase(clientId);
 	}
 }
 

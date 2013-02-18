@@ -78,7 +78,7 @@ LSP_Packet WorkerMessageProcessor::create_join_req_packet()
 
 
 
-void WorkerMessageProcessor::process_data_packet(LSP_Packet& packet)
+int WorkerMessageProcessor::process_data_packet(LSP_Packet& packet)
 {
 	switch(packet.getDataType())
 	{
@@ -89,6 +89,7 @@ void WorkerMessageProcessor::process_data_packet(LSP_Packet& packet)
 		fprintf( stderr, "Unknown Data Type!\n");
 		packet.print();
 	}
+	return SUCCESS;
 }
 
 void WorkerMessageProcessor::process_crack_request(LSP_Packet& packet)
@@ -144,7 +145,8 @@ LSP_Packet WorkerMessageProcessor::process_crack_request(const char* sha, int st
 	}
 	if(!found)
 	{
-		LSP_Packet c_pkt(create_not_found_packet());
+		ConnInfo* connInfo = get_conn_info();
+		LSP_Packet c_pkt(create_not_found_packet(connInfo));
 		return c_pkt;
 	}
 }
@@ -163,25 +165,6 @@ LSP_Packet WorkerMessageProcessor::create_found_packet(string str)
 			data_length,
 			data);
 
-	return c_pkt;
-}
-
-LSP_Packet WorkerMessageProcessor::create_not_found_packet()
-{
-	ConnInfo* connInfo = get_conn_info();
-
-	unsigned data_length = 1;
-
-	uint8_t* data = new uint8_t[data_length];
-	data[0] = 'x';
-
-	LSP_Packet c_pkt(
-			connInfo->getConnectionId(),
-			connInfo->getSeqNo(),
-			data_length,
-			data);
-
-	delete data;
 	return c_pkt;
 }
 

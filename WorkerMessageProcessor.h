@@ -10,7 +10,7 @@ public:
 	WorkerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos);
 
 	virtual int process_incoming_msg(LSP_Packet& packet);
-	virtual void process_data_packet(LSP_Packet& packet);
+	virtual int process_data_packet(LSP_Packet& packet);
 	virtual int process_ack_packet(LSP_Packet& packet);
 
 	void process_crack_request(LSP_Packet& packet);
@@ -20,7 +20,6 @@ public:
 
 	LSP_Packet create_join_req_packet();
 	LSP_Packet create_found_packet(string str);
-	LSP_Packet create_not_found_packet();
 
 	virtual ~WorkerMessageProcessor();
 };

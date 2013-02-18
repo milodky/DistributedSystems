@@ -73,7 +73,7 @@ public:
 	void process_alive_packet(LSP_Packet& packet);
 
 	/* Process a data packet */
-	virtual void process_data_packet(LSP_Packet& packet);
+	virtual int process_data_packet(LSP_Packet& packet);
 
 	bool check_conn_req_validity(LSP_Packet& packet);
 

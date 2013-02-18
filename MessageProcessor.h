@@ -26,7 +26,7 @@ public:
 	virtual int process_incoming_msg(LSP_Packet& packet);
 
 	/* Process a data packet */
-	virtual void process_data_packet(LSP_Packet& packet) = 0;
+	virtual int process_data_packet(LSP_Packet& packet) = 0;
 
 	int check_msg_sequence_and_pop_outbox(LSP_Packet& packet);
 
@@ -44,6 +44,8 @@ public:
 
 	/* Convert from a number to a string of length */
 	string numToString(int x, int length);
+
+	LSP_Packet create_not_found_packet(ConnInfo *connInfo);
 
 	virtual ~MessageProcessor();
 };

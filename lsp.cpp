@@ -236,7 +236,12 @@ void LSP_Client::init()
 void LSP_Client::run()
 {
 	msg_proc->send_conn_req_packet(host, serverPort);
-	msg_proc->poll_inbox();
+	if(msg_proc->poll_inbox() == COMPLETE)
+	{
+		printf("Exiting!\n");
+		//TODO: change this
+		exit(0);
+	}
 }
 
 LSP_Client::~LSP_Client()

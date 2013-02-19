@@ -89,7 +89,7 @@ int RequestMessageProcessor::process_data_packet(LSP_Packet& packet)
 		get_conn_info()->add_to_outMsgs(ack_packet);
 //		return the password that is found. For now being printed here.
 		fprintf( stderr, "Found: ");
-//		XXX - remove f from beginning of bytes.
+//		TODO - remove f from beginning of bytes.
 		printBytes(packet.getBytes(), packet.getLen());
 		return COMPLETE;
 	}

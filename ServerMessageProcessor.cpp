@@ -98,12 +98,9 @@ int ServerMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 
 int ServerMessageProcessor::process_data_packet(LSP_Packet& packet)
 {
-
 	switch(packet.getDataType())
 	{
 	case JOINREQUEST:
-//		Change conn info isWorker corresponding to conn id as true.
-//		A join request can come only from a worker.
 		process_join_request_packet(packet);
 		break;
 	case CRACKREQUEST:
@@ -240,6 +237,7 @@ void ServerMessageProcessor::process_found_packet(LSP_Packet& packet)
 //	Payload of form
 //	f pass
 	ConnInfo* cInfo = get_conn_info(packet.getConnId());
+
 //	Send ack to worker. This can come to server only from a worker.
 	assert(cInfo->isIsWorker() == true);
 	LSP_Packet ack_packet = create_ack_packet(packet);

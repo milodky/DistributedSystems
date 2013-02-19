@@ -24,7 +24,9 @@ private:
 	int seq_no;
 
 	bool isAlive;
+
 	bool isWorker;
+	bool processing; //false - processing, true - not processing
 
 	/* Information to be stored only in case of request. */
 	char* hash;

@@ -9,6 +9,7 @@ ConnInfo::ConnInfo(int connId, int p, const char* const host) : connectionID(con
 	msgSent = false; //Only now connection request has come in. So msgSent will be false.
 	isAlive = true;  //Assumed alive since connection request has just come in.
 	isWorker = false;
+	processing = false;
 	//change these based on client and server
 	//	countMsgsRcd = 1; //only connection request is got at this point.
 
@@ -38,6 +39,7 @@ void ConnInfo::add_to_outMsgs(LSP_Packet packet)
 
 	fprintf(stderr, "ConnInfo::outbox size is :%u\n", outMsgs.size());
 	fprintf(stderr, "ConnInfo::Adding packet to conn_id:%d Outbox:\n", connectionID);
+	packet.print();
 	outMsgs.push(packet);
 
 	/* Unlock after modifying! */

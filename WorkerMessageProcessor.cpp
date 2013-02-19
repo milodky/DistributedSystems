@@ -121,7 +121,7 @@ void WorkerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	LSP_Packet ack_packet = create_ack_packet(packet);
 	cInfo->add_to_outMsgs(ack_packet);
 	//Start as a separate thread
-	cInfo->incrementSeqNo();
+	//cInfo->incrementSeqNo();
 	LSP_Packet p = process_crack_request(hash.c_str(), start, end, length);
 	cInfo->add_to_outMsgs(p);
 
@@ -154,7 +154,7 @@ LSP_Packet WorkerMessageProcessor::process_crack_request(const char* sha, int st
 LSP_Packet WorkerMessageProcessor::create_found_packet(string str)
 {
 	ConnInfo* connInfo = get_conn_info();
-
+	connInfo->incrementSeqNo();
 	uint8_t data[20];
 	sprintf((char*) data, "f %s", str.c_str());
 	unsigned data_length = strlen((char*)data);

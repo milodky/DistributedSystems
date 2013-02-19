@@ -25,15 +25,15 @@ private:
 
 	bool isAlive;
 
-	bool isWorker;
-	bool processing; //false - processing, true - not processing
-
 	/* Information to be stored only in case of request. */
 	char* hash;
 	int len;
 
 	/* Information to be stored only in case of worker */
 	queue<int> clients;
+	bool isWorker;
+	bool processing; //false - processing, true - not processing
+
 
 	bool msgSent;
 

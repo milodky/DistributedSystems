@@ -85,7 +85,6 @@ int RequestMessageProcessor::process_data_packet(LSP_Packet& packet)
 	{
 	case FOUND:
 	{
-//		Send ack
 		get_conn_info()->add_to_outMsgs(ack_packet);
 		char* bytes = (char*)packet.getBytes();
 		char pass[5], p[20];
@@ -95,9 +94,7 @@ int RequestMessageProcessor::process_data_packet(LSP_Packet& packet)
 	}
 	case NOTFOUND:
 	{
-//		Send ack
 		get_conn_info()->add_to_outMsgs(ack_packet);
-//		return password not found. For now being printed here. (could return -1 as a string perhaps)
 		fprintf( stderr, "Not Found\n");
 		return COMPLETE;
 	}
@@ -107,9 +104,6 @@ int RequestMessageProcessor::process_data_packet(LSP_Packet& packet)
 		packet.print();
 	}
 	}
-
-//write code
-//remove msg from outbox, when seqno exceeds that of last message, and packet type not ack.
 }
 
 void RequestMessageProcessor::set_password_data(const char* const hashMsg, const unsigned len)

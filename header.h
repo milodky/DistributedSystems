@@ -29,8 +29,6 @@ using namespace std;
 
 const int BAD_SOCKFD = -1;
 
-#define MAXCLIENTS 20
-
 #define SUCCESS 0
 #define FAILURE 1
 #define COMPLETE 2

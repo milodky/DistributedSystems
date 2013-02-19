@@ -28,6 +28,8 @@ private:
 	void stamp_msg_type();
 	void stamp_data_type();
 
+	void setDataType(DataType dataType);
+	void setType(MessageType type);
 public:
 //	LSP_Packet(): conn_id(-1), seq_no(-1);
 
@@ -48,11 +50,10 @@ public:
 	size_t getLen() const;
 	int getSeqNo() const;
 	MessageType getType() const;
-	void setType(MessageType type);
 	DataType getDataType() const;
-	void setDataType(DataType type);
 	const char* getHostname() const;
 	int getPort() const;
+
 };
 
 #endif

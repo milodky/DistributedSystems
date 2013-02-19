@@ -335,7 +335,36 @@ unsigned ServerMessageProcessor::get_workers_count()
 
 unsigned ServerMessageProcessor::get_next_conn_id() const
 {
-	return connInfos->size() + 1;
+	int new_conn_id = -1;
+	/* Lock before modifying! */
+	pthread_mutex_lock (&mutex_connInfos);
+
+	for(int k = 1; k <= MAXCLIENTS; k++)
+	{
+		bool clash = false;
+		vector<ConnInfo*>::iterator it = connInfos->begin();
+		while(it!=connInfos->end())
+		{
+			/* *it refers to the vector element which is ConnInfo* */
+			if((*it)->getConnectionId() == k)
+			{
+				clash = true;
+				break;
+			}
+			++it;
+		}
+		if(!clash)
+		{
+			new_conn_id = k;
+			break;
+		}
+	}
+
+	/* Unlock after modifying! */
+	pthread_mutex_unlock (&mutex_connInfos);
+
+	assert (new_conn_id !=  -1);
+	return new_conn_id;
 }
 
 void ServerMessageProcessor::send_crack_worker_request(LSP_Packet &packet, ConnInfo* cInfo,WorkerInfo &w, const char* hash)

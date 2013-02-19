@@ -11,9 +11,6 @@ MessageSender::MessageSender(
 
 void MessageSender::send_msg(ConnInfo &cInfo)
 {
-	/* Update time stamp. This is used by the epoch thread. */
-	cInfo.updateTimestamp();
-
 	//Marshals and sends the message.
 	LSP_Packet packet = cInfo.get_front_msg();
 	uint8_t *buf;

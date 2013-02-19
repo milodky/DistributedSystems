@@ -51,9 +51,9 @@ int MessageProcessor::check_msg_sequence_and_pop_outbox(LSP_Packet& packet)
 	}
 
 	/**
-	 * Since a valid connection info object exists! update timestamp
+	 * Since a valid connection info object exists! reset epoch count.
+	 * process on the other end is alive!
 	 */
-	connInfo->updateTimestamp();
 	connInfo->resetEpochCount();
 
 	int seqNo = connInfo->getSeqNo();
@@ -71,12 +71,10 @@ int MessageProcessor::check_msg_sequence_and_pop_outbox(LSP_Packet& packet)
 		 * case 2> We sent an ack packet and now we have received data
 		 * case 3 and 4 ??
 		 */
-		//		if(packet.getSeqNo() == seqNo && packet.getType() == ACK)
-		//		{
 		fprintf(stderr, "MessageProcessor::Popping Outbox for conn_id: %d\n",
 				connInfo->getConnectionId());
-		connInfo->pop_outMsgs();
-		//		}
+		if (connInfo->ConnInfo::getOutMsgsCount() > 0)
+			connInfo->pop_outMsgs();
 		return SUCCESS;
 	}
 	else if(packet.getType() == ACK)
@@ -127,7 +125,6 @@ int MessageProcessor::process_ack_packet(LSP_Packet& packet)
 LSP_Packet MessageProcessor::create_ack_packet(LSP_Packet& packet) const
 {
 	LSP_Packet ack_packet(packet.getConnId(), packet.getSeqNo(), 0, NULL);
-	ack_packet.setType(ACK);
 	return ack_packet;
 }
 

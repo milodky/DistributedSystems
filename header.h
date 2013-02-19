@@ -29,14 +29,17 @@ using namespace std;
 
 const int BAD_SOCKFD = -1;
 
+#define MAXCLIENTS 20
+
 #define SUCCESS 0
 #define FAILURE 1
+#define COMPLETE 2
 
 #define MAX_MSG_SIZE 1024
 
 // Global Parameters. For both server and clients.
 
-#define _EPOCH_LTH 1000.0
+#define _EPOCH_LTH 2.0
 #define _EPOCH_CNT 5
 #define _DROP_RATE 0.0
 

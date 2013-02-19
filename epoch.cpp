@@ -119,7 +119,21 @@ void EpochServer::run()
 
 int EpochServer::take_action(ConnInfo* connInfo)
 {
-	send_packet_again(connInfo);
+	if((connInfo->getOutMsgsCount() != 0))
+	{
+		send_packet_again(connInfo);
+	}
+	else
+	{
+		/**
+		 * Send an acknowledgment message with sequence number 0
+		 * if no data messages have been received i.e. when no ACK message
+		 * is present in the outbox
+		 */
+		LSP_Packet ack_packet(connInfo->getConnectionId(), 0, 0, NULL);
+		connInfo->add_to_outMsgs(ack_packet);
+		send_packet_again(connInfo);
+	}
 	return 0;
 }
 

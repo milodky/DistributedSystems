@@ -6,22 +6,37 @@
 //	}
 
 LSP_Packet::LSP_Packet(int conn_id, int seq_no, size_t len, uint8_t* bytes)
-: conn_id(conn_id), seq_no(seq_no),
-  len(len), bytes(new uint8_t[len]), type(UNKNOWN)
+	: conn_id(conn_id), seq_no(seq_no), len(len),
+	  type(UNKNOWN), dataType(NOTKNOWN)
 {
-	memcpy(this->bytes, bytes, len);
+	memset(this->hostname, 0, INET_ADDRSTRLEN);;
+	port = -1;
 
 	stamp_msg_type();
-	stamp_data_type();
+	if(len <= 0)
+		this->bytes = NULL;
+	else
+	{
+		this->bytes = new uint8_t[len];
+		memcpy(this->bytes, bytes, len);
+		stamp_data_type();
+	}
 }
 
 LSP_Packet::LSP_Packet(const LSP_Packet& that)
 : conn_id(that.conn_id), seq_no(that.seq_no),
-  len(that.len), bytes(new uint8_t[len]), type(that.type),
-  dataType(that.dataType), port(that.port)
+  len(that.len), type(that.type), dataType(that.dataType), port(that.port)
 {
-	memcpy(this->bytes, that.bytes, len);
-	strcpy(this->hostname, that.hostname);
+	if(len <= 0)
+		this->bytes = NULL;
+	else
+	{
+		this->bytes = new uint8_t[len];
+		memcpy(this->bytes, that.bytes, len);
+	}
+
+	if(that.hostname != NULL)
+		strcpy(this->hostname, that.hostname);
 }
 
 /* Please do not delete this code */
@@ -101,7 +116,9 @@ void LSP_Packet::print()
 	case CRACKREQUEST: printf("DataType: CRACKREQUEST");
 		printf(" len: %u Data: %s", len, bytes);
 		break;
-	case FOUND: printf("DataType: FOUND"); break;
+	case FOUND: printf("DataType: FOUND");
+		printf(" len: %u Data: %s", len, bytes);
+		break;
 	case NOTFOUND: printf("DataType: NOTFOUND"); break;
 	case ALIVE: printf("DataType: ALIVE"); break;
 	}
@@ -133,16 +150,9 @@ MessageType LSP_Packet::getType() const {
 	return type;
 }
 
-void LSP_Packet::setType(MessageType type) {
-	this->type = type;
-}
-
 DataType LSP_Packet::getDataType() const {
-	return dataType;
-}
 
-void LSP_Packet::setDataType(DataType type) {
-	this->dataType = type;
+	return dataType;
 }
 
 
@@ -152,4 +162,12 @@ const char* LSP_Packet::getHostname() const {
 
 int LSP_Packet::getPort() const {
 	return port;
+}
+
+void LSP_Packet::setDataType(DataType dataType) {
+	this->dataType = dataType;
+}
+
+void LSP_Packet::setType(MessageType type) {
+	this->type = type;
 }

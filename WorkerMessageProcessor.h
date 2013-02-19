@@ -3,9 +3,22 @@
 
 #include "MessageProcessor.h"
 
+struct ThData
+{
+	WorkerMessageProcessor* worker_instance;
+	const char* sha;
+	int start;
+	int end;
+	int length;
+	ConnInfo *connInfo;
+	ThData(WorkerMessageProcessor*, const char* sha, int start, int end, int length, ConnInfo *cInfo);
+};
+
 class WorkerMessageProcessor : public MessageProcessor
 {
 private:
+	pthread_t processor_thread;
+	pthread_attr_t attr;
 public:
 	WorkerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos);
 
@@ -13,8 +26,11 @@ public:
 	virtual int process_data_packet(LSP_Packet& packet);
 	virtual int process_ack_packet(LSP_Packet& packet);
 
+	void runProcessor();
+	void start_processor_thread(struct ThData *);
+
 	void process_crack_request(LSP_Packet& packet);
-	LSP_Packet process_crack_request(const char* sha, int start, int end, int length);
+	void process_crack_request(const char* sha, int start, int end, int length, ConnInfo *connInfo);
 	int strToNum(string x);
 	void getSHA(const char* str, char* sha);
 

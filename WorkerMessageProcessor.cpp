@@ -2,6 +2,21 @@
 #include <sstream>
 using namespace std;
 
+void* processor_run(void* arg)
+{
+	struct ThData* params = (ThData *) arg;
+	fprintf(stderr, "LSP:: Running Processor Thread...\n");
+	params->worker_instance->process_crack_request(params->sha, params->start, params->end, params->length, params->connInfo);
+	delete params;
+}
+
+
+ThData::ThData(WorkerMessageProcessor *processor, const char* sh, int s, int e, int l, ConnInfo *cInfo)
+	:worker_instance(processor), sha(sh), start(s), end(e), length(l),connInfo(cInfo)
+{
+
+}
+
 WorkerMessageProcessor::WorkerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos)
 	: MessageProcessor(in,infos, mutex_connInfos)
 {
@@ -122,12 +137,14 @@ void WorkerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	cInfo->add_to_outMsgs(ack_packet);
 	//Start as a separate thread
 	//cInfo->incrementSeqNo();
-	LSP_Packet p = process_crack_request(hash.c_str(), start, end, length);
-	cInfo->add_to_outMsgs(p);
+	struct ThData args(this, hash.c_str(), start, end, length, cInfo);
+	start_processor_thread(&args);
+	//process_crack_request(hash.c_str(), start, end, length, cInfo);
+
 
 }
 
-LSP_Packet WorkerMessageProcessor::process_crack_request(const char* sha, int start, int end, int length)
+void WorkerMessageProcessor::process_crack_request(const char* sha, int start, int end, int length, ConnInfo *cInfo)
 {
 	bool found = false;
 	for(int i = start; i <= end; i++)
@@ -139,15 +156,16 @@ LSP_Packet WorkerMessageProcessor::process_crack_request(const char* sha, int st
 		{
 			found = true;
 			LSP_Packet c_pkt(create_found_packet(str));
-			printf("Found: %s",str.c_str());
-			return c_pkt;
+			cInfo->add_to_outMsgs(c_pkt);
+			printf("Found: %s\n",str.c_str());
 		}
 	}
 	if(!found)
 	{
 		ConnInfo* connInfo = get_conn_info();
 		LSP_Packet c_pkt(create_not_found_packet(connInfo));
-		return c_pkt;
+		cInfo->add_to_outMsgs(c_pkt);
+		printf("Not Found\n");
 	}
 }
 
@@ -193,6 +211,14 @@ void WorkerMessageProcessor::getSHA(const char* str, char* sha)
 	for (i=0; i < SHA_DIGEST_LENGTH; i++) {
 		sprintf((char*)&(sha[i*2]), "%02x", temp[i]);
 	}
+}
+
+void runProcessor();
+void WorkerMessageProcessor::start_processor_thread(struct ThData *data)
+{
+	int e;
+	if (e = pthread_create(&processor_thread, &attr, processor_run, (void *) data))
+		Error("pthread_create %d", e);
 }
 
 WorkerMessageProcessor::~WorkerMessageProcessor()

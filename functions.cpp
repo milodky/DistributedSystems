@@ -1,6 +1,8 @@
 /**
  * Holder file for miscellaneous functions
  */
+#include <errno.h>
+
 #include "header.h"
 #include "lspmessage.pb-c.h"
 

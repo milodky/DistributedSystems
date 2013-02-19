@@ -1,6 +1,8 @@
 #ifndef MESSAGEPROCESSOR_H
 #define MESSAGEPROCESSOR_H
 
+#include <string>
+
 #include "header.h"
 #include "lsppacket.h"
 #include "inbox.h"

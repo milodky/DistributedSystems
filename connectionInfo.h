@@ -1,6 +1,9 @@
 #ifndef CONNECTIONINFO_H
 #define CONNECTIONINFO_H
 
+#include <queue>
+#include <netdb.h>
+
 #include "lsppacket.h"
 
 class ConnInfo : public Uncopyable

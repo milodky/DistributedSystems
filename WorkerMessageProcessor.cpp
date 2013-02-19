@@ -1,5 +1,8 @@
-#include "WorkerMessageProcessor.h"
+#include <openssl/sha.h>
 #include <sstream>
+
+#include "WorkerMessageProcessor.h"
+
 using namespace std;
 
 void* processor_run(void* arg)

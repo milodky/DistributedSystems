@@ -5,22 +5,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
-#include <stdbool.h>
 #include <errno.h>
-#include <strings.h>
-#include <errno.h>
-#include <string.h>
 #include <unistd.h>
-#include <netdb.h>
 #include <pthread.h>
 #include <assert.h>
-#include <stdarg.h>
-#include <queue>
 #include <map>
 #include <vector>
 #include <string>
-#include <exception>
-#include <openssl/sha.h>
 #include <math.h>
 #include <iostream>
 using namespace std;

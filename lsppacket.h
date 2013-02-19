@@ -1,6 +1,8 @@
 #ifndef LSPPACKET_H
 #define LSPPACKET_H
 
+#include <netdb.h>
+
 #include "header.h"
 
 enum MessageType { UNKNOWN, CONN_REQ, DATA, ACK };

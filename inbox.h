@@ -1,6 +1,8 @@
 #ifndef INBOX_H
 #define INBOX_H
 
+#include <queue>
+
 #include "header.h"
 #include "lsppacket.h"
 

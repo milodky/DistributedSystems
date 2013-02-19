@@ -1,4 +1,11 @@
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 #include "connection.h"
+#include "MessageReceiver.h"
 
 Connector::Connector(bool isServer) : isServer(isServer)
 {

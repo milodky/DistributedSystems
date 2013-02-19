@@ -137,11 +137,9 @@ void WorkerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	cInfo->add_to_outMsgs(ack_packet);
 	//Start as a separate thread
 	//cInfo->incrementSeqNo();
-	struct ThData args(this, hash.c_str(), start, end, length, cInfo);
-	start_processor_thread(&args);
+	ThData* args = new ThData(this, hash.c_str(), start, end, length, cInfo);
+	start_processor_thread(args);
 	//process_crack_request(hash.c_str(), start, end, length, cInfo);
-
-
 }
 
 void WorkerMessageProcessor::process_crack_request(const char* sha, int start, int end, int length, ConnInfo *cInfo)

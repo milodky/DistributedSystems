@@ -75,6 +75,7 @@ int ConnInfo::getOutMsgsCount() const
 }
 
 int ConnInfo::popClients() {
+	assert (!clients.empty());
 	int c = clients.front();
 	clients.pop();
 	return c;

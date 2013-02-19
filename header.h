@@ -22,7 +22,7 @@
 #include <exception>
 #include <openssl/sha.h>
 #include <math.h>
-
+#include <iostream>
 using namespace std;
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"

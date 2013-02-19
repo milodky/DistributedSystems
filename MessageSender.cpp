@@ -11,6 +11,12 @@ MessageSender::MessageSender(
 
 void MessageSender::send_msg(ConnInfo &cInfo)
 {
+	double rate = (double) rand()/RAND_MAX;
+	if(rate < _DROP_RATE)
+	{
+		fprintf(stderr, "MessageSender: Dropping packet.\n");
+		return;
+	}
 	//Marshals and sends the message.
 	LSP_Packet packet = cInfo.get_front_msg();
 	uint8_t *buf;

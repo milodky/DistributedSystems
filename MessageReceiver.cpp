@@ -10,6 +10,12 @@ void MessageReceiver::receive_msg(
 {
 	try
 	{
+		double rate = (double) rand()/RAND_MAX;
+		if(rate < _DROP_RATE)
+		{
+			fprintf(stderr, "MessageSender: Dropping packet.\n");
+			return;
+		}
 		printf("MessageReceiver:: Received msg from %s : %d\n", ipv4, port);
 		LSP_Packet packet = serializer->unmarshal(msg, msg_len);
 

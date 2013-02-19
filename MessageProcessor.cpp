@@ -166,11 +166,12 @@ string MessageProcessor::numToString(int x,int length)
 
 LSP_Packet MessageProcessor::create_not_found_packet(ConnInfo *connInfo)
 {
-	unsigned data_length = 1;
+	unsigned data_length = 2;
 	connInfo->incrementSeqNo();
 
 	uint8_t* data = new uint8_t[data_length];
 	data[0] = 'x';
+	data[1] = '\0';
 
 	LSP_Packet c_pkt(
 			connInfo->getConnectionId(),

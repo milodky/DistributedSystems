@@ -157,7 +157,7 @@ LSP_Packet WorkerMessageProcessor::create_found_packet(string str)
 	connInfo->incrementSeqNo();
 	uint8_t data[20];
 	sprintf((char*) data, "f %s", str.c_str());
-	unsigned data_length = strlen((char*)data);
+	unsigned data_length = strlen((char*)data) + 1;
 
 	LSP_Packet c_pkt(
 			connInfo->getConnectionId(),

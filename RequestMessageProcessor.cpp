@@ -88,12 +88,9 @@ int RequestMessageProcessor::process_data_packet(LSP_Packet& packet)
 //		Send ack
 		get_conn_info()->add_to_outMsgs(ack_packet);
 		char* bytes = (char*)packet.getBytes();
-		char* pass, *p;
+		char pass[5], p[20];
 		sscanf(bytes,"%s %s",p,pass);
-//		return the password that is found. For now being printed here.
 		fprintf( stderr, "Found: %s\n",pass);
-//		TODO - remove f from beginning of bytes.
-		printBytes(packet.getBytes(), packet.getLen());
 		return COMPLETE;
 	}
 	case NOTFOUND:

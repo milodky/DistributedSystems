@@ -34,9 +34,9 @@ void ConnInfo::add_to_outMsgs(LSP_Packet packet)
 	 * During, connection initiation both have the value 0 */
 	assert (getConnectionId() == packet.getConnId());
 
-	fprintf(stderr, "ConnInfo::outbox size is :%u\n", outMsgs.size());
-	fprintf(stderr, "ConnInfo::Adding packet to conn_id:%d Outbox:\n", connectionID);
-	packet.print();
+//	fprintf(stderr, "ConnInfo::outbox size is :%u\n", outMsgs.size());
+//	fprintf(stderr, "ConnInfo::Adding packet to conn_id:%d Outbox:\n", connectionID);
+//	packet.print();
 	outMsgs.push(packet);
 
 	/* Unlock after modifying! */

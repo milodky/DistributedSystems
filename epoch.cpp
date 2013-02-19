@@ -42,8 +42,9 @@ int Epoch::check_epoch(ConnInfo* connInfo)
 	/* Epoch passed. Epoch count yet to reach _EPOCH_CNT */
 	if (epoch_passed(last, current))
 	{
-		fprintf(stderr, "EpochClient:: Conn_id: %d EPOCH PASSED. count: %u\n",
-				connInfo->getConnectionId(), connInfo->getEpochCount());
+		if(connInfo->getEpochCount() > 0)
+			fprintf(stderr, "EpochClient:: Conn_id: %d EPOCH PASSED. count: %u\n",
+					connInfo->getConnectionId(), connInfo->getEpochCount());
 		connInfo->updateTimestamp();
 		connInfo->incrementEpochCount();
 		take_action(connInfo);
@@ -57,8 +58,8 @@ void Epoch::send_packet_again(ConnInfo* connInfo)
 	assert (connInfo->getOutMsgsCount() != 0);
 
 	LSP_Packet packet = connInfo->get_front_msg();
-	fprintf(stderr, "Epoch:: Packet marked for re-send.\n");
-	packet.print();
+//	fprintf(stderr, "Epoch:: Packet marked for re-send.\n");
+//	packet.print();
 
 	/* Setting the message sent to false enables
 	 * the message sender to pop off the msg from the outbox */

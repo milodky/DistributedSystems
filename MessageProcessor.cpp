@@ -15,7 +15,7 @@ int MessageProcessor::poll_inbox()
 		if(inbox->isEmpty()) continue;
 
 		LSP_Packet packet = inbox->pop_msg();
-		fprintf(stderr, "MessageProcessor:: Received Packet. \n");
+//		fprintf(stderr, "MessageProcessor:: Received Packet. \n");
 		if(process_incoming_msg(packet) == COMPLETE)
 			break;
 		sleep(0);
@@ -71,16 +71,16 @@ int MessageProcessor::check_msg_sequence_and_pop_outbox(LSP_Packet& packet)
 		 * case 2> We sent an ack packet and now we have received data
 		 * case 3 and 4 ??
 		 */
-		fprintf(stderr, "MessageProcessor::Popping Outbox for conn_id: %d\n",
-				connInfo->getConnectionId());
+//		fprintf(stderr, "MessageProcessor::Popping Outbox for conn_id: %d\n",
+//				connInfo->getConnectionId());
 		if (connInfo->ConnInfo::getOutMsgsCount() > 0)
 			connInfo->pop_outMsgs();
 		return SUCCESS;
 	}
 	else if(packet.getType() == ACK)
 	{
-		fprintf(stderr, "MessageProcessor:: conn_id: %d Ignoring ACK Packet seq: %d. Expecting %d\n",
-				connInfo->getConnectionId(), packet.getSeqNo(), seqNo);
+//		fprintf(stderr, "MessageProcessor:: conn_id: %d Ignoring ACK Packet seq: %d. Expecting %d\n",
+//				connInfo->getConnectionId(), packet.getSeqNo(), seqNo);
 	}
 	else if(packet.getType() == DATA)
 	{

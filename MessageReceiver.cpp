@@ -16,14 +16,12 @@ void MessageReceiver::receive_msg(
 			fprintf(stderr, "MessageSender: Dropping packet.\n");
 			return;
 		}
-		printf("MessageReceiver:: Received msg from %s : %d\n", ipv4, port);
 		LSP_Packet packet = serializer->unmarshal(msg, msg_len);
 
 		/* Required for conn request msgs where we dont yet have conn_id */
 		packet.setHostNameAndPort(ipv4, port);
-		fprintf(stderr, "Printing packet before adding to inbox\n");
-		packet.print();
 		inbox->add_msg(packet);
+		printf("MessageReceiver:: Received msg from %s : %d\n", ipv4, port);
 	}
 	catch (const std::exception& ex)
 	{

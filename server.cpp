@@ -18,7 +18,16 @@ int main (int argc, char* const argv[])
 		printf("./server port\n");
 		return 1;
 	}
+	try
+	{
 	connect(argv[1]);
 	return 0;
+	}
+	catch(...)
+	{
+		printf("Incorrect usage. Please use format as below.\n");
+		printf("./server port\n");
+		return 1;
+	}
 }
 

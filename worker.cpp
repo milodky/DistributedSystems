@@ -22,17 +22,20 @@ int main(int argc, char** argv)
 		printf("./worker host:port\n");
 		return 1;
 	}
-	if(strchr(argv[1],':')==NULL)
+	try
+	{
+		char* t1 = strtok(argv[1],":");
+		char* host = t1;
+		t1 = strtok(NULL,":");
+		if(t1 == NULL) throw "Exception";
+		char* port = t1;
+		connect(host,port);
+		return 0;
+	}
+	catch(...)
 	{
 		printf("Incorrect usage. Please use format as below.\n");
 		printf("./worker host:port\n");
 		return 1;
 	}
-
-	char* t1 = strtok(argv[1],":");
-	char* host = t1;
-	t1 = strtok(NULL,":");
-	char* port = t1;
-	connect(host,port);
-	return 0;
 }

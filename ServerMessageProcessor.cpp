@@ -8,6 +8,22 @@ ServerMessageProcessor::ServerMessageProcessor(
 
 }
 
+WorkerInfo& WorkerInfo::operator = (const WorkerInfo& that)
+{
+	connId = that.connId;
+	processingStatus = that.processingStatus;
+	hash = that.hash;
+	start = that.start;
+	end = that.end;
+	return *this;
+}
+
+WorkerInfo::WorkerInfo(const WorkerInfo& that)
+:connId(that.connId), processingStatus(that.processingStatus), hash(that.hash), start(that.start),end(that.end)
+{
+
+}
+
 bool ServerMessageProcessor::check_conn_req_validity(LSP_Packet& packet)
 {
 	bool return_value = true;
@@ -239,13 +255,16 @@ void ServerMessageProcessor::process_found_packet(LSP_Packet& packet)
 	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", packet.getConnId());
 //	Remove map entry.
 	int clientId = cInfo->popClients();
-	assert(clientWorkerInfo.find(clientId)!=clientWorkerInfo.end());
-	clientWorkerInfo.erase(clientId);
-//	Send result to client.
-	ConnInfo* conInfo = get_conn_info(clientId);
-	conInfo->incrementSeqNo();
-	LSP_Packet client_packet(clientId,conInfo->getSeqNo(),packet.getLen(),packet.getBytes());
-	conInfo->add_to_outMsgs(client_packet);
+	//Only if client is still alive, send. Otherwise ignore.
+	if(clientWorkerInfo.find(clientId)!=clientWorkerInfo.end());
+	{
+		clientWorkerInfo.erase(clientId);
+	//	Send result to client.
+		ConnInfo* conInfo = get_conn_info(clientId);
+		conInfo->incrementSeqNo();
+		LSP_Packet client_packet(clientId,conInfo->getSeqNo(),packet.getLen(),packet.getBytes());
+		conInfo->add_to_outMsgs(client_packet);
+	}
 }
 
 void ServerMessageProcessor::process_not_found_packet(LSP_Packet& packet)
@@ -261,14 +280,13 @@ void ServerMessageProcessor::process_not_found_packet(LSP_Packet& packet)
 	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", packet.getConnId());
 //	Update map entry.
 	int clientId = cInfo->popClients();
-
 //	If clientId not in maps keys, it means that one of the workers
 //	has already found the password.
-	vector<WorkerInfo> &workers = clientWorkerInfo[clientId];
 	if(clientWorkerInfo.find(clientId) == clientWorkerInfo.end())
 	{
 		return;
 	}
+	vector<WorkerInfo> &workers = clientWorkerInfo[clientId];
 //	Update processing status of this worker.
 	for(vector<WorkerInfo>::iterator it=workers.begin();
 						it!=workers.end(); ++it)
@@ -294,13 +312,18 @@ void ServerMessageProcessor::process_not_found_packet(LSP_Packet& packet)
 	}
 	if(!stillProcessing)
 	{
-		ConnInfo* conInfo = get_conn_info(clientId);
-		LSP_Packet c_pkt(create_not_found_packet(conInfo));
-		conInfo->add_to_outMsgs(c_pkt);
-//		Remove entry from map.
-		assert(clientWorkerInfo.find(clientId)!=clientWorkerInfo.end());
-		clientWorkerInfo.erase(clientId);
+		send_not_found_packet(clientId);
 	}
+}
+
+void ServerMessageProcessor::send_not_found_packet(int clientId)
+{
+	ConnInfo* conInfo = get_conn_info(clientId);
+	LSP_Packet c_pkt(create_not_found_packet(conInfo));
+	conInfo->add_to_outMsgs(c_pkt);
+//		Remove entry from map.
+	assert(clientWorkerInfo.find(clientId)!=clientWorkerInfo.end());
+	clientWorkerInfo.erase(clientId);
 }
 
 void ServerMessageProcessor::process_alive_packet(LSP_Packet& packet)
@@ -401,7 +424,7 @@ void ServerMessageProcessor::reassignWork(ConnInfo *c)
 	{
 		int requestId = c->popClients();
 		vector<WorkerInfo> &workers = clientWorkerInfo[requestId];
-		for(vector<WorkerInfo>::iterator it=workers.begin(); it!=workers.end(); ++it)
+		for(vector<WorkerInfo>::iterator it=workers.begin(); it!=workers.end();)
 		{
 			/* Reassign the work of failed worker to least busy worker */
 			if((*it).getConnId() == c->getConnectionId())
@@ -410,9 +433,9 @@ void ServerMessageProcessor::reassignWork(ConnInfo *c)
 				vector<int> newWorkers = get_least_busy_workers(1);
 				if(newWorkers.empty())
 				{
-					workers.erase(it);
-					//client - not found
-					return;
+					/* no workers available. All are dead. Send not found packet to client */
+					send_not_found_packet(requestId);
+					break;
 				}
 				int newWorker = newWorkers[0];
 				ConnInfo *newWorkerInfo = get_conn_info(newWorker);
@@ -425,7 +448,10 @@ void ServerMessageProcessor::reassignWork(ConnInfo *c)
 				/* Remove the entry in map of client-worker */
 				workers.erase(it);
 				break;
-
+			}
+			else
+			{
+			++it;
 			}
 		}
 	}

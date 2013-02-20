@@ -25,6 +25,9 @@ WorkerMessageProcessor::WorkerMessageProcessor(Inbox* in, vector<ConnInfo*> *inf
 	start_processor_thread();
 }
 
+;
+
+
 int WorkerMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 {
 	if(MessageProcessor::process_incoming_msg(packet) == FAILURE)

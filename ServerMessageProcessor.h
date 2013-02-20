@@ -16,6 +16,8 @@ public:
 	WorkerInfo(int cId, int pStatus,string h, string s, string e):
 		connId(cId), processingStatus(pStatus), hash(h), start(s),end(e)
 {}
+	WorkerInfo& operator = (const WorkerInfo& that);
+	WorkerInfo(const WorkerInfo& that);
 
 	int getConnId() const {
 		return connId;
@@ -80,6 +82,8 @@ public:
 	void process_not_found_packet(LSP_Packet& packet);
 
 	void process_alive_packet(LSP_Packet& packet);
+
+	void send_not_found_packet(int clientId);
 
 	/* Process a data packet */
 	virtual int process_data_packet(LSP_Packet& packet);

@@ -75,7 +75,8 @@ bool Connector::bindToPort(struct addrinfo* const addressInfoPtr)
 
 int Connector::setup(char* const host, char* const portStr)
 {
-	populateAddrInfo(host, portStr);
+	if(not populateAddrInfo(host, portStr))
+		return 2;
 
 	// loop through all the results and bind to the first we can
 	struct addrinfo* p;

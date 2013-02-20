@@ -45,7 +45,8 @@ void LSP_Client::runEpoch()
 void LSP_Client::init()
 {
 	LSP::init();
-	connector->setup(host, serverPort);
+	if(connector->setup(host, serverPort) == 2)
+		Error("LSP_Client::Exception in Connection. Exiting...");
 	start_msg_receiver_thread();
 	start_msg_sender_thread();
 	start_epoch_thread();

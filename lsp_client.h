@@ -14,12 +14,6 @@ protected:
 public:
 	LSP_Client(char *h, char* port);
 
-	void create(const char* dest, int port);
-
-	int read(uint8_t* pld);
-	bool write(uint8_t* pld, int lth);
-	bool close();
-
 	virtual void runEpoch();
 
 	void init();
@@ -53,6 +47,9 @@ public:
 
 typedef LSP_Client lsp_client;
 
+/* ---------------------------------------------------------------*/
+/** lsp_client API FUNCTIONS */
+/* ---------------------------------------------------------------*/
 lsp_client* lsp_client_create(const char* dest, int port);
 int lsp_client_read(lsp_client* a_client, uint8_t* pld);
 bool lsp_client_write(lsp_client* a_client, uint8_t* pld, int lth);

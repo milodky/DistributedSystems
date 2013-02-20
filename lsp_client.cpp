@@ -6,7 +6,7 @@
 #include "epoch.h"
 
 /* ---------------------------------------------------------------*/
-/** lsp_client API METHODS */
+/** lsp_client API FUNCTIONS */
 /* ---------------------------------------------------------------*/
 lsp_client* lsp_client_create(const char* src, int port)
 {

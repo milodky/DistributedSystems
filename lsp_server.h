@@ -12,11 +12,6 @@ private:
 public:
 	LSP_Server(char* port);
 
-	void create(int port);
-	int  read(void* pld, uint32_t* conn_id);
-	bool write(void* pld, int lth, uint32_t conn_id);
-	// bool close(uint32_t conn_id);
-
 	virtual void runEpoch();
 
 	void init();
@@ -25,5 +20,14 @@ public:
 	virtual ~LSP_Server();
 };
 
+typedef LSP_Server lsp_server;
+
+/* ---------------------------------------------------------------*/
+/** lsp_server API FUNCTIONS */
+/* ---------------------------------------------------------------*/
+lsp_server* lsp_server_create(int port);
+int  lsp_server_read(lsp_server* a_srv, void* pld, uint32_t* conn_id);
+bool lsp_server_write(lsp_server* a_srv, void* pld, int lth, uint32_t conn_id);
+bool lsp_server_close(lsp_server* a_srv, uint32_t conn_id);
 
 #endif

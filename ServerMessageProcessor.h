@@ -9,11 +9,12 @@ class WorkerInfo
 {
 	int connId;
 	int processingStatus; //0 - processing, 1 - found, -1 - not found
-	int start;
-	int end;
+	string hash;
+	string start;
+	string end;
 public:
-	WorkerInfo(int cId, int pStatus, int s, int e):
-		connId(cId), processingStatus(pStatus),start(s),end(e)
+	WorkerInfo(int cId, int pStatus,string h, string s, string e):
+		connId(cId), processingStatus(pStatus), hash(h), start(s),end(e)
 {}
 
 	int getConnId() const {
@@ -24,11 +25,11 @@ public:
 		this->connId = connId;
 	}
 
-	int getEnd() const {
+	string getEnd() const {
 		return end;
 	}
 
-	void setEnd(int end) {
+	void setEnd(string end) {
 		this->end = end;
 	}
 
@@ -40,12 +41,20 @@ public:
 		this->processingStatus = processingStatus;
 	}
 
-	int getStart() const {
+	string getStart() const {
 		return start;
 	}
 
-	void setStart(int start) {
+	void setStart(string start) {
 		this->start = start;
+	}
+
+	string getHash() const {
+		return hash;
+	}
+
+	void setHash(string hash) {
+		this->hash = hash;
 	}
 };
 
@@ -84,6 +93,10 @@ public:
 	unsigned get_next_conn_id() const;
 
 	unsigned get_workers_count();
+
+	vector<int> get_least_busy_workers(int count);
+
+	void reassignWork(ConnInfo *c);
 
 	virtual ~ServerMessageProcessor();
 };

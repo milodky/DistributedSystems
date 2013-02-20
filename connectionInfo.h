@@ -35,8 +35,6 @@ private:
 	/* Information to be stored only in case of worker */
 	queue<int> clients;
 	bool isWorker;
-	bool processing; //false - processing, true - not processing
-
 
 	bool msgSent;
 
@@ -52,6 +50,7 @@ public:
 	void pop_outMsgs();
 	int popClients();
 	void pushClients(int client);
+	int getClientsCount() const;
 	int getConnectionId() const;
 	void setConnectionId(int connectionId);
 	char* getHash() const;
@@ -76,8 +75,9 @@ public:
 
 	clock_t getTimestamp() const;
 	void updateTimestamp();
-
 	~ConnInfo();
+
+
 };
 
 #endif

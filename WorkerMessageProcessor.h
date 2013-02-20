@@ -6,12 +6,16 @@
 struct ThData
 {
 	WorkerMessageProcessor* worker_instance;
+};
+
+struct Data : public Uncopyable
+{
 	const char* sha;
 	int start;
 	int end;
 	int length;
-	ConnInfo *connInfo;
-	ThData(WorkerMessageProcessor*, const char* sha, int start, int end, int length, ConnInfo *cInfo);
+	ConnInfo *cInfo;
+	Data( const char* sha, int start, int end, int length, ConnInfo *cInfo);
 };
 
 class WorkerMessageProcessor : public MessageProcessor
@@ -19,6 +23,7 @@ class WorkerMessageProcessor : public MessageProcessor
 private:
 	pthread_t processor_thread;
 	pthread_attr_t attr;
+	queue<Data*> processQueue;
 public:
 	WorkerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos);
 
@@ -27,7 +32,7 @@ public:
 	virtual int process_ack_packet(LSP_Packet& packet);
 
 	void runProcessor();
-	void start_processor_thread(struct ThData *);
+	void start_processor_thread();
 
 	void process_crack_request(LSP_Packet& packet);
 	void process_crack_request(const char* sha, int start, int end, int length, ConnInfo *connInfo);

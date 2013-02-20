@@ -4,11 +4,25 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
+#include <stdbool.h>
+#include <errno.h>
+#include <strings.h>
+#include <errno.h>
+#include <string.h>
+#include <unistd.h>
+#include <netdb.h>
 #include <pthread.h>
 #include <assert.h>
+#include <stdarg.h>
+#include <queue>
 #include <map>
 #include <vector>
+#include <string>
+#include <exception>
+#include <openssl/sha.h>
 #include <math.h>
+#include <iostream>
 using namespace std;
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
@@ -20,7 +34,7 @@ const int BAD_SOCKFD = -1;
 #define COMPLETE 2
 
 #define MAX_MSG_SIZE 1024
-
+#define MAX_PWD_LTH 6
 // Global Parameters. For both server and clients.
 
 #define _EPOCH_LTH 2.0

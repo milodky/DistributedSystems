@@ -15,6 +15,7 @@ void connect(char* host, char *port)
 
 int main(int argc, char** argv)
 {
+	srand(12345);
 	if(argc!=2)
 	{
 		printf("Incorrect usage. Please use format as below.\n");

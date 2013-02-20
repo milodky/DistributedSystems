@@ -42,3 +42,5 @@ void printBytes(uint8_t* data, size_t len)
 	for(int i = 0; i < len; i++) printf("%2X ", data[i]);
 	printf("\n");
 }
+
+

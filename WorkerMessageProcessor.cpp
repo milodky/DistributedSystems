@@ -9,13 +9,12 @@ void* processor_run(void* arg)
 {
 	struct ThData* params = (ThData *) arg;
 	fprintf(stderr, "LSP:: Running Processor Thread...\n");
-	params->worker_instance->process_crack_request(params->sha, params->start, params->end, params->length, params->connInfo);
+	params->worker_instance->runProcessor();
 	delete params;
 }
 
-
-ThData::ThData(WorkerMessageProcessor *processor, const char* sh, int s, int e, int l, ConnInfo *cInfo)
-	:worker_instance(processor), sha(sh), start(s), end(e), length(l),connInfo(cInfo)
+Data::Data( const char* s, int st, int e, int l, ConnInfo *connInfo):
+		sha(s),start(st),end(e),length(l),cInfo(connInfo)
 {
 
 }
@@ -23,7 +22,7 @@ ThData::ThData(WorkerMessageProcessor *processor, const char* sh, int s, int e, 
 WorkerMessageProcessor::WorkerMessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos)
 	: MessageProcessor(in,infos, mutex_connInfos)
 {
-
+	start_processor_thread();
 }
 
 int WorkerMessageProcessor::process_incoming_msg(LSP_Packet& packet)
@@ -119,6 +118,7 @@ void WorkerMessageProcessor::process_crack_request(LSP_Packet& packet)
 
 //	This comes from the server and has the following format:
 //	c hash lower upper
+	fprintf(stderr, "WorkerMessageProcessor:: Received crack request from server.\n");
 	uint8_t* bytes = packet.getBytes();
 	string s((char*)bytes);
 	stringstream iss(s);
@@ -135,13 +135,12 @@ void WorkerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	int length = strlen(startString.c_str());
 	//	Send an ack
 	ConnInfo* cInfo = get_conn_info();
-	fprintf(stderr, "WorkerMessageProcessor:: Pushing ACK packet to Outbox for server.\n");
+
 	LSP_Packet ack_packet = create_ack_packet(packet);
 	cInfo->add_to_outMsgs(ack_packet);
-	//Start as a separate thread
-	//cInfo->incrementSeqNo();
-	ThData* args = new ThData(this, hash.c_str(), start, end, length, cInfo);
-	start_processor_thread(args);
+	//Push into queue
+	Data *request = new Data(hash.c_str(), start, end, length, cInfo);
+	processQueue.push(request);
 	//process_crack_request(hash.c_str(), start, end, length, cInfo);
 }
 
@@ -214,13 +213,30 @@ void WorkerMessageProcessor::getSHA(const char* str, char* sha)
 	}
 }
 
-void runProcessor();
-void WorkerMessageProcessor::start_processor_thread(struct ThData *data)
+void WorkerMessageProcessor::start_processor_thread()
 {
 	int e;
+	ThData *data = new ThData();
+	data->worker_instance = this;
 	if (e = pthread_create(&processor_thread, &attr, processor_run, (void *) data))
 		Error("pthread_create %d", e);
 }
+
+void WorkerMessageProcessor::runProcessor()
+{
+	while(1)
+	{
+		if(processQueue.size()!=0)
+		{
+			Data *d = processQueue.front();
+			process_crack_request(d->sha, d->start, d->end, d->length, d->cInfo);
+			delete d;
+			processQueue.pop();
+		}
+		sleep(0);
+	}
+}
+
 
 WorkerMessageProcessor::~WorkerMessageProcessor()
 {

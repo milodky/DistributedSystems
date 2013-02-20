@@ -148,8 +148,10 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	string endS;
 	iss >> endS;
 	int length = strlen(startS.c_str());
-	unsigned workersCount = get_workers_count();
-	if(workersCount == 0)
+	fprintf(stderr, "Length is %s %d\n",startS.c_str(), length);
+	//unsigned workersCount = get_workers_count();
+	vector<int> workers = get_least_busy_workers(1);
+	if(workers.empty())
 	{
 		LSP_Packet c_pkt(create_not_found_packet(connInfo));
 		connInfo->add_to_outMsgs(c_pkt);
@@ -161,7 +163,7 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 		connInfo->add_to_outMsgs(c_pkt);
 		return;
 	}
-	if(length>5)
+	if(length > MAX_PWD_LTH)
 	{
 		LSP_Packet c_pkt(create_not_found_packet(connInfo));
 		connInfo->add_to_outMsgs(c_pkt);
@@ -173,21 +175,15 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 //		Assign only 1 worker. Sending message to more workers will take more time
 //		than processing by a single worker for 17576 entries.
 
-		ConnInfo* cInfo;
-		for(vector<ConnInfo*>::iterator it=connInfos->begin();
-						it!=connInfos->end(); ++it)
-		{
-			if((*it)->isIsAlive() && (*it)->isIsWorker())
-			{
-				cInfo = (*it);
-				break;
-			}
-		}
+		/* Get least busy worker and create an empty packet with that connId*/
+		int worker = workers[0];
+		ConnInfo *cInfo = get_conn_info(worker);
+
 		int end = pow(26,length)-1;
 		string startString = numToString(0,length);
         string endString = numToString(end,length);
 	    string data = "c " + hash + " "+startString + " " +endString;
-	    WorkerInfo w(cInfo->getConnectionId(), 0,0, end);
+	    WorkerInfo w(cInfo->getConnectionId(), 0, hash, startString, endString);
 //		Send crack request to worker.
 		send_crack_worker_request(packet, cInfo,w, data.c_str());
 	}
@@ -195,25 +191,23 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	{
 		int start = 0;
 		int numPoss = pow(26,length)-1;
+		vector<int> workers = get_least_busy_workers(5);
+		int workersCount = workers.size();
 		int each = ceil(numPoss/workersCount);
-		for(vector<ConnInfo*>::iterator it=connInfos->begin();
-								it!=connInfos->end(); ++it)
+		for(int i=0; i<workersCount; ++i)
 		{
-			if((*it)->isIsAlive() && (*it)->isIsWorker())
-			{
-				ConnInfo* cInfo = (*it);
-				int last;
-				if(start+each>numPoss)
-					last = 	numPoss;
-				else
-					last = 	start+each;
-				string startString = numToString(start,length);
-				string endString = numToString(last,length);
-				string data = "c " + hash + " "  + startString + " " +endString;
-				WorkerInfo w(cInfo->getConnectionId(), 0,start, last);
-				send_crack_worker_request(packet, cInfo, w, data.c_str());
-				start = start + each + 1;
-			}
+			ConnInfo* cInfo = get_conn_info(workers[i]);
+			int last;
+			if(start+each>numPoss)
+				last = 	numPoss;
+			else
+				last = 	start+each;
+			string startString = numToString(start,length);
+			string endString = numToString(last,length);
+			string data = "c " + hash + " "  + startString + " " +endString;
+			WorkerInfo w(cInfo->getConnectionId(), 0, hash, startString, endString);
+			send_crack_worker_request(packet, cInfo, w, data.c_str());
+			start = start + each + 1;
 		}
 	}
 }
@@ -354,6 +348,7 @@ void ServerMessageProcessor::send_crack_worker_request(LSP_Packet &packet, ConnI
 	{
 		clientWorkerInfo[connId].push_back(w);
 	}
+
 	assert(clientWorkerInfo.find(connId)!=clientWorkerInfo.end());
 //	Add connId of client to workers' clients queue.
 	cInfo->pushClients(connId);
@@ -361,6 +356,79 @@ void ServerMessageProcessor::send_crack_worker_request(LSP_Packet &packet, ConnI
 	fprintf(stderr, "ServerMessageProcessor:: Pushing crack packet to Outbox for conn_id: %u\n", cInfo->getConnectionId());
 	LSP_Packet p(cInfo->getConnectionId(), cInfo->getSeqNo(),strlen(hash)+1, (uint8_t*)hash);
 	cInfo->add_to_outMsgs(p);
+}
+
+int cmp(const void *v1, const void *v2)
+{
+	const ConnInfo& c1 = **(const ConnInfo **) v1;
+	const ConnInfo& c2 = **(const ConnInfo **) v2;
+
+	if(c1.getClientsCount() < c2.getClientsCount())
+		return -1;
+	else
+		return c1.getClientsCount() > c2.getClientsCount();
+}
+
+vector<int> ServerMessageProcessor::get_least_busy_workers(int count)
+{
+	vector<int> leastBusyWorkers;
+	ConnInfo* arr[50];
+	int i = 0;
+	if(connInfos->size()==0)
+		return leastBusyWorkers;
+	for(vector<ConnInfo*>::iterator it=connInfos->begin();
+				it!=connInfos->end(); ++it)
+	{
+		if((*it)->isIsAlive() && (*it)->isIsWorker())
+		{
+			arr[i] = *it;
+			++i;
+		}
+	}
+	if(i!=0)
+		qsort(arr, i, sizeof (ConnInfo*), cmp);
+	for(int j=0; j<count&&j<i; ++j)
+		leastBusyWorkers.push_back(arr[j]->getConnectionId());
+	return leastBusyWorkers;
+}
+
+
+void ServerMessageProcessor::reassignWork(ConnInfo *c)
+{
+	assert(c->isIsWorker());
+	/* For every request associated with the worker that has failed	 */
+	while(c->getClientsCount() > 0 )
+	{
+		int requestId = c->popClients();
+		vector<WorkerInfo> &workers = clientWorkerInfo[requestId];
+		for(vector<WorkerInfo>::iterator it=workers.begin(); it!=workers.end(); ++it)
+		{
+			/* Reassign the work of failed worker to least busy worker */
+			if((*it).getConnId() == c->getConnectionId())
+			{
+				/* Get least busy worker and create an empty packet with that connId*/
+				vector<int> newWorkers = get_least_busy_workers(1);
+				if(newWorkers.empty())
+				{
+					workers.erase(it);
+					//client - not found
+					return;
+				}
+				int newWorker = newWorkers[0];
+				ConnInfo *newWorkerInfo = get_conn_info(newWorker);
+				LSP_Packet packet(requestId,0,0,NULL);
+				/* construct the data that is to be sent and new worker information */
+				string data = "c " + (*it).getHash() + " "  + (*it).getStart() + " " +(*it).getEnd();
+				WorkerInfo w(newWorkerInfo->getConnectionId(), 0, (*it).getHash(), (*it).getStart(), (*it).getEnd());
+				/* Call function to sent crack request */
+				send_crack_worker_request(packet, newWorkerInfo, w, data.c_str());
+				/* Remove the entry in map of client-worker */
+				workers.erase(it);
+				break;
+
+			}
+		}
+	}
 }
 
 ServerMessageProcessor::~ServerMessageProcessor()

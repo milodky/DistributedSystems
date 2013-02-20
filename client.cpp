@@ -10,6 +10,7 @@ void connect(char* host, char *port, char* hash, char* len)
 
 int main (int argc, char* const argv[])
 {
+	srand(12345);
 	if(argc!=4)
 	{
 		printf("Incorrect usage. Please use format as below.\n");

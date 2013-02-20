@@ -9,31 +9,9 @@ void connect(char* port)
 	server.run();
 }
 
-void Sender()
-{
-
-//	vector<ConnInfo*> clients;
-//	ConnInfo o(0,12,"Host 1");
-//	clients.push_back(&o);
-//	ConnInfo o1(1,1,"Host2");
-//	clients.push_back(&o1);
-//	for(int j=0;j<clients.size();++j)
-//	{
-//		clients[j]->addPacket(0,0,(uint8_t*)"Hello");
-//		if(j!=0)
-//			clients[j]->msgSent = true;
-//
-//	}
-//	for(int j=0;j<clients.size();++j)
-//	{
-//		if(clients[j]->msgSent==false && clients[j]->getOutMsgsCount()!=0)
-//			break;
-//	}
-}
-
-
 int main (int argc, char* const argv[])
 {
+	srand(12345);
 	if(argc!=2)
 	{
 		printf("Incorrect usage. Please use format as below.\n");

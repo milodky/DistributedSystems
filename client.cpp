@@ -1,5 +1,4 @@
-#include "lsp.h"
-
+#include "lsp_client.h"
 
 void connect(char* host, char *port, char* hash, char* len)
 {

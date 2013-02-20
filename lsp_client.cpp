@@ -6,6 +6,30 @@
 #include "epoch.h"
 
 /* ---------------------------------------------------------------*/
+/** lsp_client API METHODS */
+/* ---------------------------------------------------------------*/
+lsp_client* lsp_client_create(const char* src, int port)
+{
+
+}
+
+int lsp_client_read(lsp_client* a_client, uint8_t* pld)
+{
+
+
+}
+
+bool lsp_client_write(lsp_client* a_client, uint8_t* pld, int lth)
+{
+
+}
+
+bool lsp_client_close(lsp_client* a_client)
+{
+
+}
+
+/* ---------------------------------------------------------------*/
 /** LSP_Client METHODS */
 /* ---------------------------------------------------------------*/
 LSP_Client::LSP_Client(char *h, char* port) : LSP(false,port),host(h)

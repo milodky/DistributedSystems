@@ -1,5 +1,7 @@
 #include "MessageReceiver.h"
 
+extern double drop_rate;
+
 MessageReceiver::MessageReceiver(Inbox* in) : inbox(in)
 {
 	serializer = new Serializer();
@@ -11,7 +13,7 @@ void MessageReceiver::receive_msg(
 	try
 	{
 		double rate = (double) rand()/RAND_MAX;
-		if(rate < _DROP_RATE)
+		if(rate < drop_rate)
 		{
 			fprintf(stderr, "MessageSender: Dropping packet.\n");
 			return;
@@ -21,7 +23,7 @@ void MessageReceiver::receive_msg(
 		/* Required for conn request msgs where we dont yet have conn_id */
 		packet.setHostNameAndPort(ipv4, port);
 		inbox->add_msg(packet);
-		printf("MessageReceiver:: Received msg from %s : %d\n", ipv4, port);
+//		printf("MessageReceiver:: Received msg from %s : %d\n", ipv4, port);
 	}
 	catch (const std::exception& ex)
 	{

@@ -1,5 +1,7 @@
 #include "MessageSender.h"
 
+extern double drop_rate;
+
 MessageSender::MessageSender(
 		vector<ConnInfo*> *info,
 		pthread_mutex_t& mutex_connInfos,
@@ -12,7 +14,7 @@ MessageSender::MessageSender(
 void MessageSender::send_msg(ConnInfo &cInfo)
 {
 	double rate = (double) rand()/RAND_MAX;
-	if(rate < _DROP_RATE)
+	if(rate < drop_rate)
 	{
 		fprintf(stderr, "MessageSender: Dropping packet.\n");
 		return;

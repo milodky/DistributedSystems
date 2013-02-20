@@ -2,11 +2,16 @@
 #include <time.h>
 
 #include "epoch.h"
-#include "lsp.h"
+#include "lsp_server.h"
+#include "lsp_client.h"
 #include "connectionInfo.h"
 #include "ServerMessageProcessor.h"
 #include "RequestMessageProcessor.h"
 #include "WorkerMessageProcessor.h"
+
+extern double epoch_lth;
+extern int epoch_cnt;
+extern double drop_rate;
 
 Epoch::Epoch(LSP* lsp) :lsp(lsp)
 {
@@ -20,7 +25,7 @@ void Epoch::run()
 
 bool Epoch::epoch_passed(const clock_t start, const clock_t end)
 {
-	return (end - start) / CLOCKS_PER_SEC >= _EPOCH_LTH;
+	return (end - start) / CLOCKS_PER_SEC >= epoch_lth;
 }
 
 int Epoch::check_epoch(ConnInfo* connInfo)
@@ -34,7 +39,7 @@ int Epoch::check_epoch(ConnInfo* connInfo)
 	current = clock();
 
 	/* Connection has been broken. */
-	if (connInfo->getEpochCount() >= _EPOCH_CNT)
+	if (connInfo->getEpochCount() >= epoch_cnt)
 	{
 		return FAILURE;
 	}

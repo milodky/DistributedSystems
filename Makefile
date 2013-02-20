@@ -4,7 +4,7 @@ SRC = lsp.cpp connection.cpp functions.cpp lspmessage.pb-c.c \
 	connectionInfo.cpp serializer.cpp MessageReceiver.cpp \
 	MessageProcessor.cpp inbox.cpp MessageSender.cpp \
 	lsppacket.cpp RequestMessageProcessor.cpp ServerMessageProcessor.cpp \
-	WorkerMessageProcessor.cpp epoch.cpp
+	WorkerMessageProcessor.cpp epoch.cpp lsp_server.cpp lsp_client.cpp
 
 # For compiling we do not need the -lssl option.
 # -l option is only used for linking. It is required while building
@@ -25,4 +25,10 @@ build:
 clean:
 	rm -f *.o *.gch *.s server request worker client SHA
 	
-	
+test:
+	g++ -Wall -g -c SHA tempSHAgenerator.cpp
+#	g++ -g -c server server.cpp $(SRC)
+#	g++ -g -c request client.cpp $(SRC)
+#	g++ -g -c worker worker.cpp $(SRC)# DO NOT DELETE
+# DO NOT DELETE
+

@@ -43,7 +43,9 @@ const int BAD_SOCKFD = -1;
 
 void printBytes(uint8_t* data, size_t len);
 
+/* ---------------------------------------------------------------*/
 /* Class Declarations */
+/* ---------------------------------------------------------------*/
 struct _LSPMessage;
 
 class LSP;
@@ -73,9 +75,15 @@ private:
 public:
 	Uncopyable() {}
 };
-
+/* ---------------------------------------------------------------*/
 /* Function Declarations */
+/* ---------------------------------------------------------------*/
 void Error(const char *str, ...);
 void pprint(_LSPMessage& msg);
+
+/* Epoch Functions */
+void lsp_set_epoch_lth(double lth);
+void lsp_set_epoch_cnt(int cnt);
+void lsp_set_drop_rate(double rate);
 
 #endif

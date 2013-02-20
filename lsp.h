@@ -8,11 +8,6 @@
 
 #include "header.h"
 
-
-void lsp_set_epoch_lth(double lth);
-void lsp_set_epoch_cnt(int cnt);
-void lsp_set_drop_rate(double rate);
-
 struct ThreadData
 {
 	LSP* lsp_instance;
@@ -66,74 +61,6 @@ public:
 	vector<ConnInfo*>* getConnInfos();
 	pthread_mutex_t& getMutexConnInfos();
 	MessageProcessor* getMsgProc() const;
-};
-
-class LSP_Server : public LSP
-{
-private:
-	EpochServer* epoch;
-
-public:
-	LSP_Server(char* port);
-
-	void create(int port);
-	int  read(void* pld, uint32_t* conn_id);
-	bool write(void* pld, int lth, uint32_t conn_id);
-	// bool close(uint32_t conn_id);
-
-	virtual void runEpoch();
-
-	void init();
-	void run();
-
-	virtual ~LSP_Server();
-};
-
-
-class LSP_Client : public LSP
-{
-protected:
-	char* host;
-	EpochClient* epoch;
-
-public:
-	LSP_Client(char *h, char* port);
-
-	void create(const char* dest, int port);
-
-	int read(uint8_t* pld);
-	bool write(uint8_t* pld, int lth);
-	bool close();
-
-	virtual void runEpoch();
-
-	void init();
-	void run();
-
-	virtual ~LSP_Client();
-};
-
-class LSP_Worker : public LSP_Client
-{
-private:
-
-public:
-	void run();
-	LSP_Worker(char *host, char* port);
-	virtual ~LSP_Worker();
-
-};
-
-class LSP_Requester : public LSP_Client
-{
-private:
-	char* hash;
-	unsigned length;
-
-public:
-	void run();
-	LSP_Requester(char* h, char* port, char* hashMsg, unsigned len);
-	virtual ~LSP_Requester();
 };
 
 #endif

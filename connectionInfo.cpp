@@ -52,7 +52,7 @@ void ConnInfo::pop_outMsgs()
 	/* Lock before modifying! */
 	pthread_mutex_lock (&mutex_outbox);
 
-	fprintf(stderr, "ConnInfo::Popping packet to conn_id:%d Outbox:\n", connectionID);
+//	fprintf(stderr, "ConnInfo::Popping packet to conn_id:%d Outbox:\n", connectionID);
 	assert (!outMsgs.empty());
 	outMsgs.pop();
 	msgSent = false;

@@ -11,13 +11,13 @@ int MessageProcessor::poll_inbox()
 	fprintf(stderr, "MessageProcessor:: Polling inbox.. \n");
 	while(true)
 	{
-		/* Empty Inbox: Life is chill! :-) */
-		if(inbox->isEmpty()) continue;
+		if(!inbox->isEmpty())
+		{
+			LSP_Packet packet = inbox->pop_msg();
+			// fprintf(stderr, "MessageProcessor:: Received Packet. \n");
 
-		LSP_Packet packet = inbox->pop_msg();
-//		fprintf(stderr, "MessageProcessor:: Received Packet. \n");
-		if(process_incoming_msg(packet) == COMPLETE)
-			break;
+			if(process_incoming_msg(packet) == COMPLETE) break;
+		}
 		sleep(0);
 	}
 	return COMPLETE;

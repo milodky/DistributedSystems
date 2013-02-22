@@ -24,46 +24,48 @@ void connect(char* port)
 	server.run();
 }
 
-//int main (int argc, char* const argv[])
-//{
-//	srand(12345);
-//	if(argc!=2)
-//	{
-//		printf("Incorrect usage. Please use format as below.\n");
-//		printf("./server port\n");
-//		return 1;
-//	}
-//	try
-//	{
-//	connect(argv[1]);
-//	return 0;
-//	}
-//	catch(...)
-//	{
-//		printf("Incorrect usage. Please use format as below.\n");
-//		printf("./server port\n");
-//		return 1;
-//	}
-//}
-
-int main(int argc, char* const argv[])
+int main (int argc, char* const argv[])
 {
-//	signal(SIGABRT, &sighandler);
-//	signal(SIGTERM, &sighandler);
-//	signal(SIGINT, &sighandler);
-	lsp_server* myserver = lsp_server_create(atoi(argv[1]));
-
-	uint8_t payload[4096];
-	uint32_t returned_id;
-	while(true)
+	srand(12345);
+	if(argc!=2)
 	{
-		int bytes = lsp_server_read(myserver, payload, &returned_id);
-		if(bytes > 0 )
-		{
-			printBytes(payload,bytes);
-			lsp_server_write(myserver, payload, bytes, returned_id);
-		}
+		printf("Incorrect usage. Please use format as below.\n");
+		printf("./server port\n");
+		return 1;
 	}
-	printf("Exiting\n");
-
+	try
+	{
+	connect(argv[1]);
+	return 0;
+	}
+	catch(...)
+	{
+		printf("Incorrect usage. Please use format as below.\n");
+		printf("./server port\n");
+		return 1;
+	}
 }
+
+// Code for API testing
+//int main(int argc, char* const argv[])
+//{
+////	signal(SIGABRT, &sighandler);
+////	signal(SIGTERM, &sighandler);
+////	signal(SIGINT, &sighandler);
+//	lsp_server* myserver = lsp_server_create(atoi(argv[1]));
+//
+//	uint8_t payload[4096];
+//	uint32_t returned_id;
+//	while(true)
+//	{
+//		int bytes = lsp_server_read(myserver, payload, &returned_id);
+//		//sleep(50);
+//		lsp_server_write(myserver, NULL, 0, returned_id);
+//		if(bytes > 0 )
+//		{
+//			printBytes(payload,bytes);
+//		}
+//	}
+//	printf("Exiting\n");
+//
+//}

@@ -68,7 +68,7 @@ void LSP_Packet::stamp_msg_type()
 	else
 	{
 		fprintf( stderr, "MessageProcessor:: Unknown Packet Type!\n");
-		print();
+		//print();
 	}
 }
 

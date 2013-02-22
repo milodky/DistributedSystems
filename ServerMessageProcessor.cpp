@@ -168,7 +168,7 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	int length = strlen(startS.c_str());
 	//unsigned workersCount = get_workers_count();
 	vector<int> workers = get_least_busy_workers(1);
-	if(workers.empty())
+	if(workers.empty() || hash.length() != 40)
 	{
 		LSP_Packet c_pkt(create_not_found_packet(connInfo));
 		connInfo->add_to_outMsgs(c_pkt);
@@ -326,6 +326,8 @@ void ServerMessageProcessor::process_not_found_packet(LSP_Packet& packet)
 void ServerMessageProcessor::send_not_found_packet(int clientId)
 {
 	ConnInfo* conInfo = get_conn_info(clientId);
+	if(conInfo == NULL) return;
+
 	LSP_Packet c_pkt(create_not_found_packet(conInfo));
 	conInfo->add_to_outMsgs(c_pkt);
 //		Remove entry from map.
@@ -431,6 +433,7 @@ void ServerMessageProcessor::reassignWork(ConnInfo *c)
 	{
 		int requestId = c->popClients();
 		vector<WorkerInfo> &workers = clientWorkerInfo[requestId];
+
 		for(vector<WorkerInfo>::iterator it=workers.begin(); it!=workers.end();)
 		{
 			/* Reassign the work of failed worker to least busy worker */
@@ -453,14 +456,25 @@ void ServerMessageProcessor::reassignWork(ConnInfo *c)
 				/* Call function to sent crack request */
 				send_crack_worker_request(packet, newWorkerInfo, w, data.c_str());
 				/* Remove the entry in map of client-worker */
-				workers.erase(it);
+//				workers.erase(it);
 				break;
 			}
 			else
 			{
-			++it;
+				++it;
 			}
 		}
+		for(vector<WorkerInfo>::iterator it=workers.begin(); it!=workers.end();)
+		{
+			if((*it).getConnId() == c->getConnectionId())
+			{
+				workers.erase(it);
+				break;
+			}
+			else
+				++it;
+		}
+
 	}
 }
 

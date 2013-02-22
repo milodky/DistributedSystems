@@ -25,6 +25,6 @@ int main(int argc, char **argv)
 		sprintf((char*)&(buf[i*2]), "%02x", temp[i]);
 	}
 
-	printf("SHA1 of %s is %s\n", password, buf);
+	printf("request localhost:5000 %s %d\n", buf, strlen(password));
 	return 0;
 }

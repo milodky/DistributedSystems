@@ -164,7 +164,6 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	string endS;
 	iss >> endS;
 	int length = strlen(startS.c_str());
-	fprintf(stderr, "Length is %s %d\n",startS.c_str(), length);
 	//unsigned workersCount = get_workers_count();
 	vector<int> workers = get_least_busy_workers(1);
 	if(workers.empty())

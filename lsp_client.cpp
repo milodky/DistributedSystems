@@ -25,6 +25,7 @@ lsp_client* lsp_client_create(const char* src, int port)
 
 	MessageProcessor* msg_proc = a_client->client->getMsgProc();
 	msg_proc->testing = true;
+	a_client->client->send_conn_req();
 
 	return a_client;
 }

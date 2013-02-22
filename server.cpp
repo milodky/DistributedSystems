@@ -2,7 +2,6 @@
 
 #include "lsp_server.h"
 #include "connectionInfo.h"
-
 using namespace std;
 
 extern bool destroy_thread;
@@ -25,35 +24,46 @@ void connect(char* port)
 	server.run();
 }
 
-void sighandler(int p)
-{
-	destroy_thread = true;
-}
+//int main (int argc, char* const argv[])
+//{
+//	srand(12345);
+//	if(argc!=2)
+//	{
+//		printf("Incorrect usage. Please use format as below.\n");
+//		printf("./server port\n");
+//		return 1;
+//	}
+//	try
+//	{
+//	connect(argv[1]);
+//	return 0;
+//	}
+//	catch(...)
+//	{
+//		printf("Incorrect usage. Please use format as below.\n");
+//		printf("./server port\n");
+//		return 1;
+//	}
+//}
 
-int main (int argc, char* const argv[])
+int main(int argc, char* const argv[])
 {
-	srand(12345);
-
 //	signal(SIGABRT, &sighandler);
 //	signal(SIGTERM, &sighandler);
 //	signal(SIGINT, &sighandler);
+	lsp_server* myserver = lsp_server_create(atoi(argv[1]));
 
-	if(argc!=2)
+	uint8_t payload[4096];
+	uint32_t returned_id;
+	while(true)
 	{
-		printf("Incorrect usage. Please use format as below.\n");
-		printf("./server port\n");
-		return 1;
+		int bytes = lsp_server_read(myserver, payload, &returned_id);
+		if(bytes > 0 )
+		{
+			printBytes(payload,bytes);
+			lsp_server_write(myserver, payload, bytes, returned_id);
+		}
 	}
-	try
-	{
-		test_api(argv[1]);
-		return 0;
-	}
-	catch(...)
-	{
-		printf("Incorrect usage. Please use format as below.\n");
-		printf("./server port\n");
-		return 1;
-	}
+	printf("Exiting\n");
+
 }
-

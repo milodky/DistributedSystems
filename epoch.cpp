@@ -47,8 +47,9 @@ int Epoch::check_epoch(ConnInfo* connInfo)
 	/* Epoch passed. Epoch count yet to reach _EPOCH_CNT */
 	if (epoch_passed(last, current))
 	{
-		fprintf(stderr, "EpochClient:: Conn_id: %d EPOCH PASSED. count: %u\n",
-				connInfo->getConnectionId(), connInfo->getEpochCount());
+		if(connInfo->getEpochCount() > 0)
+			fprintf(stderr, "EpochClient:: Conn_id: %d EPOCH PASSED. count: %u\n",
+					connInfo->getConnectionId(), connInfo->getEpochCount());
 		connInfo->updateTimestamp();
 		connInfo->incrementEpochCount();
 		take_action(connInfo);

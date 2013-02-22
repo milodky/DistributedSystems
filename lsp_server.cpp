@@ -40,7 +40,7 @@ int lsp_server_read(lsp_server* a_srv, void* pld, uint32_t* conn_id)
 		if(packet.getLen() != 0)
 		{
 			*conn_id = packet.getConnId();
-			pld = packet.getBytes();
+			memcpy(pld, packet.getBytes(), packet.getLen());
 
 			return packet.getLen();
 		}

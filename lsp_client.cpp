@@ -43,7 +43,7 @@ int lsp_client_read(lsp_client* a_client, uint8_t* pld)
 
 		if(packet.getLen() != 0)
 		{
-			pld = packet.getBytes();
+			memcpy(pld, packet.getBytes(), packet.getLen());
 
 			return packet.getLen();
 		}

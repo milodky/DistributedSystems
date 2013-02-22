@@ -8,6 +8,7 @@ RequestMessageProcessor::RequestMessageProcessor(Inbox* in, vector<ConnInfo*> *i
 
 int RequestMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 {
+	/* Call the base class function before processing further */
 	if(MessageProcessor::process_incoming_msg(packet) == FAILURE)
 		return FAILURE;
 	switch(packet.getType())
@@ -26,12 +27,10 @@ int RequestMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 
 int RequestMessageProcessor::process_ack_packet(LSP_Packet& packet)
 {
-//	fprintf(stderr, "RequestMessageProcessor:: Processing Ack Request from %s : %d\n", packet.getHostname(), packet.getPort());
-//  If seq number is 0, send crack request to server.
-//  Payload will be 'c hash len'
+	
 	ConnInfo* connInfo = get_conn_info();
 
-	/* Set the connection ID */
+	/* Set the connection ID  on receiving first message from Server */
 	if(	connInfo->getConnectionId() == 0 && connInfo->getSeqNo() == 0)
 	{
 		connInfo->setConnectionId(packet.getConnId());
@@ -40,7 +39,8 @@ int RequestMessageProcessor::process_ack_packet(LSP_Packet& packet)
 	if(MessageProcessor::process_ack_packet(packet) == FAILURE)
 		return FAILURE;
 
-	/* Special Handling: Send Crack Request to Server */
+	/*  If seq number is 0, send crack request to server.
+    	Payload will be 'c hash len' */
 	if(!testing)
 	{
 		if(connInfo->getSeqNo() == 0)
@@ -56,12 +56,13 @@ int RequestMessageProcessor::process_ack_packet(LSP_Packet& packet)
 	return SUCCESS;
 }
 
-/**
- * Create a crack request Data:
- * byte[0] = 'c', byte[1] = len, following bytes = hash
- */
+
 LSP_Packet RequestMessageProcessor::create_crack_req_packet()
 {
+	/**
+ 	* Create a crack request Data Packet:
+ 	* c hash lower upper
+ 	*/
 	ConnInfo* connInfo = get_conn_info();
 
 	uint8_t data[100];
@@ -86,26 +87,28 @@ int RequestMessageProcessor::process_data_packet(LSP_Packet& packet)
 	LSP_Packet ack_packet = create_ack_packet(packet);
 	switch(packet.getDataType())
 	{
-	case FOUND:
-	{
-		get_conn_info()->add_to_outMsgs(ack_packet);
-		char* bytes = (char*)packet.getBytes();
-		char pass[5], p[20];
-		sscanf(bytes,"%s %s",p,pass);
-		fprintf( stderr, "Found: %s\n",pass);
-		return COMPLETE;
-	}
-	case NOTFOUND:
-	{
-		get_conn_info()->add_to_outMsgs(ack_packet);
-		fprintf( stderr, "Not Found\n");
-		return COMPLETE;
-	}
-	default:
-	{
-		fprintf( stderr, "Unknown Data Type!\n");
-		packet.print();
-	}
+		case FOUND:
+		{
+			/* Print message Found: pass and mark COMPLETE */
+			get_conn_info()->add_to_outMsgs(ack_packet);
+			char* bytes = (char*)packet.getBytes();
+			char pass[5], p[20];
+			sscanf(bytes,"%s %s",p,pass);
+			fprintf( stderr, "Found: %s\n",pass);
+			return COMPLETE;
+		}
+		case NOTFOUND:
+		{
+			/* Print NOT FOUND and mark COMPLETE */
+			get_conn_info()->add_to_outMsgs(ack_packet);
+			fprintf( stderr, "Not Found\n");
+			return COMPLETE;
+		}
+		default:
+		{
+			fprintf( stderr, "Unknown Data Type!\n");
+			packet.print();
+		}
 	}
 }
 

@@ -13,6 +13,8 @@ extern double epoch_lth;
 extern int epoch_cnt;
 extern double drop_rate;
 
+extern bool destroy_thread;
+
 Epoch::Epoch(LSP* lsp) :lsp(lsp)
 {
 
@@ -122,6 +124,13 @@ void EpochServer::run()
 		/* Unlock after modifying! */
 		pthread_mutex_unlock (&mutex_connInfos);
 
+		if(destroy_thread)
+		{
+			fprintf(stderr, "\nEpoch:: Exiting from Epoch loop\n");
+			int temp = SUCCESS;
+			pthread_exit(&temp);
+		}
+
 		sleep(0);
 	}
 }
@@ -182,6 +191,13 @@ void EpochClient::run()
 			exit (FAILURE);
 		}
 		sleep(0);
+
+		if(destroy_thread)
+		{
+			fprintf(stderr, "\nEpoch:: Exiting from Epoch loop\n");
+			int temp = SUCCESS;
+			pthread_exit(&temp);
+		}
 	}
 }
 

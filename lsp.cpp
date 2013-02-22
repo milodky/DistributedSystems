@@ -1,3 +1,5 @@
+#include <signal.h>
+
 #include "lsp.h"
 #include "serializer.h"
 #include "connectionInfo.h"
@@ -14,9 +16,9 @@ double epoch_lth = _EPOCH_LTH;
 int epoch_cnt = _EPOCH_CNT;
 double drop_rate = _DROP_RATE;
 
-/*
- *				LSP RELATED FUNCTIONS
- */
+bool destroy_thread = false;
+
+/** LSP RELATED FUNCTIONS */
 
 void lsp_set_epoch_lth(double lth){epoch_lth = lth;}
 void lsp_set_epoch_cnt(int cnt){epoch_cnt = cnt;}
@@ -136,6 +138,8 @@ void LSP::join_threads()
 
 LSP::~LSP()
 {
+	pthread_kill(msg_recvr_thread, SIGINT);
+	destroy_thread = true;
 	join_threads();
 
 	if(connector) delete connector;
@@ -174,3 +178,10 @@ MessageProcessor* LSP::getMsgProc() const {
 	return msg_proc;
 }
 
+MessageReceiver* LSP::getMsgReceiver() const {
+	return msgReceiver;
+}
+
+MessageSender* LSP::getMsgSender() const {
+	return msgSender;
+}

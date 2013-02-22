@@ -3,7 +3,7 @@
 MessageProcessor::MessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos)
 : inbox(in), mutex_connInfos(mutex_connInfos), connInfos(infos)
 {
-
+	testing = false;
 }
 
 int MessageProcessor::poll_inbox()
@@ -186,4 +186,8 @@ LSP_Packet MessageProcessor::create_not_found_packet(ConnInfo *connInfo)
 MessageProcessor::~MessageProcessor()
 {
 
+}
+
+Inbox* MessageProcessor::getInbox() {
+	return inbox;
 }

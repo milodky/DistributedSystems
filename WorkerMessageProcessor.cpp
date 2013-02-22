@@ -62,7 +62,7 @@ int WorkerMessageProcessor::process_ack_packet(LSP_Packet& packet)
 		return FAILURE;
 
 	/* Special Handling: Send Crack Request to Server */
-	if(	connInfo->getSeqNo() == 0)
+	if(!testing && connInfo->getSeqNo() == 0)
 	{
 		fprintf( stderr, "WorkerMessageProcessor::Pushing JOIN REQUEST to outbox\n");
 		connInfo->incrementSeqNo();
@@ -149,6 +149,8 @@ void WorkerMessageProcessor::process_crack_request(LSP_Packet& packet)
 
 void WorkerMessageProcessor::process_crack_request(const char* sha, int start, int end, int length, ConnInfo *cInfo)
 {
+	if(testing) return;
+
 	bool found = false;
 	for(int i = start; i <= end; i++)
 	{

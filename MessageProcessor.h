@@ -16,6 +16,8 @@ protected:
 	vector<ConnInfo*> *connInfos;
 
 public:
+	bool testing;
+
 	MessageProcessor(Inbox* in, vector<ConnInfo*> *infos, pthread_mutex_t& mutex_connInfos);
 
 	int poll_inbox();
@@ -50,6 +52,8 @@ public:
 	LSP_Packet create_not_found_packet(ConnInfo *connInfo);
 
 	virtual ~MessageProcessor();
+	Inbox* getInbox();
 };
+
 
 #endif

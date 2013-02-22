@@ -4,29 +4,89 @@
 #include "RequestMessageProcessor.h"
 #include "WorkerMessageProcessor.h"
 #include "epoch.h"
+#include "connection.h"
+#include "MessageSender.h"
+#include "inbox.h"
+#include "lsppacket.h"
+#include "connectionInfo.h"
 
 /* ---------------------------------------------------------------*/
 /** lsp_client API FUNCTIONS */
 /* ---------------------------------------------------------------*/
 lsp_client* lsp_client_create(const char* src, int port)
 {
+	lsp_client* a_client = (lsp_client*) malloc (sizeof(lsp_client));
+	if (a_client == NULL) exit (FAILURE);
 
+	char port_s[10];
+	sprintf(port_s, "%d", port);
+	a_client->client = new LSP_Worker(const_cast<char*>(src), port_s);
+	a_client->client->init();
+
+	MessageProcessor* msg_proc = a_client->client->getMsgProc();
+	msg_proc->testing = true;
+
+	return a_client;
 }
 
 int lsp_client_read(lsp_client* a_client, uint8_t* pld)
 {
+	MessageProcessor* msg_proc = a_client->client->getMsgProc();
 
+	Inbox* inbox = msg_proc->getInbox();
+	if(!inbox->isEmpty())
+	{
+		LSP_Packet packet = inbox->pop_msg();
 
+		msg_proc->process_incoming_msg(packet);
+
+		if(packet.getLen() != 0)
+		{
+			pld = packet.getBytes();
+
+			return packet.getLen();
+		}
+	}
+	return NULL;
 }
 
 bool lsp_client_write(lsp_client* a_client, uint8_t* pld, int lth)
 {
+	if(lth == 0 || pld == NULL) return 0;
 
+	MessageSender* msgSender = a_client->client->getMsgSender();
+	MessageProcessor* msg_proc = a_client->client->getMsgProc();
+
+	vector<ConnInfo*> *connInfos = a_client->client->getConnInfos();
+
+	for(vector<ConnInfo*>::iterator it = connInfos->begin();
+			it!=connInfos->end(); ++it)
+	{
+		ConnInfo* connInfo = *it;
+		connInfo->incrementSeqNo();
+		LSP_Packet packet(connInfo->getConnectionId(), connInfo->getSeqNo(), lth, (uint8_t*) pld);
+		connInfo->add_to_outMsgs(packet);
+
+		break;
+	}
+
+	return true;
 }
 
 bool lsp_client_close(lsp_client* a_client)
 {
+	MessageProcessor* msg_proc = a_client->client->getMsgProc();
+	vector<ConnInfo*> *connInfos = a_client->client->getConnInfos();
 
+	for(vector<ConnInfo*>::iterator it = connInfos->begin();
+			it!=connInfos->end(); ++it)
+	{
+		delete *it;
+		connInfos->erase(it);
+		return true;
+	}
+
+	return false;
 }
 
 /* ---------------------------------------------------------------*/
@@ -50,6 +110,12 @@ void LSP_Client::init()
 	start_msg_receiver_thread();
 	start_msg_sender_thread();
 	start_epoch_thread();
+}
+
+
+void LSP_Client::send_conn_req()
+{
+	msg_proc->send_conn_req_packet(host, serverPort);
 }
 
 void LSP_Client::run()

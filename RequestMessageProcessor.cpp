@@ -41,13 +41,16 @@ int RequestMessageProcessor::process_ack_packet(LSP_Packet& packet)
 		return FAILURE;
 
 	/* Special Handling: Send Crack Request to Server */
-	if(	connInfo->getSeqNo() == 0)
+	if(!testing)
 	{
-		connInfo->incrementSeqNo();
-		LSP_Packet c_pkt = create_crack_req_packet();
-		fprintf( stderr, "RequestMessageProcessor::Pushing crack Request[%s] to outbox\n",
-				c_pkt.getBytes());
-		connInfo->add_to_outMsgs(c_pkt);
+		if(connInfo->getSeqNo() == 0)
+		{
+			connInfo->incrementSeqNo();
+			LSP_Packet c_pkt = create_crack_req_packet();
+			fprintf( stderr, "RequestMessageProcessor::Pushing crack Request[%s] to outbox\n",
+					c_pkt.getBytes());
+			connInfo->add_to_outMsgs(c_pkt);
+		}
 	}
 
 	return SUCCESS;

@@ -61,6 +61,8 @@ public:
 	vector<ConnInfo*>* getConnInfos();
 	pthread_mutex_t& getMutexConnInfos();
 	MessageProcessor* getMsgProc() const;
+	MessageReceiver* getMsgReceiver() const;
+	MessageSender* getMsgSender() const;
 };
 
 #endif

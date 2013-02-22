@@ -1,6 +1,7 @@
 #include "MessageSender.h"
 
 extern double drop_rate;
+extern bool destroy_thread;
 
 MessageSender::MessageSender(
 		vector<ConnInfo*> *info,
@@ -54,6 +55,13 @@ void MessageSender::pollToSend(vector<ConnInfo*>* connectionInfo)
 
 		/* Unlock after modifying! */
 		pthread_mutex_unlock (&mutex_connInfos);
+
+		if(destroy_thread)
+		{
+			fprintf(stderr, "MessageSender:: Killing Sender Thread...\n");
+			int temp = SUCCESS;
+			pthread_exit(&temp);
+		}
 
 		sleep(0);
 	}

@@ -7,6 +7,8 @@
 #include "connection.h"
 #include "MessageReceiver.h"
 
+extern bool destroy_thread;
+
 Connector::Connector(bool isServer) : isServer(isServer)
 {
 	addressInfoPtr = NULL;
@@ -189,6 +191,14 @@ int Connector::listen()
 		msgReceiver->receive_msg(from_ipv4, port, recv_data, bytes_read);
 		fflush(stdout);
 
+		if(destroy_thread)
+		{
+			fprintf(stderr, "Connector:: Closing socket: %d/n", sockfd);
+			close(sockfd);
+			sockfd = BAD_SOCKFD;
+			int temp = SUCCESS;
+			pthread_exit(&temp);
+		}
 		sleep(0);
 	}
 	return 0;
@@ -234,6 +244,11 @@ int Connector::send_message(const char* const recvr_hostname, const int recvr_po
 	recvr_addr.sin_port = htons(recvr_port);
 	recvr_addr.sin_addr = *((struct in_addr *) host->h_addr);
 	bzero(&(recvr_addr.sin_zero), 8);
+
+	if (sockfd == BAD_SOCKFD)
+	{
+		return FAILURE;
+	}
 
 	if (sendto(sockfd, msg, len, 0,
 			(struct sockaddr *)&recvr_addr, sizeof(struct sockaddr)) == -1)

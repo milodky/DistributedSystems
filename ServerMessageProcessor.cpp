@@ -149,6 +149,8 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	connInfo->add_to_outMsgs(ack_packet);
 	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", packet.getConnId());
 
+	if(testing) return;
+
 //	The server has to split the task equally among all available(non-busy) workers and
 //	send crack requests to each worker
 
@@ -252,6 +254,9 @@ void ServerMessageProcessor::process_found_packet(LSP_Packet& packet)
 	LSP_Packet ack_packet = create_ack_packet(packet);
 	cInfo->add_to_outMsgs(ack_packet);
 	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", packet.getConnId());
+
+	if(testing) return;
+
 //	Remove map entry.
 	int clientId = cInfo->popClients();
 	//Only if client is still alive, send. Otherwise ignore.
@@ -277,7 +282,10 @@ void ServerMessageProcessor::process_not_found_packet(LSP_Packet& packet)
 	LSP_Packet ack_packet = create_ack_packet(packet);
 	cInfo->add_to_outMsgs(ack_packet);
 	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", packet.getConnId());
-//	Update map entry.
+
+	if(testing) return;
+
+	//	Update map entry.
 	int clientId = cInfo->popClients();
 //	If clientId not in maps keys, it means that one of the workers
 //	has already found the password.

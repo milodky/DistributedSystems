@@ -21,8 +21,6 @@ private:
 	/* Time stamp of the most recent communication that occured */
 	clock_t timestamp;
 
-//	int countMsgsRcd;
-
 	/* Current sequence number with which a new message needs to be sent */
 	int seq_no;
 

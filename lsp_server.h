@@ -20,7 +20,10 @@ public:
 	virtual ~LSP_Server();
 };
 
-typedef LSP_Server lsp_server;
+typedef struct
+{
+	LSP_Server* server;
+} lsp_server;
 
 /* ---------------------------------------------------------------*/
 /** lsp_server API FUNCTIONS */

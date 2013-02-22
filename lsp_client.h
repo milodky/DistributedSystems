@@ -17,6 +17,7 @@ public:
 	virtual void runEpoch();
 
 	void init();
+	void send_conn_req();
 	void run();
 
 	virtual ~LSP_Client();
@@ -45,7 +46,11 @@ public:
 	virtual ~LSP_Requester();
 };
 
-typedef LSP_Client lsp_client;
+typedef struct
+{
+	LSP_Client* client;
+} lsp_client;
+
 
 /* ---------------------------------------------------------------*/
 /** lsp_client API FUNCTIONS */

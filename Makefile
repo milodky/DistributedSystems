@@ -8,13 +8,12 @@ SRC = lsp.cpp connection.cpp functions.cpp lspmessage.pb-c.c \
 
 # -lpthread -> includes the pthread library for linking
 build:
-	g++ -g -o SHA tempSHAgenerator.cpp -lssl
 	g++ -g -o server server.cpp $(SRC) $(LIBS)
 	g++ -g -o request client.cpp $(SRC) $(LIBS)
 	g++ -g -o worker worker.cpp $(SRC) $(LIBS)
 
 clean:
-	rm -f *.o *.gch *.s server request worker client SHA
+	rm -f *.o *.gch *.s server request worker client
 	
 #test:
 #	g++ -Wall -g -c SHA tempSHAgenerator.cpp

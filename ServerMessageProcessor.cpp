@@ -75,10 +75,6 @@ void ServerMessageProcessor::process_conn_req(LSP_Packet& packet)
 
 	/* Send an acknowledgment packet */
 	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", conn_id);
-
-	/* Need an empty packet to push in the connection ID
-	 * Original packet will not have a connection ID set. It will have a 0 value
-	 */
 	LSP_Packet p(conn_id, 0, 0, NULL);
 	LSP_Packet ack_packet = create_ack_packet(p);
 	connInfo->add_to_outMsgs(ack_packet);
@@ -141,9 +137,9 @@ int ServerMessageProcessor::process_data_packet(LSP_Packet& packet)
 void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 {
 	fprintf(stderr, "ServerMessageProcessor:: Processing crack Request from %s : %d\n", packet.getHostname(), packet.getPort());
-//	crack request to server comes from request and is of the format
-//	c sha len
-//	Send ack to request
+	/*crack request to server comes from request and is of the format
+	c sha len */
+	/* Send ack to request */
 	LSP_Packet ack_packet = create_ack_packet(packet);
 	ConnInfo* connInfo = get_conn_info(packet.getConnId());
 	connInfo->add_to_outMsgs(ack_packet);
@@ -151,9 +147,7 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 
 	if(testing) return;
 
-//	The server has to split the task equally among all available(non-busy) workers and
-//	send crack requests to each worker
-
+	/* Parse and get appropriate entries about the request */
 	uint8_t* bytes = packet.getBytes();
 	string s((char*)bytes);
 	stringstream iss(s);
@@ -166,8 +160,9 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	string endS;
 	iss >> endS;
 	int length = strlen(startS.c_str());
-	//unsigned workersCount = get_workers_count();
+	/* Get the least busy worker */
 	vector<int> workers = get_least_busy_workers(1);
+	/* Check some conditions before assigning to the worker */
 	if(workers.empty() || hash.length() != 40)
 	{
 		LSP_Packet c_pkt(create_not_found_packet(connInfo));
@@ -189,8 +184,8 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 
 	if(length<4)
 	{
-//		Assign only 1 worker. Sending message to more workers will take more time
-//		than processing by a single worker for 17576 entries.
+		/*Assign only 1 worker. Sending message to more workers will take more time
+		than processing by a single worker for 17576 entries.*/
 
 		/* Get least busy worker and create an empty packet with that connId*/
 		int worker = workers[0];
@@ -201,7 +196,7 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
         string endString = numToString(end,length);
 	    string data = "c " + hash + " "+startString + " " +endString;
 	    WorkerInfo w(cInfo->getConnectionId(), 0, hash, startString, endString);
-//		Send crack request to worker.
+	    /* Send crack request to worker. */
 		send_crack_worker_request(packet, cInfo,w, data.c_str());
 	}
 	else if(length >= 4)
@@ -211,6 +206,7 @@ void ServerMessageProcessor::process_crack_request(LSP_Packet& packet)
 		vector<int> workers = get_least_busy_workers(5);
 		int workersCount = workers.size();
 		int each = ceil(numPoss/workersCount);
+		/* Split the work among the workers, update the request and worker information and send crack request to worker  */
 		for(int i=0; i<workersCount; ++i)
 		{
 			ConnInfo* cInfo = get_conn_info(workers[i]);
@@ -245,11 +241,11 @@ void ServerMessageProcessor::process_join_request_packet(LSP_Packet& packet)
 void ServerMessageProcessor::process_found_packet(LSP_Packet& packet)
 {
 	fprintf(stderr, "ServerMessageProcessor:: Processing Found Request from %s : %d\n", packet.getHostname(), packet.getPort());
-//	Payload of form
-//	f pass
+	/* Payload of form
+	f pass */
 	ConnInfo* cInfo = get_conn_info(packet.getConnId());
 
-//	Send ack to worker. This can come to server only from a worker.
+	/* Send ack to worker. This can come to server only from a worker. */
 	assert(cInfo->isIsWorker() == true);
 	LSP_Packet ack_packet = create_ack_packet(packet);
 	cInfo->add_to_outMsgs(ack_packet);
@@ -257,13 +253,13 @@ void ServerMessageProcessor::process_found_packet(LSP_Packet& packet)
 
 	if(testing) return;
 
-//	Remove map entry.
+	/* Remove map entry. */
 	int clientId = cInfo->popClients();
-	//Only if client is still alive, send. Otherwise ignore.
+	/* Only if client is still alive, send. Otherwise ignore. */
 	if(clientWorkerInfo.find(clientId)!=clientWorkerInfo.end());
 	{
 		clientWorkerInfo.erase(clientId);
-	//	Send result to client.
+		/* Send result to client. */
 		ConnInfo* conInfo = get_conn_info(clientId);
 		conInfo->incrementSeqNo();
 		LSP_Packet client_packet(clientId,conInfo->getSeqNo(),packet.getLen(),packet.getBytes());
@@ -274,10 +270,10 @@ void ServerMessageProcessor::process_found_packet(LSP_Packet& packet)
 void ServerMessageProcessor::process_not_found_packet(LSP_Packet& packet)
 {
 	fprintf(stderr, "ServerMessageProcessor:: Processing Not Found Request from %s : %d\n", packet.getHostname(), packet.getPort());
-//	Update map entry. If all have returned 'not found', send message to client,
-//	remove map entry.
+	/* Update map entry. If all have returned 'not found', send message to client,
+	remove map entry. */
 	ConnInfo* cInfo = get_conn_info(packet.getConnId());
-//	Send ack to worker. This can come to server only from a worker.
+	/* Send ack to worker. This can come to server only from a worker. */
 	assert(cInfo->isIsWorker() == true);
 	LSP_Packet ack_packet = create_ack_packet(packet);
 	cInfo->add_to_outMsgs(ack_packet);
@@ -287,14 +283,14 @@ void ServerMessageProcessor::process_not_found_packet(LSP_Packet& packet)
 
 	//	Update map entry.
 	int clientId = cInfo->popClients();
-//	If clientId not in maps keys, it means that one of the workers
-//	has already found the password.
+	//	If clientId not in maps keys, it means that one of the workers
+	//	has already found the password.
 	if(clientWorkerInfo.find(clientId) == clientWorkerInfo.end())
 	{
 		return;
 	}
 	vector<WorkerInfo> &workers = clientWorkerInfo[clientId];
-//	Update processing status of this worker.
+	//	Update processing status of this worker.
 	for(vector<WorkerInfo>::iterator it=workers.begin();
 						it!=workers.end(); ++it)
 	{
@@ -304,9 +300,9 @@ void ServerMessageProcessor::process_not_found_packet(LSP_Packet& packet)
 			break;
 		}
 	}
-//	If all workers have -1 as processing status, send a message to client
-//	as message not found. Format is
-//	x
+	//	If all workers have -1 as processing status, send a message to client
+	//	as message not found. Format is
+	//	x
 	bool stillProcessing = false;
 	for(vector<WorkerInfo>::iterator it=workers.begin();
 							it!=workers.end(); ++it)
@@ -330,7 +326,7 @@ void ServerMessageProcessor::send_not_found_packet(int clientId)
 
 	LSP_Packet c_pkt(create_not_found_packet(conInfo));
 	conInfo->add_to_outMsgs(c_pkt);
-//		Remove entry from map.
+	//		Remove entry from map.
 	assert(clientWorkerInfo.find(clientId)!=clientWorkerInfo.end());
 	clientWorkerInfo.erase(clientId);
 }
@@ -339,7 +335,7 @@ void ServerMessageProcessor::process_alive_packet(LSP_Packet& packet)
 {
 	fprintf(stderr, "ServerMessageProcessor:: Processing Alive Request from %s : %d\n", packet.getHostname(), packet.getPort());
 	ConnInfo* cInfo = get_conn_info(packet.getConnId());
-//	Send ack packet.
+	//	Send ack packet.
 	LSP_Packet ack_packet = create_ack_packet(packet);
 	cInfo->add_to_outMsgs(ack_packet);
 	fprintf(stderr, "ServerMessageProcessor:: Pushing ACK packet to Outbox for conn_id: %u\n", packet.getConnId());
@@ -364,9 +360,9 @@ unsigned ServerMessageProcessor::get_next_conn_id() const
 
 void ServerMessageProcessor::send_crack_worker_request(LSP_Packet &packet, ConnInfo* cInfo,WorkerInfo &w, const char* hash)
 {
-//	The crack request that the server sends to the worker will have the format
-//	c hash lower upper
-//	Add entry in map
+	//	The crack request that the server sends to the worker will have the format
+	//	c hash lower upper
+	//	Add entry in map
 
 	int connId = packet.getConnId();
 	cInfo->incrementSeqNo();
@@ -382,9 +378,9 @@ void ServerMessageProcessor::send_crack_worker_request(LSP_Packet &packet, ConnI
 	}
 
 	assert(clientWorkerInfo.find(connId)!=clientWorkerInfo.end());
-//	Add connId of client to workers' clients queue.
+	//	Add connId of client to workers' clients queue.
 	cInfo->pushClients(connId);
-//	Send crack request to worker.
+	//	Send crack request to worker.
 	fprintf(stderr, "ServerMessageProcessor:: Pushing crack packet to Outbox for conn_id: %u\n", cInfo->getConnectionId());
 	LSP_Packet p(cInfo->getConnectionId(), cInfo->getSeqNo(),strlen(hash)+1, (uint8_t*)hash);
 	cInfo->add_to_outMsgs(p);
@@ -392,6 +388,7 @@ void ServerMessageProcessor::send_crack_worker_request(LSP_Packet &packet, ConnI
 
 int cmp(const void *v1, const void *v2)
 {
+	//Sorting method
 	const ConnInfo& c1 = **(const ConnInfo **) v1;
 	const ConnInfo& c2 = **(const ConnInfo **) v2;
 
@@ -453,10 +450,8 @@ void ServerMessageProcessor::reassignWork(ConnInfo *c)
 				/* construct the data that is to be sent and new worker information */
 				string data = "c " + (*it).getHash() + " "  + (*it).getStart() + " " +(*it).getEnd();
 				WorkerInfo w(newWorkerInfo->getConnectionId(), 0, (*it).getHash(), (*it).getStart(), (*it).getEnd());
-				/* Call function to sent crack request */
+				/* Call function to send crack request */
 				send_crack_worker_request(packet, newWorkerInfo, w, data.c_str());
-				/* Remove the entry in map of client-worker */
-//				workers.erase(it);
 				break;
 			}
 			else

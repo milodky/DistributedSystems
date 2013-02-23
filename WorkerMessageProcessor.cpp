@@ -49,8 +49,8 @@ int WorkerMessageProcessor::process_incoming_msg(LSP_Packet& packet)
 
 int WorkerMessageProcessor::process_ack_packet(LSP_Packet& packet)
 {
-//  If seq number is 0, send join request to server.
-//  Payload will be 'j'
+	/* If seq number is 0, send join request to server.
+       Payload will be 'j' */
 	ConnInfo* connInfo = get_conn_info();
 
 	/* Set the connection ID */
@@ -69,7 +69,6 @@ int WorkerMessageProcessor::process_ack_packet(LSP_Packet& packet)
 		LSP_Packet j_pkt = create_join_req_packet();
 		connInfo->add_to_outMsgs(j_pkt);
 	}
-
 	return SUCCESS;
 }
 
@@ -114,13 +113,15 @@ int WorkerMessageProcessor::process_data_packet(LSP_Packet& packet)
 
 void WorkerMessageProcessor::process_crack_request(LSP_Packet& packet)
 {
-//		Update seq number. If outbox has any msg with sequence number less than
-//		current, remove from outbox. This case will only happen when server
-//		sends a crack request after the worker sends an 'Alive' message,
-//		but before the server gets it.
+	/* This comes from the server and has the following format:
+	c hash lower upper */
+	/*	Send an ack */
+	ConnInfo* cInfo = get_conn_info();
 
-//	This comes from the server and has the following format:
-//	c hash lower upper
+	LSP_Packet ack_packet = create_ack_packet(packet);
+	cInfo->add_to_outMsgs(ack_packet);
+
+	/* Parse the message for hash, upper and lower */
 	fprintf(stderr, "WorkerMessageProcessor:: Received crack request from server.\n");
 	uint8_t* bytes = packet.getBytes();
 	string s((char*)bytes);
@@ -136,22 +137,18 @@ void WorkerMessageProcessor::process_crack_request(LSP_Packet& packet)
 	iss >> endString;
 	int end = strToNum(endString);
 	int length = strlen(startString.c_str());
-	//	Send an ack
-	ConnInfo* cInfo = get_conn_info();
-
-	LSP_Packet ack_packet = create_ack_packet(packet);
-	cInfo->add_to_outMsgs(ack_packet);
-	//Push into queue
+	/* Create request and add to queue */
 	Data *request = new Data(hash.c_str(), start, end, length, cInfo);
 	processQueue.push(request);
-	//process_crack_request(hash.c_str(), start, end, length, cInfo);
 }
 
 void WorkerMessageProcessor::process_crack_request(const char* sha, int start, int end, int length, ConnInfo *cInfo)
 {
+
 	if(testing) return;
 
 	bool found = false;
+	/* Check given sha against sha for every item in the range */
 	for(int i = start; i <= end; i++)
 	{
 		string str = numToString(i,length);
@@ -159,6 +156,7 @@ void WorkerMessageProcessor::process_crack_request(const char* sha, int start, i
 		getSHA(str.c_str(),buf);
 		if(strcmp(sha,buf)==0)
 		{
+			/* If matching string is found, send a message to server */
 			found = true;
 			LSP_Packet c_pkt(create_found_packet(str));
 			cInfo->add_to_outMsgs(c_pkt);
@@ -167,6 +165,7 @@ void WorkerMessageProcessor::process_crack_request(const char* sha, int start, i
 	}
 	if(!found)
 	{
+		/* If matching string is not found, send a message to server */
 		ConnInfo* connInfo = get_conn_info();
 		LSP_Packet c_pkt(create_not_found_packet(connInfo));
 		cInfo->add_to_outMsgs(c_pkt);
@@ -176,6 +175,8 @@ void WorkerMessageProcessor::process_crack_request(const char* sha, int start, i
 
 LSP_Packet WorkerMessageProcessor::create_found_packet(string str)
 {
+	/* This message is sent to the server and has the following format:
+		f pass */
 	ConnInfo* connInfo = get_conn_info();
 	connInfo->incrementSeqNo();
 	uint8_t data[20];
@@ -193,6 +194,7 @@ LSP_Packet WorkerMessageProcessor::create_found_packet(string str)
 
 int WorkerMessageProcessor::strToNum(string x)
 {
+	/* Convert the given string to integer representation (base 26) */
 	int sum = 0;
 	int length = strlen(x.c_str());
 	for(int i=0;i<length;i++)
@@ -205,6 +207,7 @@ int WorkerMessageProcessor::strToNum(string x)
 
 void WorkerMessageProcessor::getSHA(const char* str, char* sha)
 {
+	/* Get the SHA for a string */
 	int i = 0;
 	unsigned char temp[SHA_DIGEST_LENGTH];
 

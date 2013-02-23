@@ -8,6 +8,7 @@ using namespace std;
 
 void connect(char* host, char *port)
 {
+	/* Initializes the worker and starts running */
 	LSP_Worker worker(host,port);
 	worker.init();
 	worker.run();
@@ -24,6 +25,7 @@ int main(int argc, char** argv)
 	}
 	try
 	{
+		/* Checks if input is given in correct format */
 		char* t1 = strtok(argv[1],":");
 		char* host = t1;
 		t1 = strtok(NULL,":");

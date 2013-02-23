@@ -6,19 +6,20 @@ using namespace std;
 
 extern bool destroy_thread;
 
-void test_api(char* port)
-{
-	lsp_server* a_srv = lsp_server_create(atoi(port));
-
-	if (a_srv != NULL)
-	{
-		delete a_srv->server;
-		free(a_srv);
-	}
-}
+//void test_api(char* port)
+//{
+//	lsp_server* a_srv = lsp_server_create(atoi(port));
+//
+//	if (a_srv != NULL)
+//	{
+//		delete a_srv->server;
+//		free(a_srv);
+//	}
+//}
 
 void connect(char* port)
 {
+	/* Initializes the worker and starts running */
 	LSP_Server server(port);
 	server.init();
 	server.run();
@@ -35,6 +36,7 @@ int main (int argc, char* const argv[])
 	}
 	try
 	{
+	/* Checks if input is given in correct format */
 	connect(argv[1]);
 	return 0;
 	}

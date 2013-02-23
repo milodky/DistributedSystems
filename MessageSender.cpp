@@ -20,19 +20,18 @@ void MessageSender::send_msg(ConnInfo &cInfo)
 		fprintf(stderr, "MessageSender: Dropping packet.\n");
 		return;
 	}
-	//Marshals and sends the message.
+	/* Marshal and send the message */
 	LSP_Packet packet = cInfo.get_front_msg();
 	uint8_t *buf;
 	int len = serializer.marshal(packet,buf);
+	/* If the server is trying to send a message, it needs information of the client it needs to send the packet to */
 	if(connector->getIsServer())
 	{
 		connector->send_message(cInfo.getHostName(), cInfo.getPort(), buf, len);
-//		fprintf(stderr, "MessageSender:: Message sent to %s : %d\n", cInfo.getHostName(), cInfo.getPort());
 	}
 	else
 	{
 		connector->send_message(buf,len);
-//		fprintf(stderr, "MessageSender:: Message sent to server.\n");
 	}
 	cInfo.setMsgSent(true);
 	free(buf);

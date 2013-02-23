@@ -2,6 +2,7 @@
 
 void connect(char* host, char *port, char* hash, char* len)
 {
+	/* Initializes the worker and starts running */
 	LSP_Requester request(host,port,hash,atoi(len));
 	request.init();
 	request.run();
@@ -18,6 +19,7 @@ int main (int argc, char* const argv[])
 	}
 	try
 	{
+		/* Checks if input is given in correct format */
 		char* temp = strtok(argv[1],":");
 		char* host = temp;
 		temp = strtok(NULL,":");

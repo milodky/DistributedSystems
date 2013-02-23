@@ -124,8 +124,7 @@ void LSP_Client::run()
 	msg_proc->send_conn_req_packet(host, serverPort);
 	if(msg_proc->poll_inbox() == COMPLETE)
 	{
-		printf("Exiting!\n");
-		//TODO: change this
+		printf("Disconnected\n");
 		exit(0);
 	}
 }

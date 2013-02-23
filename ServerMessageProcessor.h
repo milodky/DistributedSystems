@@ -70,24 +70,31 @@ public:
 	/* Process incoming Packet */
 	virtual int process_incoming_msg(LSP_Packet& packet);
 
+	/* Send crack request to worker */
 	void send_crack_worker_request(LSP_Packet & packet, ConnInfo* cInfo, WorkerInfo& w, const char* hash);
 
-	/* Process a join request */
+	/* Process a join request from worker */
 	void process_join_request_packet(LSP_Packet& packet);
 
+	/* Process a crack request from request */
 	void process_crack_request(LSP_Packet& packet);
 
+	/* Process a found request from worker */
 	void process_found_packet(LSP_Packet& packet);
 
+	/* Process a not found packet from worker */
 	void process_not_found_packet(LSP_Packet& packet);
 
+	/* Process epoch packet */
 	void process_alive_packet(LSP_Packet& packet);
 
+	/* Send a not found packet to client on receiving one from worker */
 	void send_not_found_packet(int clientId);
 
 	/* Process a data packet */
 	virtual int process_data_packet(LSP_Packet& packet);
 
+	/* When a connection request comes in, check if a connection already exists for that client. */
 	bool check_conn_req_validity(LSP_Packet& packet);
 
 	/* Process a connection request packet */
@@ -96,10 +103,13 @@ public:
 	/* Get the connection ID to be set for a new Connection Request */
 	unsigned get_next_conn_id() const;
 
+	/* Get the total workers available currently */
 	unsigned get_workers_count();
 
+	/* Get count # of workers in order sorted by the number of requests in their queue */
 	vector<int> get_least_busy_workers(int count);
 
+	/* If a worker dies, reassign its work to another worker */
 	void reassignWork(ConnInfo *c);
 
 	virtual ~ServerMessageProcessor();

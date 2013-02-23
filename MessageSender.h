@@ -20,7 +20,9 @@ private:
 public:
 
 	MessageSender(vector<ConnInfo*> *info,pthread_mutex_t& mutex_connInfos, Connector * conn);
+	/* Marshall and send the message using the connection layer */
 	void send_msg(ConnInfo &cInfo);
+	/* Poll over the outbox and check if there is any packet to be sent */
 	void pollToSend(vector<ConnInfo*>* connectionInfo);
 };
 
